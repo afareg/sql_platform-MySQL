@@ -50,11 +50,13 @@ class Oper_log(models.Model):
 class User_profile(models.Model):
     user = models.OneToOneField(User)
     select_limit = models.IntegerField(default=200)
+    export_limit = models.IntegerField(default=200)
     def __unicode__(self):
         return  self.user.username
     class Meta:
         permissions =(('can_mysql_query','can see mysql_query view'),
-                      ('can_log_query','can see log_query view')
+                      ('can_log_query','can see log_query view'),
+                      ('can_export','can export csv'),
                       )
 
 

@@ -90,15 +90,28 @@ def mysql_query(request):
             a = form.cleaned_data['a']
             c = request.POST['cx']
             try:
+                #show explain
                 if request.POST['explain']== u'1':
                     explaintag = request.POST['explain']
                     a = func.check_explain (a)
+                    (data_mysql,collist,dbname) = func.get_mysql_data(c,a,request.user.username,request)
+                    return render(request,'mysql_query.html',{'form': form,'objlist':obj_list,'data_list':data_mysql,'col':collist,'choosed_host':c,'dbname':dbname})
             except Exception,e:
-                a = func.check_mysql_query(a,request.user.username)
-            print a
-            (data_mysql,collist,dbname) = func.get_mysql_data(c,a,request.user.username,request)
-            #print request.POST
-            return render(request,'mysql_query.html',{'form': form,'objlist':obj_list,'data_list':data_mysql,'col':collist,'choosed_host':c,'dbname':dbname})
+                try:
+                #export csv
+                    if request.POST['export']== u'1':
+                        a = func.check_mysql_query(a,request.user.username,'export')
+                        (data_mysql,collist,dbname) = func.get_mysql_data(c,a,request.user.username,request,'export')
+                        pseudo_buffer = Echo()
+                        writer = csv.writer(pseudo_buffer)
+                        response = StreamingHttpResponse((writer.writerow(row) for row in data_mysql),content_type="text/csv")
+                        response['Content-Disposition'] = 'attachment; filename="export.csv"'
+                        return response
+                except Exception,e:
+                #get nomal query
+                        a = func.check_mysql_query(a,request.user.username,'export')
+                        (data_mysql,collist,dbname) = func.get_mysql_data(c,a,request.user.username,request)
+                        return render(request,'mysql_query.html',{'form': form,'objlist':obj_list,'data_list':data_mysql,'col':collist,'choosed_host':c,'dbname':dbname})
         else:
             return render(request, 'mysql_query.html', {'form': form,'objlist':obj_list})
     else:
@@ -147,10 +160,10 @@ def some_streaming_csv_view(request):
     # Generate a sequence of rows. The range is based on the maximum number of
     # rows that can be handled by a single sheet in most spreadsheet
     # applications.
-    rows = (["Row {}".format(idx), str(idx)] for idx in range(65536))
+    data = (["Row {}".format(idx), str(idx)] for idx in range(65536))
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
-    response = StreamingHttpResponse((writer.writerow(row) for row in rows),
+    response = StreamingHttpResponse((writer.writerow(row) for row in data),
                                      content_type="text/csv")
-    response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+    response['Content-Disposition'] = 'attachment; filename="test.csv"'
     return response
