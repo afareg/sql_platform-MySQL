@@ -100,8 +100,8 @@ def mysql_query(request):
                 try:
                 #export csv
                     if request.POST['export']== u'1':
-                        a = func.check_mysql_query(a,request.user.username,'export')
-                        (data_mysql,collist,dbname) = func.get_mysql_data(c,a,request.user.username,request,'export')
+                        a,numlimit = func.check_mysql_query(a,request.user.username,'export')
+                        (data_mysql,collist,dbname) = func.get_mysql_data(c,a,request.user.username,request,numlimit)
                         pseudo_buffer = Echo()
                         writer = csv.writer(pseudo_buffer)
                         response = StreamingHttpResponse((writer.writerow(row) for row in data_mysql),content_type="text/csv")
@@ -109,9 +109,9 @@ def mysql_query(request):
                         return response
                 except Exception,e:
                 #get nomal query
-                        a = func.check_mysql_query(a,request.user.username,'export')
-                        (data_mysql,collist,dbname) = func.get_mysql_data(c,a,request.user.username,request)
-                        return render(request,'mysql_query.html',{'form': form,'objlist':obj_list,'data_list':data_mysql,'col':collist,'choosed_host':c,'dbname':dbname})
+                    a,numlimit = func.check_mysql_query(a,request.user.username)
+                    (data_mysql,collist,dbname) = func.get_mysql_data(c,a,request.user.username,request,numlimit)
+                    return render(request,'mysql_query.html',{'form': form,'objlist':obj_list,'data_list':data_mysql,'col':collist,'choosed_host':c,'dbname':dbname})
         else:
             return render(request, 'mysql_query.html', {'form': form,'objlist':obj_list})
     else:

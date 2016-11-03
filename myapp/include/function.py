@@ -54,23 +54,22 @@ def mysql_exec(sql,param):
        print "mysql execute: " + str(e)
 
 
-def mysql_query(sql,user=user,passwd=passwd,host=host,port=int(port),dbname=dbname,type='select'):
+def mysql_query(sql,user=user,passwd=passwd,host=host,port=int(port),dbname=dbname,limitnum=select_limit):
     conn=MySQLdb.connect(host=host,user=user,passwd=passwd,port=int(port),connect_timeout=5,charset='utf8')
     conn.select_db(dbname)
     cursor = conn.cursor()
     count=cursor.execute(sql)
     index=cursor.description
     col=[]
+    #get column name
     for i in index:
         col.append(i[0])
     #result=cursor.fetchall()
-    if (type=='export'):
-        result=cursor.fetchall()
-    elif(type=='select'):
-        result=cursor.fetchmany(size=1000)
-    return (result,col)
+    result=cursor.fetchmany(size=int(limitnum))
     cursor.close()
     conn.close()
+    return (result,col)
+
 
 #获取下拉菜单列表
 def get_mysql_hostlist(username,tag='tag'):
@@ -99,7 +98,7 @@ def get_op_type(methods='get'):
     if (methods=='get'):
         return op_list
 
-def get_mysql_data(hosttag,sql,useraccount,request,type='select'):
+def get_mysql_data(hosttag,sql,useraccount,request,limitnum):
     #确认dbname
     a = Db_name.objects.filter(dbtag=hosttag)[0]
     #a = Db_name.objects.get(dbtag=hosttag)
@@ -121,15 +120,15 @@ def get_mysql_data(hosttag,sql,useraccount,request,type='select'):
     try:
         if (cmp(sql,wrong_msg)):
             log_mysql_op(useraccount,sql,tar_dbname,hosttag,request)
-        results,col = mysql_query(sql,tar_username,tar_passwd,tar_host,tar_port,tar_dbname,type)
+        results,col = mysql_query(sql,tar_username,tar_passwd,tar_host,tar_port,tar_dbname,limitnum)
     except Exception, e:
         #防止库连不上，连本地库返回一个wrong_message
         results,col = mysql_query(wrong_msg,user,passwd,host,int(port),dbname)
     return results,col,tar_dbname
 
-#检查输入语句
+#检查输入语句,并返回行限制数
 def check_mysql_query(sqltext,user,type='select'):
-    #根据user确定能够select 的行数
+    #根据user确定能够select或者export 的行数
     if (type=='export'):
         try :
             num = User.objects.get(username=user).user_profile.export_limit
@@ -140,8 +139,8 @@ def check_mysql_query(sqltext,user,type='select'):
             num = User.objects.get(username=user).user_profile.select_limit
         except Exception, e:
             num = select_limit
-
-    limit = ' limit '+str(num)
+    num=str(num)
+    limit = ' limit '+ num
 
     sqltext = sqltext.strip()
     sqltype = sqltext.split()[0].lower()
@@ -155,19 +154,29 @@ def check_mysql_query(sqltext,user,type='select'):
             sqltext = sqltext[:-1]
         else:
             break
-    #判断语句中是否已经存在limit
+    #判断语句中是否已经存在limit，has_limit 为0时说明原来语句中是有limit的
     has_limit = cmp(sqltext.split()[-2].lower(),'limit')
+
     for i in list_type:
         if (not cmp(i,sqltype)):
             flag=1
             break
     if (flag==1):
         if (sqltype =='select' and has_limit!=0):
-            return sqltext+limit
+            return sqltext+limit,num
+        elif (sqltype =='select' and has_limit==0):
+            if (int(sqltext.split()[-1])<= int(num) ):
+                return sqltext,num
+            else:
+                tempsql=''
+                numlimit=sqltext.split()[-1]
+                for i in sqltext.split()[0:-1]:
+                    tempsql=tempsql+i+' '
+                return tempsql+num,num
         else:
-            return sqltext
+            return sqltext,num
     else:
-        return wrong_msg
+        return wrong_msg,num
 
 #记录用户所有操作
 def log_mysql_op(user,sqltext,mydbname,dbtag,request):
