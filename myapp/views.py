@@ -118,35 +118,6 @@ def mysql_query(request):
         form = AddForm()
         return render(request, 'mysql_query.html', {'form': form,'objlist':obj_list})
 
-
-@login_required(login_url='/accounts/login/')
-@permission_required('myapp.can_mysql_query', login_url='/')
-def mysql_exec(request):
-    #print request.user.username
-    obj_list = func.get_mysql_hostlist(request.user.username,'exec')
-    if request.method == 'POST':
-        form = AddForm(request.POST)
-        if form.is_valid():
-            a = form.cleaned_data['a']
-            c = request.POST['cx']
-            try:
-                if request.POST['explain']== u'1':
-                    explaintag = request.POST['explain']
-                    a = func.check_explain (a)
-            except Exception,e:
-                a = func.check_mysql_query(a,request.user.username)
-            print a
-            (data_mysql,collist,dbname) = func.get_mysql_data(c,a,request.user.username,request)
-            #print request.POST
-            return render(request,'mysql_query.html',{'form': form,'objlist':obj_list,'data_list':data_mysql,'col':collist,'choosed_host':c,'dbname':dbname})
-        else:
-            return render(request, 'mysql_query.html', {'form': form,'objlist':obj_list})
-    else:
-        form = AddForm()
-        return render(request, 'mysql_query.html', {'form': form,'objlist':obj_list})
-
-
-
 class Echo(object):
     """An object that implements just the write method of the file-like
     interface.
@@ -167,3 +138,27 @@ def some_streaming_csv_view(request):
                                      content_type="text/csv")
     response['Content-Disposition'] = 'attachment; filename="test.csv"'
     return response
+
+
+
+
+@login_required(login_url='/accounts/login/')
+@permission_required('myapp.can_see_execview', login_url='/')
+def mysql_exec(request):
+    #print request.user.username
+    obj_list = func.get_mysql_hostlist(request.user.username,'exec')
+    if request.method == 'POST':
+        form = AddForm(request.POST)
+        if form.is_valid():
+            a = form.cleaned_data['a']
+            c = request.POST['cx']
+            a = func.check_mysql_exec(a,request)
+            print a
+            (data_mysql,collist,dbname) = func.run_mysql_exec(c,a,request.user.username,request)
+            #print request.POST
+            return render(request,'mysql_exec.html',{'form': form,'objlist':obj_list,'data_list':data_mysql,'col':collist,'choosed_host':c,'dbname':dbname})
+        else:
+            return render(request, 'mysql_exec.html', {'form': form,'objlist':obj_list})
+    else:
+        form = AddForm()
+        return render(request, 'mysql_exec.html', {'form': form,'objlist':obj_list})

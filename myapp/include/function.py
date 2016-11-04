@@ -38,38 +38,24 @@ select_limit = int(get_config('settings','select_limit'))
 export_limit = int(get_config('settings','export_limit'))
 wrong_msg = get_config('settings','wrong_msg')
 
-def mysql_exec(sql,param):
+def mysql_query(sql,user=user,passwd=passwd,host=host,port=int(port),dbname=dbname,limitnum=select_limit):
     try:
         conn=MySQLdb.connect(host=host,user=user,passwd=passwd,port=int(port),connect_timeout=5,charset='utf8')
         conn.select_db(dbname)
-        curs = conn.cursor()
-        if param <> '':
-            curs.execute(sql,param)
-        else:
-            curs.execute(sql)
-        conn.commit()
-        curs.close()
+        cursor = conn.cursor()
+        count=cursor.execute(sql)
+        index=cursor.description
+        col=[]
+        #get column name
+        for i in index:
+            col.append(i[0])
+        #result=cursor.fetchall()
+        result=cursor.fetchmany(size=int(limitnum))
+        cursor.close()
         conn.close()
+        return (result,col)
     except Exception,e:
-       print "mysql execute: " + str(e)
-
-
-def mysql_query(sql,user=user,passwd=passwd,host=host,port=int(port),dbname=dbname,limitnum=select_limit):
-    conn=MySQLdb.connect(host=host,user=user,passwd=passwd,port=int(port),connect_timeout=5,charset='utf8')
-    conn.select_db(dbname)
-    cursor = conn.cursor()
-    count=cursor.execute(sql)
-    index=cursor.description
-    col=[]
-    #get column name
-    for i in index:
-        col.append(i[0])
-    #result=cursor.fetchall()
-    result=cursor.fetchmany(size=int(limitnum))
-    cursor.close()
-    conn.close()
-    return (result,col)
-
+        return([str(e)],''),['error']
 
 #获取下拉菜单列表
 def get_mysql_hostlist(username,tag='tag'):
@@ -79,7 +65,8 @@ def get_mysql_hostlist(username,tag='tag'):
         #如果没有对应role='read'或者role='all'的account账号，则不显示在下拉菜单中
         for row in a.db_name_set.all():
             if row.db_account_set.all().exclude(role='write'):
-                host_list.append(row.dbtag)
+                if row.instance.all()[0]:
+                    host_list.append(row.dbtag)
     elif (tag=='log'):
         for row in Db_name.objects.values('dbtag').distinct():
             host_list.append(row['dbtag'])
@@ -88,13 +75,14 @@ def get_mysql_hostlist(username,tag='tag'):
         #如果没有对应role='write'或者role='all'的account账号，则不显示在下拉菜单中
         for row in a.db_name_set.all():
             if row.db_account_set.all().exclude(role='read'):
-                host_list.append(row.dbtag)
-
+        #排除只读实例
+                if row.instance.all().exclude(role='read'):
+                    host_list.append(row.dbtag)
     return host_list
 
 def get_op_type(methods='get'):
     #all表示所有种类
-    op_list=['all','truncate','drop','create','delete','update','insert','select','explain','create','show']
+    op_list=['all','truncate','drop','create','delete','update','insert','select','explain','alter','show']
     if (methods=='get'):
         return op_list
 
@@ -108,7 +96,7 @@ def get_mysql_data(hosttag,sql,useraccount,request,limitnum):
         if a.instance.all().filter(role='read')[0]:
             tar_host = a.instance.all().filter(role='read')[0].ip
             tar_port = a.instance.all().filter(role='read')[0].port
-    #如果没有设置或没有role=read，则选择第一个库读取
+    #如果没有设置或没有role=read，则选择第一个读到的实例读取
     except Exception,e:
         tar_host = a.instance.all()[0].ip
         tar_port = a.instance.all()[0].port
@@ -122,8 +110,9 @@ def get_mysql_data(hosttag,sql,useraccount,request,limitnum):
             log_mysql_op(useraccount,sql,tar_dbname,hosttag,request)
         results,col = mysql_query(sql,tar_username,tar_passwd,tar_host,tar_port,tar_dbname,limitnum)
     except Exception, e:
-        #防止库连不上，连本地库返回一个wrong_message
-        results,col = mysql_query(wrong_msg,user,passwd,host,int(port),dbname)
+        #防止日志库记录失败，返回一个wrong_message
+        results,col = ([str(e)],''),['error']
+        #results,col = mysql_query(wrong_msg,user,passwd,host,int(port),dbname)
     return results,col,tar_dbname
 
 #检查输入语句,并返回行限制数
@@ -186,7 +175,7 @@ def log_mysql_op(user,sqltext,mydbname,dbtag,request):
     lastlogin = user.last_login
     create_time = datetime.datetime.now()
     username = user.username
-    sqltype=sqltext.split()[0]
+    sqltype=sqltext.split()[0].lower()
     #获取ip地址
     ipaddr = get_client_ip(request)
     log = Oper_log (user=username,sqltext=sqltext,sqltype=sqltype,login_time=lastlogin,create_time=create_time,dbname=mydbname,dbtag=dbtag,ipaddr=ipaddr)
@@ -228,6 +217,99 @@ def get_client_ip(request):
         except:
             regip = ""
     return regip
+
+def check_mysql_exec(sqltext,request,type='dml'):
+    request.user.has_perm('myapp.')
+    sqltext = sqltext.strip()
+    sqltype = sqltext.split()[0].lower()
+    list_type = ['insert','update','delete','create','alter','drop','truncate']
+    if (sqltype=='insert'):
+        if request.user.has_perm('myapp.can_insert_mysql'):
+            return sqltext
+        else:
+            return "select 'Don\\'t have permission to \"insert\"'"
+    elif(sqltype=='update'):
+        if request.user.has_perm('myapp.can_update_mysql'):
+            return sqltext
+        else:
+            return "select 'Don\\'t have permission to \"update\"'"
+    elif(sqltype=='delete'):
+        if request.user.has_perm('myapp.can_delete_mysql'):
+            return sqltext
+        else:
+            return "select 'Don\\'t have permission to \"delete\"'"
+    elif(sqltype=='truncate'):
+        if request.user.has_perm('myapp.can_truncate_mysql'):
+            return sqltext
+        else:
+            return "select 'Don\\'t have permission to \"truncate\"'"
+    elif(sqltype=='create'):
+        if request.user.has_perm('myapp.can_create_mysql'):
+            return sqltext
+        else:
+            return "select 'Don\\'t have permission to \"create\"'"
+    elif(sqltype=='drop'):
+        if request.user.has_perm('myapp.can_drop_mysql'):
+            return sqltext
+        else:
+            return "select 'Don\\'t have permission to \"drop\"'"
+    else:
+        return wrong_msg
+
+def run_mysql_exec(hosttag,sql,useraccount,request):
+    #确认dbname
+    a = Db_name.objects.filter(dbtag=hosttag)[0]
+    #a = Db_name.objects.get(dbtag=hosttag)
+    tar_dbname = a.dbname
+    if (not cmp(sql,wrong_msg)):
+        results,col = mysql_query(wrong_msg,user,passwd,host,int(port),dbname)
+        return results,col,tar_dbname
+    #如果instance中有备库role='write'，则选择从主库读取
+    try:
+        if a.instance.all().filter(role='write')[0]:
+            tar_host = a.instance.all().filter(role='write')[0].ip
+            tar_port = a.instance.all().filter(role='write')[0].port
+    #如果没有设置或没有role=write，则选择第一个role=all的库读取
+    except Exception,e:
+        try:
+            tar_host = a.instance.all().filter(role='all')[0].ip
+            tar_port = a.instance.all().filter(role='all')[0].port
+        except Exception,e:
+            #没有找到role为all或者write的实例配置
+            wrongmsg = "select \"" +str(e).replace('"',"\"")+"\""
+            results,col = mysql_query(wrongmsg,user,passwd,host,int(port),dbname)
+            return results,col,tar_dbname
+    #用第一个role不为read的账号
+    for i in a.db_account_set.all():
+        if i.role!='read':
+            tar_username = i.user
+            tar_passwd = i.passwd
+    #print tar_port+tar_passwd+tar_username+tar_host
+    try:
+        #之前根据check_mysql_exec判断过权限，如果是select则说明没权限，不记录日志
+        if (sql.split()[0]!='select'):
+            log_mysql_op(useraccount,sql,tar_dbname,hosttag,request)
+            results,col = mysql_exec(sql,tar_username,tar_passwd,tar_host,tar_port,tar_dbname)
+        else:
+            results,col = mysql_query(sql,user,passwd,host,int(port),dbname)
+    except Exception, e:
+        #防止库连不上,返回一个wrong_message
+        results,col = ([str(e)],''),['error']
+    return results,col,tar_dbname
+
+def mysql_exec(sql,user=user,passwd=passwd,host=host,port=int(port),dbname=dbname):
+    try:
+        conn=MySQLdb.connect(host=host,user=user,passwd=passwd,port=int(port),connect_timeout=5,charset='utf8')
+        conn.select_db(dbname)
+        curs = conn.cursor()
+        result=curs.execute(sql)
+        conn.commit()
+        curs.close()
+        conn.close()
+        return (['影响行数: '+str(result)],''),['success']
+    except Exception,e:
+        return([str(e)],''),['error']
+
 
 def main():
     return 1
