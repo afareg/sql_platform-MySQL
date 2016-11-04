@@ -15,11 +15,7 @@
                 <table>
                     <tr>
                         <td>
-                            {{ form.username }}
-                            </br>
-                            {{ form.password }}
-                            </br>
-                            {{ form.captcha }} 请输入验证码，看不清点击图片
+                            {{ form }}
                         </td>
                     </tr>
                 </table>
@@ -28,15 +24,4 @@
             </div>
         </form>
     </div>
-    <script type="text/javascript">
-        $('.captcha').click(function(){ //点击图片刷新
-            var tmp = Math.random().toString();
-            $.get("?newsn=1&tmp="+tmp, function(result){
-                $('.captcha').attr("src", result);
-                $('#id_captcha_0').attr("value", result.split('/')[3]);
-            });
-            return false;
-        });
-    </script>
-
 {% endblock %}

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django import forms
+from captcha.fields import CaptchaField
 from django.contrib.admin import widgets
 from django.contrib.auth.models import User
 class LoginForm(forms.Form):
@@ -22,9 +23,12 @@ class LoginForm(forms.Form):
     widget=forms.PasswordInput(
         attrs={
             'placeholder': u"密码",
-        }
-    ),
-)
+            }
+        ),
+    )
+    captcha = CaptchaField()
+
+
     def clean(self):
         if not self.is_valid():
             raise forms.ValidationError(u"用户名和密码为必填项")
@@ -36,3 +40,7 @@ class AddForm (forms.Form):
 class Logquery(forms.Form):
     begin = forms.DateTimeField(label='dateinfo')
     end = forms.DateTimeField()
+
+class CaptchaTestForm(forms.Form):
+    myfield = forms.CharField()
+    captcha = CaptchaField()

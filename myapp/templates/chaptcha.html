@@ -1,0 +1,34 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>mytitle</title>
+     <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'bootstrap/css/bootstrap-theme.min.css' %}" rel="stylesheet">
+    <link href="{% static 'bootstrap/js/jquery-3.1.1.min.js' %}" rel="stylesheet">
+    <link href="{% static 'bootstrap/js/bootstrap.min.js' %}" rel="stylesheet">
+    <script src="{% static 'bootstrap/js/jquery-3.1.1.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'jeDate/jedate.js' %}"></script>
+</head>
+<body>
+<table>
+<tr>
+                      <th width="121" height="40" align="right"><span> *</span> 验 证 码：</th>
+                      <td width="242" height="40" align="left">{{ form.captcha }}
+                        <script type="text/javascript">
+                            $('.captcha').click(function(){ //点击图片刷新
+                                var tmp = Math.random().toString();
+                                $.get("?newsn=1&tmp="+tmp, function(result){
+                                    $('.captcha').attr("src", result);
+                                    $('#id_captcha_0').attr("value", result.split('/')[3]);
+                                });
+                            return false;
+                        });
+                        </script>
+                      </td>
+                      <td width="237" height="40" class="span-not"><span id="capCode"> </span></td>
+                    </tr>
+    </table>
+</body>
+</html>

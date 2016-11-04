@@ -3,7 +3,9 @@ from django.contrib import admin
 from django.template.context import RequestContext
 from django.shortcuts import render,render_to_response
 from django.contrib import auth
-from form import AddForm,LoginForm,Logquery
+from form import AddForm,LoginForm,Logquery,CaptchaTestForm
+from captcha.fields import CaptchaField,CaptchaStore
+from captcha.helpers import captcha_image_url
 from django.http import HttpResponse,HttpResponseRedirect,StreamingHttpResponse
 from django.contrib.auth.decorators import login_required,permission_required
 from myapp.models import Db_name,Db_account,Db_instance,Oper_log
@@ -26,24 +28,6 @@ class CJsonEncoder(json.JSONEncoder):
 def index(request):
     return render(request, 'include/base.html')
 
-
-def login(request):
-    if request.method == 'GET':
-        form = LoginForm()
-        return render_to_response('login.html', RequestContext(request, {'form': form}))
-    else:
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            user = auth.authenticate(username=username, password=password)
-            if user is not None and user.is_active:
-                auth.login(request, user)
-                return render(request,'include/base.html')
-            else:
-                return render_to_response('login.html', RequestContext(request, {'form': form,'password_is_wrong':True}))
-        else:
-            return render_to_response('login.html', RequestContext(request, {'form': form}))
 
 @login_required
 def logout(request):
@@ -119,8 +103,7 @@ def mysql_query(request):
         return render(request, 'mysql_query.html', {'form': form,'objlist':obj_list})
 
 class Echo(object):
-    """An object that implements just the write method of the file-like
-    interface.
+    """An object that implements just the write method of the file-like interface.
     """
     def write(self, value):
         """Write the value by returning it, instead of storing in a buffer."""
@@ -162,3 +145,49 @@ def mysql_exec(request):
     else:
         form = AddForm()
         return render(request, 'mysql_exec.html', {'form': form,'objlist':obj_list})
+
+def chapt(request):
+    if request.GET.get('newsn')=='1':
+        csn=CaptchaStore.generate_key()
+        cimageurl= captcha_image_url(csn)
+        return HttpResponse(cimageurl)
+    if request.POST:
+        form = CaptchaTestForm(request.POST)
+        # Validate the form: the captcha field will automatically
+        # check the input
+        if form.is_valid():
+            human = True
+    else:
+        form = CaptchaTestForm()
+    return render_to_response('chaptcha.html',{'form':form})
+
+
+def login(request):
+    if request.user.is_authenticated():
+        return render(request, 'include/base.html')
+    else:
+        if request.method == 'GET':
+            form = LoginForm()
+            if request.GET.get('newsn')=='1':
+                csn=CaptchaStore.generate_key()
+                cimageurl= captcha_image_url(csn)
+                return HttpResponse(cimageurl)
+            else:
+                return render_to_response('login.html', RequestContext(request, {'form': form}))
+        else:
+            form = LoginForm(request.POST)
+            if form.is_valid():
+                username = form.cleaned_data['username']
+                password = form.cleaned_data['password']
+                user = auth.authenticate(username=username, password=password)
+                if user is not None and user.is_active:
+                    auth.login(request, user)
+                    return render(request,'include/base.html')
+                else:
+                    return render_to_response('login.html', RequestContext(request, {'form': form,'password_is_wrong':True}))
+            else:
+                return render_to_response('login.html', RequestContext(request, {'form': form}))
+
+
+
+
