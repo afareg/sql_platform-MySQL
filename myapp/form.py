@@ -35,8 +35,15 @@ class LoginForm(forms.Form):
         else:
             cleaned_data = super(LoginForm, self).clean()
 class AddForm (forms.Form):
-    a = forms.CharField(widget=forms.Textarea,)
+    a = forms.CharField(widget=forms.Textarea)
+
+class SqlForm (forms.Form):
+    a = forms.CharField(widget=forms.Textarea)
+    filename = forms.FileField()
 
 class Logquery(forms.Form):
     begin = forms.DateTimeField(label='dateinfo')
     end = forms.DateTimeField()
+
+class Uploadform(forms.Form):
+    filename = forms.FileField()

@@ -3,13 +3,14 @@ from django.contrib import admin
 from django.template.context import RequestContext
 from django.shortcuts import render,render_to_response
 from django.contrib import auth
-from form import AddForm,LoginForm,Logquery
+from form import AddForm,LoginForm,Logquery,Uploadform,SqlForm
 from captcha.fields import CaptchaField,CaptchaStore
 from captcha.helpers import captcha_image_url
 from django.http import HttpResponse,HttpResponseRedirect,StreamingHttpResponse
 from django.contrib.auth.decorators import login_required,permission_required
 from myapp.include import function as func,inception as incept
-from myapp.models import Db_name,Db_account,Db_instance,Oper_log
+from myapp.models import Db_name,Db_account,Db_instance,Oper_log,Upload
+from django.core.files import File
 
 #path='./myapp/include'
 #sys.path.insert(0,path)
@@ -164,21 +165,47 @@ def mysql_exec(request):
         form = AddForm()
         return render(request, 'mysql_exec.html', {'form': form,'objlist':obj_list})
 
+        '''
+            upform = Uploadform(request.POST,request.FILES)
+            c = request.POST['cx']
+            form = AddForm()
+            sqltext=''
+            for chunk in request.FILES['filename'].chunks():
+                sqltext = sqltext + chunk
+            print sqltext
+        '''
 @login_required(login_url='/accounts/login/')
 def inception(request):
     obj_list = func.get_mysql_hostlist(request.user.username,'exec')
     if request.method == 'POST':
-        form = AddForm(request.POST)
-        if form.is_valid():
-            a = form.cleaned_data['a']
-            c = request.POST['cx']
-            data_mysql,collist,dbname = incept.inception_check(c,a,request)
-            return render(request, 'inception.html', {'form': form,'objlist':obj_list,'data_list':data_mysql,'col':collist,'choosed_host':c})
-        else:
-            return render(request, 'inception.html', {'form': form,'objlist':obj_list})
+        if request.POST.has_key('check'):
+            form = AddForm(request.POST)
+            upform = Uploadform()
+            if form.is_valid():
+                a = form.cleaned_data['a']
+                c = request.POST['cx']
+                data_mysql,collist,dbname = incept.inception_check(c,a,request)
+                return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':obj_list,'data_list':data_mysql,'col':collist,'choosed_host':c})
+            else:
+                print "not valid"
+                return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':obj_list})
+        elif request.POST.has_key('upload'):
+            upform = Uploadform(request.POST,request.FILES)
+            if upform.is_valid():
+                c = request.POST['cx']
+                sqltext=''
+                for chunk in request.FILES['filename'].chunks():
+                    sqltext = sqltext + chunk
+                print sqltext
+                form = AddForm(initial={'a': sqltext})
+                return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':obj_list})
+            else:
+                form = AddForm()
+                return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':obj_list})
     else:
         form = AddForm()
-        return render(request, 'inception.html', {'form': form,'objlist':obj_list})
+        upform = Uploadform()
+        return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':obj_list})
 
 def login(request):
     if request.user.is_authenticated():
@@ -207,6 +234,34 @@ def login(request):
             else:
                 return render_to_response('login.html', RequestContext(request, {'form': form}))
 
-
-
-
+def upload_file(request):
+    if request.method == "POST":
+        form = Uploadform(request.POST,request.FILES)
+        if form.is_valid():
+        #username = request.user.username
+            username ='test'
+            filename = form.cleaned_data['filename']
+            myfile = Upload()
+            myfile.username = username
+            myfile.filename = filename
+            myfile.save()
+            print myfile.filename.url
+            print myfile.filename.path
+            print myfile.filename.name
+            print ""
+            for chunk in request.FILES['filename'].chunks():
+                sqltext = sqltext + chunk
+            print sqltext
+            f = open(myfile.filename.path,'r')
+            result = list()
+            for line in f.readlines():
+                #print line
+                result.append(line)
+            print "what the fuck"
+            print result
+            return HttpResponse('upload ok!')
+        else :
+            return HttpResponse('upload false!')
+    else:
+        form = Uploadform()
+        return  render(request, 'upload.html', {'form': form})

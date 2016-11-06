@@ -16,6 +16,7 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 from django.conf.urls import include
+from django.conf import settings
 from myapp import views as myapp_view
 urlpatterns = (
     url(r'^$', myapp_view.index, name='index'),
@@ -27,4 +28,6 @@ urlpatterns = (
     url(r'^mysql_exec/$', myapp_view.mysql_exec,name='mysql_exec'),
     url(r'^captcha/',include('captcha.urls')),
     url(r'^sqlcheck/$', myapp_view.inception,name='inception'),
+    url(r'^upload/$', myapp_view.upload_file,name='upload'),
+    url(r'^site_media/(?P<path>.*)$', 'django.views.static.serve',{'document_root': settings.MEDIA_ROOT}),
 )

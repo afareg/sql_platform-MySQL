@@ -69,5 +69,9 @@ class User_profile(models.Model):
                       )
 
 
-
+class Upload(models.Model):
+    username = models.CharField(max_length = 40)
+    filename = models.FileField(upload_to = 'upload_sql')
+    def __unicode__(self):
+        return self.username
 # Create your models here.
