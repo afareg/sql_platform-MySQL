@@ -51,9 +51,38 @@ def mysql_exec(sql):
         print "the fuck"
         print "mysql execute: " + str(e)
 
+
+
+def incep_exec(sqltext,user,passwd,host,port,dbname):
+    port=int(port)
+    dbname=dbname.encode("utf8")
+    sql1="/*--user=%s;--password=%s;--host=%s;--enable-check;--port=%d;*/\
+            inception_magic_start;\
+            use %s;"% (user,passwd,host,port,dbname)
+    sql2='inception_magic_commit;'
+    sql = sql1 + sqltext + sql2
+    try:
+        conn=MySQLdb.connect(host='10.1.70.222',user='',passwd='',db='',port=6669,use_unicode=True, charset="utf8")
+        cur=conn.cursor()
+        ret=cur.execute(sql)
+        result=cur.fetchall()
+        #num_fields = len(cur.description)
+        field_names = [i[0] for i in cur.description]
+        #print field_names
+        #for row in result:
+        #    print row[0], "|",row[1],"|",row[2],"|",row[3],"|",row[4],"|",row[5],"|",row[6],"|",row[7],"|",row[8],"|",row[9],"|",row[10]
+        cur.close()
+        conn.close()
+    except MySQLdb.Error,e:
+        return([str(e)],''),['error']
+    return result,field_names
+    #return result[1][4].split("\n")
  #create table t2 (id int) ;insert into t1 VALUES (2);
 def main():
-    result=mysql_exec("update t1 set id=2")
-    print result
+    x,y= incep_exec("use chang ;create table test (id int);",'dbmonitor','dbmonitor','10.1.70.222',3306,'lepus')
+    print type(x)
+    for i in x:
+        print x
+    print y
 if __name__=='__main__':
     main()

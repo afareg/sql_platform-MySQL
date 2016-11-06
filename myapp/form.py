@@ -40,7 +40,3 @@ class AddForm (forms.Form):
 class Logquery(forms.Form):
     begin = forms.DateTimeField(label='dateinfo')
     end = forms.DateTimeField()
-
-class CaptchaTestForm(forms.Form):
-    myfield = forms.CharField()
-    captcha = CaptchaField()

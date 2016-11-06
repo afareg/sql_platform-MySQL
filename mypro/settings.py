@@ -131,6 +131,17 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE  = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
+#yanzhengma
+CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.random_char_challenge'
+#CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.math_challenge'
+#2minutes timeout
+CAPTCHA_TIMEOUT=2
+CAPTCHA_LENGTH=5
+CAPTCHA_FONT_SIZE=24
+CAPTCHA_BACKGROUND_COLOR='#79FF79'
+CAPTCHA_FOREGROUND_COLOR='#000079'
+CAPTCHA_OUTPUT_FORMAT=u'%(hidden_field)s %(text_field)s %(image)s '
+
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (
 os.path.join(BASE_DIR, "static"),

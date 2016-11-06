@@ -65,7 +65,7 @@ def get_mysql_hostlist(username,tag='tag'):
         #如果没有对应role='read'或者role='all'的account账号，则不显示在下拉菜单中
         for row in a.db_name_set.all():
             if row.db_account_set.all().exclude(role='write'):
-                if row.instance.all()[0]:
+                if row.instance.all():
                     host_list.append(row.dbtag)
     elif (tag=='log'):
         for row in Db_name.objects.values('dbtag').distinct():
@@ -308,7 +308,10 @@ def mysql_exec(sql,user=user,passwd=passwd,host=host,port=int(port),dbname=dbnam
         conn.close()
         return (['影响行数: '+str(result)],''),['success']
     except Exception,e:
-        return([str(e)],''),['error']
+        if str(e)=='(2014, "Commands out of sync; you can\'t run this command now")':
+            return (['只能输入单条sql语句'],''),['error']
+        else:
+            return([str(e)],''),['error']
 
 
 def main():

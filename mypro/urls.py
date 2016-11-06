@@ -26,5 +26,5 @@ urlpatterns = (
     url(r'^mysql_query/$', myapp_view.mysql_query,name='mysql_query'),
     url(r'^mysql_exec/$', myapp_view.mysql_exec,name='mysql_exec'),
     url(r'^captcha/',include('captcha.urls')),
-    url(r'^test/$', myapp_view.chapt,name='chapt'),
+    url(r'^sqlcheck/$', myapp_view.inception,name='inception'),
 )

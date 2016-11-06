@@ -1,4 +1,4 @@
-<nav class="navbar navbar-inverse navbar-fixed-top" >
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" >
     <div class="container-fluid">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -10,9 +10,10 @@
             <a class="navbar-brand" href="{% url 'index' %}">HOME</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
-            <ul class="nav navbar-nav navbar-left">
+            <ul class="nav navbar-nav ">
                 <li><a href="{% url 'mysql_query' %}">MySQL_QUERY</a></li>
                 <li><a href="{% url 'mysql_exec' %}">MySQL_EXEC</a></li>
+                <li><a href="{% url 'inception' %}">DML&DDL语句审核</a></li>
                 <li><a href="{% url 'log_query' %}">日志查询</a></li>
             </ul>
             {% if user.is_authenticated %}
@@ -26,12 +27,14 @@
                 </ul>
             {% endif %}
 
+
             <form class="navbar-form navbar-right">
                 <input type="text" class="form-control" placeholder="Search...">
             </form>
         </div>
     </div>
 </nav>
+
 </br>
 </br>
 </br>
