@@ -1,7 +1,8 @@
 import MySQLdb,sys,string,time,datetime
 from django.contrib.auth.models import User
 from myapp.include import function as func
-from myapp.models import Db_name,Db_account,Db_instance,Oper_log
+from multiprocessing import Process
+from myapp.models import Db_name,Db_account,Db_instance,Oper_log,Task
 reload(sys)
 sys.setdefaultencoding('utf8')
 import ConfigParser
@@ -10,6 +11,8 @@ from email.mime.text import MIMEText
 from email.message import Message
 from email.header import Header
 
+
+#'executed','executed failed','check not passed','check passed','running'
 def get_item(data_dict,item):
     try:
        item_value = data_dict[item]
@@ -37,15 +40,21 @@ incp_host = get_config('settings','incp_host')
 incp_port = int(get_config('settings','incp_port'))
 incp_user = get_config('settings','incp_user')
 incp_passwd = get_config('settings','incp_passwd')
-def incep_exec(sqltext,myuser,mypasswd,myhost,myport,mydbname):
+
+#0 for check and 1 for execute
+def incep_exec(sqltext,myuser,mypasswd,myhost,myport,mydbname,flag=0):
+    if (int(flag)==0):
+        flagcheck='--enable-check'
+    elif(int(flag)==1):
+        flagcheck='--enable-execute'
     myuser=myuser.encode('utf8')
     mypasswd = mypasswd.encode('utf8')
     myhost=myhost.encode('utf8')
     myport=int(myport)
     mydbname=mydbname.encode('utf8')
-    sql1="/*--user=%s;--password=%s;--host=%s;--enable-check;--port=%d;*/\
+    sql1="/*--user=%s;--password=%s;--host=%s;%s;--port=%d;*/\
             inception_magic_start;\
-            use %s;"% (myuser,mypasswd,myhost,myport,mydbname)
+            use %s;"% (myuser,mypasswd,myhost,flagcheck,myport,mydbname)
     sql2='inception_magic_commit;'
     sql = sql1 + sqltext + sql2
     try:
@@ -65,7 +74,8 @@ def incep_exec(sqltext,myuser,mypasswd,myhost,myport,mydbname):
     return result,field_names
     #return result[1][4].split("\n")
 
-def inception_check(hosttag,sql,request):
+#0for check and 1 for execute
+def inception_check(hosttag,sql,flag=0):
     a = Db_name.objects.filter(dbtag=hosttag)[0]
     #a = Db_name.objects.get(dbtag=hosttag)
     tar_dbname = a.dbname
@@ -89,10 +99,73 @@ def inception_check(hosttag,sql,request):
             tar_username = i.user
             tar_passwd = i.passwd
     #print tar_port+tar_passwd+tar_username+tar_host
-    results,col = incep_exec(sql,tar_username,tar_passwd,tar_host,tar_port,tar_dbname)
+    results,col = incep_exec(sql,tar_username,tar_passwd,tar_host,tar_port,tar_dbname,flag)
     return results,col,tar_dbname
+
+def process_runtask(hosttag,sqltext,mytask):
+    results,col,tar_dbname = inception_check(hosttag,sqltext,1)
+    status='executed'
+    for row in results:
+        if (int(row[2])!=0):
+            status='executed failed'
+    mytask.status = status
+    mytask.save()
+
+def task_run(idnum,request):
+    task = Task.objects.get(id=idnum)
+    if task.status!='executed':
+        hosttag = task.dbtag
+        sql = task.sqltext
+        p = Process(target=process_runtask, args=(hosttag,sql,task))
+        p.start()
+        status='running'
+        task.status = status
+        task.save()
+
+#        return [],[],''
+#    else:
+#        return [],[],''
+
+def task_check(idnum,request):
+    task = Task.objects.get(id=idnum)
+    if task.status!='executed':
+        hosttag = task.dbtag
+        sql = task.sqltext
+        results,col,dbname = inception_check(hosttag,sql)
+        status='check passed'
+        for row in results:
+            if (int(row[2])!=0):
+                status='check not passed'
+        task.status = status
+        task.save()
+        return results,col,dbname
+    else:
+        return [],[],''
+
+
+def get_task_list(dbtag,request):
+    if (dbtag=='all'):
+        task_list = Task.objects.filter(user=request.user.username).order_by("-create_time")[0:100]
+    else:
+        task_list = Task.objects.filter(dbtag=dbtag).filter(user=request.user.username).order_by("-create_time")[0:100]
+    return task_list
+
+def delete_task(idnum):
+    task = Task.objects.get(id=idnum)
+    if task.status!='executed':
+        task.delete()
+
+def record_task(request,sqltext,dbtag):
+    username = request.user.username
+    #lastlogin = user.last_login+datetime.timedelta(hours=8)
+    #create_time = datetime.datetime.now()+datetime.timedelta(hours=8)
+    create_time = datetime.datetime.now()
+    mytask = Task (user=username,sqltext=sqltext,create_time=create_time,dbtag=dbtag)
+    mytask.save()
+    return 1
+
 def main():
-    x,y= incep_exec("use chang ;create table test (id int);",'dbmonitor','dbmonitor','10.1.70.222',3306,'lepus')
+    x,y,z= incep_exec("insert into t2 values(2);",'test','test','10.1.70.220',3306,'test')
     print type(x)
     for i in x:
         print x

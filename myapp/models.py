@@ -68,10 +68,17 @@ class User_profile(models.Model):
 
                       )
 
-
 class Upload(models.Model):
     username = models.CharField(max_length = 40)
     filename = models.FileField(upload_to = 'upload_sql')
     def __unicode__(self):
         return self.username
 # Create your models here.
+class Task(models.Model):
+    user = models.CharField(max_length=35)
+    dbtag = models.CharField(max_length=35)
+    sqltext = models.TextField()
+    create_time = models.DateTimeField(db_index=True)
+    status = models.CharField(max_length=20)
+    def __unicode__(self):
+        return self.dbtag

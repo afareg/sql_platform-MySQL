@@ -156,7 +156,7 @@ def mysql_exec(request):
             if request.POST.has_key('commit'):
                 (data_mysql,collist,dbname) = func.run_mysql_exec(c,a,request.user.username,request)
             elif request.POST.has_key('check'):
-                data_mysql,collist,dbname = incept.inception_check(c,a,request)
+                data_mysql,collist,dbname = incept.inception_check(c,a)
             return render(request,'mysql_exec.html',{'form': form,'objlist':obj_list,'data_list':data_mysql,'col':collist,'choosed_host':c,'dbname':dbname})
 
         else:
@@ -184,7 +184,7 @@ def inception(request):
             if form.is_valid():
                 a = form.cleaned_data['a']
                 c = request.POST['cx']
-                data_mysql,collist,dbname = incept.inception_check(c,a,request)
+                data_mysql,collist,dbname = incept.inception_check(c,a)
                 return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':obj_list,'data_list':data_mysql,'col':collist,'choosed_host':c})
             else:
                 print "not valid"
@@ -202,6 +202,15 @@ def inception(request):
             else:
                 form = AddForm()
                 return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':obj_list})
+        elif request.POST.has_key('addtask'):
+            form = AddForm(request.POST)
+            if form.is_valid():
+                sqltext = form.cleaned_data['a']
+                c = request.POST['cx']
+                incept.record_task(request,sqltext,c)
+                return HttpResponse('TASK COMMIT OK!')
+            else:
+                return HttpResponse('TASK COMMIT FALSE!')
     else:
         form = AddForm()
         upform = Uploadform()
@@ -234,6 +243,7 @@ def login(request):
             else:
                 return render_to_response('login.html', RequestContext(request, {'form': form}))
 
+@login_required(login_url='/accounts/login/')
 def upload_file(request):
     if request.method == "POST":
         form = Uploadform(request.POST,request.FILES)
@@ -265,3 +275,33 @@ def upload_file(request):
     else:
         form = Uploadform()
         return  render(request, 'upload.html', {'form': form})
+
+
+def task_manager(request):
+    #obj_list = func.get_mysql_hostlist(request.user.username,'log')
+    obj_list = ['all'] + func.get_mysql_hostlist(request.user.username,'exec')
+    print obj_list
+    if request.method == 'POST' :
+        hosttag = request.POST['hosttag']
+        if request.POST.has_key('commit'):
+            data = incept.get_task_list(hosttag,request)
+            return render(request,'task_manager.html',{'objlist':obj_list,'datalist':data,'choosed_host':hosttag})
+        elif request.POST.has_key('delete'):
+            id = int(request.POST['delete'])
+            incept.delete_task(id)
+            data = incept.get_task_list(hosttag,request)
+            return render(request,'task_manager.html',{'objlist':obj_list,'datalist':data,'choosed_host':hosttag})
+        elif request.POST.has_key('check'):
+            id = int(request.POST['check'])
+            results,col,tar_dbname = incept.task_check(id,request)
+            data = incept.get_task_list(hosttag,request)
+            return render(request,'task_manager.html',{'objlist':obj_list,'datalist':data,'choosed_host':hosttag,'result':results,'col':col})
+        elif request.POST.has_key('exec'):
+            id = int(request.POST['exec'])
+            incept.task_run(id,request)
+            data = incept.get_task_list(hosttag,request)
+            return render(request,'task_manager.html',{'objlist':obj_list,'datalist':data,'choosed_host':hosttag})
+
+    else:
+        data = incept.get_task_list('all',request)
+        return render(request, 'task_manager.html', {'objlist':obj_list,'datalist':data})

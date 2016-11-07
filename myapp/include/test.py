@@ -2,6 +2,8 @@
 #-*-coding:utf-8-*-
 import MySQLdb,sys,string,time,datetime
 
+from multiprocessing import Process
+import os
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -56,7 +58,7 @@ def mysql_exec(sql):
 def incep_exec(sqltext,user,passwd,host,port,dbname):
     port=int(port)
     dbname=dbname.encode("utf8")
-    sql1="/*--user=%s;--password=%s;--host=%s;--enable-check;--port=%d;*/\
+    sql1="/*--user=%s;--password=%s;--host=%s;--enable-execute;--port=%d;*/\
             inception_magic_start;\
             use %s;"% (user,passwd,host,port,dbname)
     sql2='inception_magic_commit;'
@@ -78,11 +80,27 @@ def incep_exec(sqltext,user,passwd,host,port,dbname):
     return result,field_names
     #return result[1][4].split("\n")
  #create table t2 (id int) ;insert into t1 VALUES (2);
+
+
+# 子进程要执行的代码
+def run_proc(name,name2):
+    print 'Run child process %s (%s)...' % (name, name2)
+    print name2
+
+def run_test(name):
+    run_proc(name,'testchangjingxiu')
+
 def main():
-    x,y= incep_exec("use chang ;create table test (id int);",'dbmonitor','dbmonitor','10.1.70.222',3306,'lepus')
+    x,y= incep_exec("use test ;insert into t2 values(2);",'dbwrite','dbwrite','10.1.70.220',3306,'test')
     print type(x)
     for i in x:
         print x
     print y
 if __name__=='__main__':
-    main()
+    print 'Parent process %s.' % os.getpid()
+    test='adfadfasfd'
+    p = Process(target=run_test, args=(test,))
+    print 'Process will start.'
+    p.start()
+    p.join()
+    print 'Process end.'

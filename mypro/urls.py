@@ -28,6 +28,7 @@ urlpatterns = (
     url(r'^mysql_exec/$', myapp_view.mysql_exec,name='mysql_exec'),
     url(r'^captcha/',include('captcha.urls')),
     url(r'^sqlcheck/$', myapp_view.inception,name='inception'),
+    url(r'^task/$', myapp_view.task_manager,name='task_manager'),
     url(r'^upload/$', myapp_view.upload_file,name='upload'),
     url(r'^site_media/(?P<path>.*)$', 'django.views.static.serve',{'document_root': settings.MEDIA_ROOT}),
 )
