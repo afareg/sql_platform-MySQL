@@ -33,7 +33,10 @@ user = get_config('settings','user')
 passwd = get_config('settings','passwd')
 dbname = get_config('settings','dbname')
 wrong_msg = get_config('settings','wrong_msg')
-
+incp_host = get_config('settings','incp_host')
+incp_port = int(get_config('settings','incp_port'))
+incp_user = get_config('settings','incp_user')
+incp_passwd = get_config('settings','incp_passwd')
 def incep_exec(sqltext,myuser,mypasswd,myhost,myport,mydbname):
     myuser=myuser.encode('utf8')
     mypasswd = mypasswd.encode('utf8')
@@ -46,7 +49,7 @@ def incep_exec(sqltext,myuser,mypasswd,myhost,myport,mydbname):
     sql2='inception_magic_commit;'
     sql = sql1 + sqltext + sql2
     try:
-        conn=MySQLdb.connect(host='10.1.70.222',user='',passwd='',db='',port=6669,use_unicode=True, charset="utf8")
+        conn=MySQLdb.connect(host=incp_host,user=incp_user,passwd=incp_passwd,db='',port=incp_port,use_unicode=True, charset="utf8")
         cur=conn.cursor()
         ret=cur.execute(sql)
         result=cur.fetchall()
