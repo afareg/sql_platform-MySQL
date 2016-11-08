@@ -65,7 +65,7 @@ class User_profile(models.Model):
                       ('can_drop_mysql','can drop mysql'),
                       ('can_truncate_mysql','can truncate mysql'),
                       ('can_alter_mysql','can alter mysql'),
-
+                      ('can_admin_task','can admin task'),
                       )
 
 class Upload(models.Model):
@@ -79,6 +79,7 @@ class Task(models.Model):
     dbtag = models.CharField(max_length=35)
     sqltext = models.TextField()
     create_time = models.DateTimeField(db_index=True)
+    update_time = models.DateTimeField()
     status = models.CharField(max_length=20)
     def __unicode__(self):
         return self.dbtag

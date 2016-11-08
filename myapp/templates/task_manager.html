@@ -7,11 +7,11 @@
 {% endblock %}
 {%block content%}
     <form role="form" method='post'>
-    <table >
-        <tr>
-            <td>
-                </br>
-                </br>
+        <table >
+            <tr>
+                <td>
+                    </br>
+                    </br>
 
                     {% csrf_token %}
                     CHOOSE:</br>
@@ -30,72 +30,78 @@
                     <button type="submit" name='commit' class="btn btn-primary">查询任务</button >
 
 
-            </td>
-            <td>
-                <div class="col-md-12">
-                    <h3>注意事项:</h3>
-                    <p> 设置结束时间应大于开始时间，否则查询以结束时间为准</p>
-                    <p> 输出结果默认按时间倒序</p>
-                </div>
-            </td>
-        </tr>
+                </td>
+                <td>
+                    <div class="col-md-12">
+                        <h3>注意事项:</h3>
+                        <p> 设置结束时间应大于开始时间，否则查询以结束时间为准</p>
+                        <p> 输出结果默认按时间倒序</p>
+                    </div>
+                </td>
+            </tr>
 
-    </table>
+        </table>
         <table id="result" class="table table-condensed" border="1">
-        <thead>
-        <tr class="danger">
-            {% for colname in col %}
-                <th>{{ colname }}</th>
-            {% endfor %}
-        </tr>
-        </thead>
-        <tbody  >
-        {% for item in result %}
-            <tr>
-                {% for item_detail in item %}
-                    <td> {{ item_detail }}</td>
+            <thead>
+            <tr class="danger">
+                {% for colname in col %}
+                    <th>{{ colname }}</th>
                 {% endfor %}
             </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody  >
+            {% for item in result %}
+                <tr>
+                    {% for item_detail in item %}
+                        <td> {{ item_detail }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
 
 
 
 
-    {% if datalist %}
-        {% include "include/pagejump/pagebutton.html" %}
-    {% endif %}
-    <table id="mytable" class="table table-condensed" border="1">
-        <thead>
-        <tr class="danger">
-            <th>ID</th>
-            <th>USER</th>
-            <th>DBTAG</th>
-            <th>SQLTEXT</th>
-            <th>CREATE_TIME</th>
-            <th>TASK_STATUS</th>
-        </tr>
-        </thead>
-        <tbody  >
-        {% for item in datalist %}
-            <tr>
-                <td>{{ item.id }}</td>
-                <td> {{ item.user }}</td>
-                <td> {{ item.dbtag }}</td>
-                <td> {{ item.sqltext }}</td>
-                <td> {{ item.create_time|date:"Y-m-d H:i:s" }}</td>
-                <td> {{ item.status }}</td>
-                <td><button type="submit" name='delete' class="btn btn-primary" value={{ item.id }}>删除</button></td>
-                <td><button type="submit" name='check' class="btn btn-warning" value={{ item.id }}>审核</button></td>
-                <td><button type="submit" name='exec' class="btn btn-danger" value={{ item.id }}>执行</button></td>
-
+        {% if datalist %}
+            {% include "include/pagejump/pagebutton.html" %}
+        {% endif %}
+        <table id="mytable" class="table table-condensed" border="1">
+            <thead>
+            <tr class="danger">
+                <th>ID</th>
+                <th>USER</th>
+                <th>DBTAG</th>
+                <th>SQL语句</th>
+                <th>创建时间</th>
+                <th>修改时间</th>
+                <th>任务状态</th>
+                <th>操作</th>
+                <th></th>
+                <th></th>
             </tr>
-        {% endfor %}
+            </thead>
+            <tbody  >
+            {% for item in datalist %}
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td> {{ item.user }}</td>
+                    <td> {{ item.dbtag }}</td>
+                    <td> {{ item.sqltext|truncatechars:50|linebreaks }}</td>
+                    <td> {{ item.create_time|date:"Y-m-d H:i:s" }}</td>
+                    <td> {{ item.update_time|date:"Y-m-d H:i:s" }}</td>
+                    <td> {{ item.status }}</td>
+                    <td><button type="submit" name='delete' class="btn btn-primary" value={{ item.id }}>删除</button></td>
+                    <td><button type="submit" name='check' class="btn btn-warning" value={{ item.id }}>审核</button></td>
+                    {% if perms.myapp.can_admin_task %}
+                        <td><button type="submit" name='exec' class="btn btn-danger" value={{ item.id }}>执行</button></td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
 
-        </tbody>
-    </table>
-   </form>
+            </tbody>
+        </table>
+    </form>
     <script type="text/javascript">
         //jeDate.skin('gray');
         jeDate({

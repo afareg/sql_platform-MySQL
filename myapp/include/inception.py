@@ -74,7 +74,7 @@ def incep_exec(sqltext,myuser,mypasswd,myhost,myport,mydbname,flag=0):
     return result,field_names
     #return result[1][4].split("\n")
 
-#0for check and 1 for execute
+#flag=0 for check and 1 for execute
 def inception_check(hosttag,sql,flag=0):
     a = Db_name.objects.filter(dbtag=hosttag)[0]
     #a = Db_name.objects.get(dbtag=hosttag)
@@ -109,6 +109,7 @@ def process_runtask(hosttag,sqltext,mytask):
         if (int(row[2])!=0):
             status='executed failed'
     mytask.status = status
+    mytask.update_time = datetime.datetime.now()
     mytask.save()
 
 def task_run(idnum,request):
@@ -116,10 +117,12 @@ def task_run(idnum,request):
     if task.status!='executed':
         hosttag = task.dbtag
         sql = task.sqltext
+        log_incep_op(sql,hosttag,request)
         p = Process(target=process_runtask, args=(hosttag,sql,task))
         p.start()
         status='running'
         task.status = status
+        task.update_time = datetime.datetime.now()
         task.save()
 
 #        return [],[],''
@@ -137,17 +140,26 @@ def task_check(idnum,request):
             if (int(row[2])!=0):
                 status='check not passed'
         task.status = status
+        task.update_time = datetime.datetime.now()
         task.save()
         return results,col,dbname
     else:
         return [],[],''
 
 
+
 def get_task_list(dbtag,request):
-    if (dbtag=='all'):
-        task_list = Task.objects.filter(user=request.user.username).order_by("-create_time")[0:100]
+    username=request.user.username
+    if request.user.has_perm('myapp.can_admin_task'):
+        if (dbtag=='all'):
+            task_list = Task.objects.order_by("-create_time")[0:50]
+        else:
+            task_list = Task.objects.filter(dbtag=dbtag).order_by("-create_time")[0:50]
     else:
-        task_list = Task.objects.filter(dbtag=dbtag).filter(user=request.user.username).order_by("-create_time")[0:100]
+        if (dbtag=='all'):
+            task_list = Task.objects.filter(user=username).order_by("-create_time")[0:50]
+        else:
+            task_list = Task.objects.filter(dbtag=dbtag).filter(user=username).order_by("-create_time")[0:50]
     return task_list
 
 def delete_task(idnum):
@@ -155,14 +167,29 @@ def delete_task(idnum):
     if task.status!='executed':
         task.delete()
 
+#add task to tasktable
 def record_task(request,sqltext,dbtag):
     username = request.user.username
     #lastlogin = user.last_login+datetime.timedelta(hours=8)
     #create_time = datetime.datetime.now()+datetime.timedelta(hours=8)
     create_time = datetime.datetime.now()
-    mytask = Task (user=username,sqltext=sqltext,create_time=create_time,dbtag=dbtag)
+    update_time = datetime.datetime.now()
+    mytask = Task (user=username,sqltext=sqltext,create_time=create_time,update_time=update_time,dbtag=dbtag)
     mytask.save()
     return 1
+
+
+def log_incep_op(sqltext,dbtag,request):
+    user = User.objects.get(username=request.user.username)
+    lastlogin = user.last_login
+    create_time = datetime.datetime.now()
+    username = user.username
+    sqltype='incept'
+    ipaddr = func.get_client_ip(request)
+    log = Oper_log (user=username,sqltext=sqltext,sqltype=sqltype,login_time=lastlogin,create_time=create_time,dbname='',dbtag=dbtag,ipaddr=ipaddr)
+    log.save()
+    return 1
+
 
 def main():
     x,y,z= incep_exec("insert into t2 values(2);",'test','test','10.1.70.220',3306,'test')

@@ -204,13 +204,16 @@ def inception(request):
                 return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':obj_list})
         elif request.POST.has_key('addtask'):
             form = AddForm(request.POST)
+            upform = Uploadform()
             if form.is_valid():
                 sqltext = form.cleaned_data['a']
                 c = request.POST['cx']
                 incept.record_task(request,sqltext,c)
-                return HttpResponse('TASK COMMIT OK!')
+                status='UPLOAD TASK OK'
+                return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':obj_list,'status':status})
             else:
-                return HttpResponse('TASK COMMIT FALSE!')
+                status='UPLOAD TASK FAIL'
+                return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':obj_list,'status':status})
     else:
         form = AddForm()
         upform = Uploadform()

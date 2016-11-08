@@ -82,7 +82,7 @@ def get_mysql_hostlist(username,tag='tag'):
 
 def get_op_type(methods='get'):
     #all表示所有种类
-    op_list=['all','truncate','drop','create','delete','update','insert','select','explain','alter','show']
+    op_list=['all','incept','truncate','drop','create','delete','update','insert','select','explain','alter','show']
     if (methods=='get'):
         return op_list
 
