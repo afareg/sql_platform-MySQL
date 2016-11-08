@@ -314,3 +314,6 @@ def task_manager(request):
     else:
         data = incept.get_task_list('all',request)
         return render(request, 'task_manager.html', {'objlist':obj_list,'datalist':data})
+
+def test(request):
+    return render(request, 'test.html')

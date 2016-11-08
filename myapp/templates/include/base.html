@@ -6,15 +6,15 @@
     {% block  title %}
         <title>QUERY_PLATFORM</title>
     {% endblock %}
-{% block head %}
-    <!-- Bootstrap theme -->
-    <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
-    <link href="{% static 'bootstrap/css/bootstrap-theme.min.css' %}" rel="stylesheet">
-    <link href="{% static 'bootstrap/js/jquery-3.1.1.min.js' %}" rel="stylesheet">
-    <script src="{% static 'bootstrap/js/bootstrap.min.js' %}" rel="stylesheet"></script>
-    <script src="{% static 'bootstrap/js/jquery-3.1.1.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'jeDate/jedate.js' %}"></script>
-{% endblock %}
+    {% block head %}
+        <!-- Bootstrap theme -->
+        <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+        <script src="{% static 'bootstrap/js/jquery-3.1.1.min.js' %}"></script>
+        <link href="{% static 'bootstrap/css/bootstrap-theme.min.css' %}" rel="stylesheet">
+        <link href="{% static 'bootstrap/js/jquery-3.1.1.min.js' %}" rel="stylesheet">
+        <script src="{% static 'bootstrap/js/bootstrap.min.js' %}" rel="stylesheet"></script>
+        <script type="text/javascript" src="{% static 'jeDate/jedate.js' %}"></script>
+    {% endblock %}
 
 
 </head>
@@ -29,6 +29,7 @@
         <div class="col-md-10 main ">
             <!--Body content-->
             <h1 style="font-size:25px">{% block name %}欢迎使用数据库管理平台 {% endblock %}</h1>
+
 
             <!-- 载入左侧菜单指向的jsp（或html等）页面内容 -->
             <div id="content">

@@ -30,5 +30,6 @@ urlpatterns = (
     url(r'^sqlcheck/$', myapp_view.inception,name='inception'),
     url(r'^task/$', myapp_view.task_manager,name='task_manager'),
     url(r'^upload/$', myapp_view.upload_file,name='upload'),
+    url(r'^test/$', myapp_view.test,name='test'),
     url(r'^site_media/(?P<path>.*)$', 'django.views.static.serve',{'document_root': settings.MEDIA_ROOT}),
 )
