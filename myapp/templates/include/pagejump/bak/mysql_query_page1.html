@@ -67,7 +67,7 @@
         $(function(){
             var $table=$('#table');//获取表格对象
             var currentPage=0;//设置当前页默认值为
-            var pageSize=20;//设置每一页要显示的数目
+            var pageSize=10;//设置每一页要显示的数目
             $table.bind('paging', function () {
                 $table.find('tbody tr').hide().slice(currentPage*pageSize,(currentPage+1)*pageSize).show();
 //先将tbody中所有的行隐藏，再通过slice结合当前页数和页面显示的数目展现数据

@@ -54,7 +54,9 @@
         <thead>
         <tr class="danger">
             {% for colname in col %}
-                <th>{{ colname }}</th>
+                {% if forloop.counter <= 7 %}
+                    <th>{{ colname }}</th>
+                {% endif %}
             {% endfor %}
         </tr>
         </thead>
@@ -62,13 +64,21 @@
         {% for item in data_list %}
             <tr>
                 {% for item_detail in item %}
-                    <td> {{ item_detail }}</td>
+                    {% if forloop.counter <= 7 %}
+                        {% if forloop.counter == 6 %}
+                            <td> {{ item_detail|truncatechars:250|linebreaks}}</td>
+                        {% elif forloop.counter == 5 %}
+                            <td> {{ item_detail|linebreaks}}</td>
+                        {% else %}
+                            <td> {{ item_detail }}</td>
+                        {% endif %}
+                    {% endif %}
                 {% endfor %}
             </tr>
         {% endfor %}
         </tbody>
     </table>
-{{ status }}
+    {{ status }}
 {% endblock %}
 {% block script %}
     {% include "include/pagejump/pagejump.html" %}

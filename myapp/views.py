@@ -195,12 +195,18 @@ def inception(request):
                 c = request.POST['cx']
                 sqltext=''
                 for chunk in request.FILES['filename'].chunks():
+                    #print chunk
+                    try:
+                        chunk = chunk.decode('utf8')
+                    except Exception,e:
+                        chunk = chunk.decode('gbk')
                     sqltext = sqltext + chunk
                 print sqltext
                 form = AddForm(initial={'a': sqltext})
                 return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':obj_list})
             else:
                 form = AddForm()
+                upform = Uploadform()
                 return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':obj_list})
         elif request.POST.has_key('addtask'):
             form = AddForm(request.POST)
@@ -279,7 +285,7 @@ def upload_file(request):
         form = Uploadform()
         return  render(request, 'upload.html', {'form': form})
 
-
+@login_required(login_url='/accounts/login/')
 def task_manager(request):
     #obj_list = func.get_mysql_hostlist(request.user.username,'log')
     obj_list = ['all'] + func.get_mysql_hostlist(request.user.username,'exec')

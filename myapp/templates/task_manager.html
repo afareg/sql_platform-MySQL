@@ -39,9 +39,11 @@
                     </div>
                 </td>
             </tr>
-
         </table>
-        <table id="result" class="table table-condensed" border="1">
+        {% if result %}
+            {% include "include/pagejump/pagejump2.html" %}
+        {% endif %}
+        <table id="mytable1" class="table table-condensed" border="1">
             <thead>
             <tr class="danger">
                 {% for colname in col %}
@@ -53,16 +55,21 @@
             {% for item in result %}
                 <tr>
                     {% for item_detail in item %}
-                        <td> {{ item_detail }}</td>
+                        {% if forloop.counter == 6 %}
+                            <td> {{ item_detail|truncatechars:250|linebreaks}}</td>
+                        {% elif forloop.counter == 5 %}
+                            <td> {{ item_detail|linebreaks}}</td>
+                        {% else %}
+                            <td> {{ item_detail }}</td>
+                        {% endif %}
                     {% endfor %}
                 </tr>
             {% endfor %}
             </tbody>
         </table>
 
-
-
-
+        </br>
+        </br>
         {% if datalist %}
             {% include "include/pagejump/pagebutton.html" %}
         {% endif %}
@@ -87,7 +94,7 @@
                     <td>{{ item.id }}</td>
                     <td> {{ item.user }}</td>
                     <td> {{ item.dbtag }}</td>
-                    <td> {{ item.sqltext|truncatechars:50|linebreaks }}</td>
+                    <td> {{ item.sqltext|truncatechars:100|linebreaks }}</td>
                     <td> {{ item.create_time|date:"Y-m-d H:i:s" }}</td>
                     <td> {{ item.update_time|date:"Y-m-d H:i:s" }}</td>
                     <td> {{ item.status }}</td>
@@ -124,4 +131,5 @@
 {% endblock %}
 {% block script %}
     {% include "include/pagejump/pagejump.html" %}
+
 {% endblock %}
