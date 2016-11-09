@@ -7,8 +7,8 @@ class LoginForm(forms.Form):
     username = forms.CharField(
         required=True,
         max_length=25,
-        label="用户名",
-        error_messages={'required': '请输入用户名'},
+        label="用户名:",
+        error_messages={'required': u'请输入用户名'},
         widget=forms.TextInput(
             attrs={
                 'placeholder':u"用户名",
@@ -18,7 +18,7 @@ class LoginForm(forms.Form):
     password = forms.CharField(
     required=True,
     max_length=25,
-    label="密码",
+    label="密码:",
     error_messages={'required': u'请输入密码'},
     widget=forms.PasswordInput(
         attrs={
@@ -26,14 +26,14 @@ class LoginForm(forms.Form):
             }
         ),
     )
-    captcha = CaptchaField()
-
-
+    # captcha = CaptchaField(label="输入验证码:",)
     def clean(self):
         if not self.is_valid():
             raise forms.ValidationError(u"用户名和密码为必填项")
         else:
             cleaned_data = super(LoginForm, self).clean()
+
+
 class AddForm (forms.Form):
     a = forms.CharField(widget=forms.Textarea)
 
@@ -47,3 +47,6 @@ class Logquery(forms.Form):
 
 class Uploadform(forms.Form):
     filename = forms.FileField()
+
+class Captcha(forms.Form):
+    mycaptcha = CaptchaField(label="验证码:",)

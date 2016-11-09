@@ -1,8 +1,9 @@
 #!/bin/env python
 #-*-coding:utf-8-*-
-import MySQLdb,sys,string,time,datetime
+import MySQLdb,sys,string,time,datetime,uuid
 from django.contrib.auth.models import User
 from myapp.models import Db_name,Db_account,Db_instance,Oper_log
+from myapp.form import LoginForm,Captcha
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -205,6 +206,27 @@ def check_explain (sqltext):
         return sqltext
     else:
         return wrong_msg
+
+def my_key(group, request):
+    try:
+        real_ip = request.META['HTTP_X_FORWARDED_FOR']
+        regip = real_ip.split(",")[0]
+    except:
+        try:
+            regip = request.META['REMOTE_ADDR']
+        except:
+            regip = ""
+    form = LoginForm(request.POST)
+    myform = Captcha(request.POST)
+    #验证码正确情况下，错误密码登录次数
+    if form.is_valid() and myform.is_valid():
+        username = form.cleaned_data['username']
+        # password = form.cleaned_data['password']
+
+        return regip+username
+    #验证码错误不计算
+    else:
+        return regip+str(uuid.uuid1())
 
 
 def get_client_ip(request):

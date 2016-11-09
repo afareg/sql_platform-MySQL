@@ -5,7 +5,7 @@
 {%block content%}
     {% if password_is_wrong %}
         <div class="alert alert-error">
-            <h4>错误!</h4>用户名或密码错误
+            <p style="color: red;">错误! 用户名或密码错误</p>
         </div>
     {% endif %}
     <div class="main">
@@ -13,23 +13,48 @@
             {% csrf_token %}
             <div class="form-group">
                 <table>
+                    {{ form }}
+{#                    <tr>#}
+{#                        <td>{{ form.username.label }}     </td>#}
+{#                        <td>{{ form.username }}</td>#}
+{#                        </br>#}
+{#                    </tr>#}
+{##}
+{#                    <tr>#}
+{#                        <td> {{ form.password.label }} </br>  </td>#}
+{##}
+{#                        <td>{{ form.password }} </br>   </td>#}
+{#                    </tr>#}
                     <tr>
-                        </br>
-                        </br>
-                        <td>
-                            {{ form.username }}
-                            </br>
-                            {{ form.password }}
-                            </br>
-                            {{ form.captcha }} 请输入验证码，看不清点击图片
-                        </td>
+                        <td><strong>{{ myform.mycaptcha.label }}</strong> </td>
+                        <td>{{ myform.mycaptcha }}  </td>
+
                     </tr>
                 </table>
                 <input type="submit" value="登录" class="btn btn-primary">
                 <a href="/accounts/login/"><input type="button" value="忘记密码" class="btn btn-danger"></a>
             </div>
         </form>
+        {% ifequal error 1 %}
+            错误登录次数过多，请稍后重试
+        {% endifequal %}
+        {% ifequal chaerror 1 %}
+            验证码错误
+        {% endifequal %}
+
     </div>
+    {#    <script>#}
+    {#        $('#js-captcha-refresh').click(function(){#}
+    {#            $.get("?newsn=1", function(result){#}
+    {#                alert(result);#}
+    {#                $('.captcha').attr("src",result);#}
+    {#                $('#id_captcha_0').attr("value",result.split('/')[3]);#}
+    {#            });#}
+    {#            return false;#}
+    {#        });#}
+    {#    </script>#}
+
+
     <script type="text/javascript">
         $('.captcha').click(function(){ //点击图片刷新
             var tmp = Math.random().toString();

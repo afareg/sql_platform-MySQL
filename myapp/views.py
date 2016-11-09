@@ -1,9 +1,10 @@
 import sys,json,os,datetime,csv
 from django.contrib import admin
 from django.template.context import RequestContext
+from ratelimit.decorators import ratelimit,is_ratelimited
 from django.shortcuts import render,render_to_response
 from django.contrib import auth
-from form import AddForm,LoginForm,Logquery,Uploadform,SqlForm
+from form import AddForm,LoginForm,Logquery,Uploadform,Captcha
 from captcha.fields import CaptchaField,CaptchaStore
 from captcha.helpers import captcha_image_url
 from django.http import HttpResponse,HttpResponseRedirect,StreamingHttpResponse
@@ -11,7 +12,6 @@ from django.contrib.auth.decorators import login_required,permission_required
 from myapp.include import function as func,inception as incept
 from myapp.models import Db_name,Db_account,Db_instance,Oper_log,Upload
 from django.core.files import File
-
 #path='./myapp/include'
 #sys.path.insert(0,path)
 #import function as func
@@ -62,7 +62,6 @@ def log_query(request):
     else:
         form = Logquery()
         return render(request, 'log_query.html', {'form': form,'objlist':obj_list,'optypelist':optype_list})
-
 
 
 @login_required(login_url='/accounts/login/')
@@ -225,32 +224,54 @@ def inception(request):
         upform = Uploadform()
         return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':obj_list})
 
+
+@ratelimit(key=func.my_key,method='POST', rate='5/15m')
 def login(request):
-    if request.user.is_authenticated():
-        return render(request, 'include/base.html')
+    was_limited = getattr(request, 'limited', False)
+    if was_limited:
+        form = LoginForm()
+        myform = Captcha()
+        error = 1
+        return render_to_response('login.html', RequestContext(request, {'form': form,'myform':myform,'error':error}))
     else:
-        if request.method == 'GET':
-            form = LoginForm()
+        if request.user.is_authenticated():
+            return render(request, 'include/base.html')
+        else:
             if request.GET.get('newsn')=='1':
                 csn=CaptchaStore.generate_key()
                 cimageurl= captcha_image_url(csn)
                 return HttpResponse(cimageurl)
+            elif  request.method == "POST":
+                form = LoginForm(request.POST)
+                myform = Captcha(request.POST)
+                if myform.is_valid():
+                    if form.is_valid():
+                        username = form.cleaned_data['username']
+                        password = form.cleaned_data['password']
+                        user = auth.authenticate(username=username, password=password)
+                        if user is not None and user.is_active:
+                            auth.login(request, user)
+                            return render(request,'include/base.html')
+                        else:
+                            #request.session["wrong_login"] =  request.session["wrong_login"]+1
+                            return render_to_response('login.html', RequestContext(request, {'form': form,'myform':myform,'password_is_wrong':True}))
+                    else:
+                        return render_to_response('login.html', RequestContext(request, {'form': form,'myform':myform}))
+                else :
+                    #cha_error
+                    form = LoginForm(request.POST)
+                    myform = Captcha(request.POST)
+                    chaerror = 1
+                    return render_to_response('login.html', RequestContext(request, {'form': form,'myform':myform,'chaerror':chaerror}))
             else:
-                return render_to_response('login.html', RequestContext(request, {'form': form}))
-        else:
-            form = LoginForm(request.POST)
-            if form.is_valid():
-                username = form.cleaned_data['username']
-                password = form.cleaned_data['password']
-                user = auth.authenticate(username=username, password=password)
-                if user is not None and user.is_active:
-                    auth.login(request, user)
-                    return render(request,'include/base.html')
-                else:
-                    request.session["wrong_login"] =  request.session["wrong_login"]+1
-                    return render_to_response('login.html', RequestContext(request, {'form': form,'password_is_wrong':True}))
-            else:
-                return render_to_response('login.html', RequestContext(request, {'form': form}))
+                form = LoginForm()
+                myform = Captcha()
+                return render_to_response('login.html', RequestContext(request, {'form': form,'myform':myform}))
+
+
+
+
+
 
 @login_required(login_url='/accounts/login/')
 def upload_file(request):
@@ -315,5 +336,8 @@ def task_manager(request):
         data = incept.get_task_list('all',request)
         return render(request, 'task_manager.html', {'objlist':obj_list,'datalist':data})
 
+@ratelimit(key=func.my_key, rate='5/h')
 def test(request):
+    was_limited = getattr(request, 'limited', False)
+    print  was_limited
     return render(request, 'test.html')
