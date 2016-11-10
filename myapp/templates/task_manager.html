@@ -73,6 +73,7 @@
         {% if datalist %}
             {% include "include/pagejump/pagebutton.html" %}
         {% endif %}
+    <body onload="checkstatus()">
         <table id="mytable" class="table table-condensed" border="1">
             <thead>
             <tr class="danger">
@@ -97,7 +98,7 @@
                     <td> {{ item.sqltext|truncatechars:100|linebreaks }}</td>
                     <td> {{ item.create_time|date:"Y-m-d H:i:s" }}</td>
                     <td> {{ item.update_time|date:"Y-m-d H:i:s" }}</td>
-                    <td> {{ item.status }}</td>
+                    <td > {{ item.status }}</td>
                     <td><button type="submit" name='delete' class="btn btn-primary" value={{ item.id }}>删除</button></td>
                     <td><button type="submit" name='check' class="btn btn-warning" value={{ item.id }}>审核</button></td>
                     {% if perms.myapp.can_admin_task %}
@@ -108,25 +109,36 @@
 
             </tbody>
         </table>
+    </body>
     </form>
     <script type="text/javascript">
+
+
+        {#        var mystatus = document.getElementById("taskstatus");#}
+        {#        for (i=0;i<=mystatus.length-1;i++)#}
+        {#        {#}
+        {##}
+        {#            if (mystatus[i].innerHTML == 'check not passed') {#}
+        {#                mystatus[i].class = "bg-danger";#}
+        {#            }#}
+        {#        }#}
         //jeDate.skin('gray');
-        jeDate({
-            dateCell:"#id_begin",
-            format:"YYYY-MM-DD hh:mm:ss",
-            isinitVal:true,
-            isTime:true, //isClear:false,
-            minDate:"2014-09-19 00:00:00",
-            okfun:function(val){alert(val)}
-        })
-        jeDate({
-            dateCell:"#id_end",
-            format:"YYYY-MM-DD hh:mm:ss",
-            isinitVal:true,
-            isTime:true, //isClear:false,
-            minDate:"2014-09-19 00:00:00",
-            okfun:function(val){alert(val)}
-        })
+        {#        jeDate({#}
+        {#            dateCell:"#id_begin",#}
+        {#            format:"YYYY-MM-DD hh:mm:ss",#}
+        {#            isinitVal:true,#}
+        {#            isTime:true, //isClear:false,#}
+        {#            minDate:"2014-09-19 00:00:00",#}
+        {#            okfun:function(val){alert(val)}#}
+        {#        })#}
+        {#        jeDate({#}
+        {#            dateCell:"#id_end",#}
+        {#            format:"YYYY-MM-DD hh:mm:ss",#}
+        {#            isinitVal:true,#}
+        {#            isTime:true, //isClear:false,#}
+        {#            minDate:"2014-09-19 00:00:00",#}
+        {#            okfun:function(val){alert(val)}#}
+        {#        })#}
     </script>
 {% endblock %}
 {% block script %}

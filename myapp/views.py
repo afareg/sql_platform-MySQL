@@ -9,7 +9,7 @@ from captcha.fields import CaptchaField,CaptchaStore
 from captcha.helpers import captcha_image_url
 from django.http import HttpResponse,HttpResponseRedirect,StreamingHttpResponse
 from django.contrib.auth.decorators import login_required,permission_required
-from myapp.include import function as func,inception as incept
+from myapp.include import function as func,inception as incept,chart
 from myapp.models import Db_name,Db_account,Db_instance,Oper_log,Upload
 from django.core.files import File
 #path='./myapp/include'
@@ -29,7 +29,9 @@ class CJsonEncoder(json.JSONEncoder):
 
 @login_required(login_url='/accounts/login/')
 def index(request):
-    return render(request, 'include/base.html')
+    data,col = chart.get_main_chart()
+    taskdata,taskcol = chart.get_task_chart()
+    return render(request, 'include/base.html',{'data':json.dumps(data),'col':json.dumps(col),'taskdata':json.dumps(taskdata),'taskcol':json.dumps(taskcol)})
 
 
 @login_required
@@ -225,7 +227,7 @@ def inception(request):
         return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':obj_list})
 
 
-@ratelimit(key=func.my_key,method='POST', rate='5/15m')
+#@ratelimit(key=func.my_key,method='POST', rate='5/15m')
 def login(request):
     was_limited = getattr(request, 'limited', False)
     if was_limited:
@@ -251,7 +253,7 @@ def login(request):
                         user = auth.authenticate(username=username, password=password)
                         if user is not None and user.is_active:
                             auth.login(request, user)
-                            return render(request,'include/base.html')
+                            return HttpResponseRedirect("/")
                         else:
                             #request.session["wrong_login"] =  request.session["wrong_login"]+1
                             return render_to_response('login.html', RequestContext(request, {'form': form,'myform':myform,'password_is_wrong':True}))
@@ -272,39 +274,39 @@ def login(request):
 
 
 
-
-@login_required(login_url='/accounts/login/')
-def upload_file(request):
-    if request.method == "POST":
-        form = Uploadform(request.POST,request.FILES)
-        if form.is_valid():
-        #username = request.user.username
-            username ='test'
-            filename = form.cleaned_data['filename']
-            myfile = Upload()
-            myfile.username = username
-            myfile.filename = filename
-            myfile.save()
-            print myfile.filename.url
-            print myfile.filename.path
-            print myfile.filename.name
-            print ""
-            for chunk in request.FILES['filename'].chunks():
-                sqltext = sqltext + chunk
-            print sqltext
-            f = open(myfile.filename.path,'r')
-            result = list()
-            for line in f.readlines():
-                #print line
-                result.append(line)
-            print "what the fuck"
-            print result
-            return HttpResponse('upload ok!')
-        else :
-            return HttpResponse('upload false!')
-    else:
-        form = Uploadform()
-        return  render(request, 'upload.html', {'form': form})
+#
+# @login_required(login_url='/accounts/login/')
+# def upload_file(request):
+#     if request.method == "POST":
+#         form = Uploadform(request.POST,request.FILES)
+#         if form.is_valid():
+#         #username = request.user.username
+#             username ='test'
+#             filename = form.cleaned_data['filename']
+#             myfile = Upload()
+#             myfile.username = username
+#             myfile.filename = filename
+#             myfile.save()
+#             print myfile.filename.url
+#             print myfile.filename.path
+#             print myfile.filename.name
+#             print ""
+#             for chunk in request.FILES['filename'].chunks():
+#                 sqltext = sqltext + chunk
+#             print sqltext
+#             f = open(myfile.filename.path,'r')
+#             result = list()
+#             for line in f.readlines():
+#                 #print line
+#                 result.append(line)
+#             print "what the fuck"
+#             print result
+#             return HttpResponse('upload ok!')
+#         else :
+#             return HttpResponse('upload false!')
+#     else:
+#         form = Uploadform()
+#         return  render(request, 'upload.html', {'form': form})
 
 @login_required(login_url='/accounts/login/')
 def task_manager(request):

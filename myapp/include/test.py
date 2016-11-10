@@ -53,7 +53,25 @@ def mysql_exec(sql):
         print "the fuck"
         print "mysql execute: " + str(e)
 
-
+def mysql_query(sql,user=user,passwd=passwd,host=host,port=int(port),dbname=dbname):
+    try:
+        limitnum=100
+        conn=MySQLdb.connect(host=host,user=user,passwd=passwd,port=int(port),connect_timeout=5,charset='utf8')
+        conn.select_db(dbname)
+        cursor = conn.cursor()
+        count=cursor.execute(sql)
+        index=cursor.description
+        col=[]
+        #get column name
+        for i in index:
+            col.append(i[0])
+        #result=cursor.fetchall()
+        result=cursor.fetchmany(size=int(limitnum))
+        cursor.close()
+        conn.close()
+        return (result,col)
+    except Exception,e:
+        return([str(e)],''),['error']
 
 def incep_exec(sqltext,user,passwd,host,port,dbname):
     port=int(port)
@@ -91,16 +109,10 @@ def run_test(name):
     run_proc(name,'testchangjingxiu')
 
 def main():
-    x,y= incep_exec("use test ;insert into t2 values(2);",'dbwrite','dbwrite','10.1.70.220',3306,'test')
+    x,y= mysql_query('select * from item_infor')
     print type(x)
     for i in x:
         print x
     print y
 if __name__=='__main__':
-    print 'Parent process %s.' % os.getpid()
-    test='adfadfasfd'
-    p = Process(target=run_test, args=(test,))
-    print 'Process will start.'
-    p.start()
-    p.join()
-    print 'Process end.'
+    main()

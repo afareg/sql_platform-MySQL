@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     {% block  title %}
-        <title>QUERY_PLATFORM</title>
+        <title>DATABASE_PLATFORM</title>
     {% endblock %}
     {% block head %}
         <!-- Bootstrap theme -->
@@ -13,6 +13,8 @@
         <link href="{% static 'bootstrap/css/bootstrap-theme.min.css' %}" rel="stylesheet">
         <link href="{% static 'bootstrap/js/jquery-3.1.1.min.js' %}" rel="stylesheet">
         <script src="{% static 'bootstrap/js/bootstrap.min.js' %}" rel="stylesheet"></script>
+        <script src="{% static 'bootstrap/js/myfunc.js' %}" rel="stylesheet"></script>
+        <script src="{% static 'bootstrap/js/echarts.min.js' %}" rel="stylesheet"></script>
         <script type="text/javascript" src="{% static 'jeDate/jedate.js' %}"></script>
     {% endblock %}
 
@@ -34,7 +36,7 @@
             <!-- 载入左侧菜单指向的jsp（或html等）页面内容 -->
             <div id="content">
                 {%block content%}
-
+                    {% include "chart/basechart.html" %}
                 {% endblock %}
 
             </div>

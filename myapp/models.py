@@ -80,6 +80,6 @@ class Task(models.Model):
     sqltext = models.TextField()
     create_time = models.DateTimeField(db_index=True)
     update_time = models.DateTimeField()
-    status = models.CharField(max_length=20)
+    status = models.CharField(max_length=20,db_index=True)
     def __unicode__(self):
         return self.dbtag
