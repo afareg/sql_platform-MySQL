@@ -15,17 +15,23 @@ def get_main_chart():
 
 
 def get_task_chart():
-    log = Task.objects.values('status').annotate(num=Count('status')).order_by("-num")
+    #today
+    log = Task.objects.filter(create_time__gte=datetime.date.today()).values('status').annotate(num=Count('status')).order_by("-num")
     collist=[]
     datalist = []
     for i in log:
         collist.append(i['status'])
         datalist.append(i['num'])
     return datalist,collist
+#'executed','executed failed','check not passed','check passed','running'
 
-# log = Oper_log.objects.values('sqltype').annotate(num=Count('sqltype')).order_by("-num")
-# collist=[]
-# datalist = []
-# for i in log:
-#     datalist.append(i['sqltype'])
-#     collist.append(i['num'])
+def get_task_bingtu():
+    log = Task.objects.values('status').annotate(num=Count('status')).order_by("-num")
+    collist=[]
+    datalist = []
+    for i in log:
+        dict={}
+        dict['value'] =i['num']
+        dict['name'] = i['status']
+        datalist.append(dict)
+    return datalist

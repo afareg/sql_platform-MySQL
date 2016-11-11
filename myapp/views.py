@@ -31,7 +31,9 @@ class CJsonEncoder(json.JSONEncoder):
 def index(request):
     data,col = chart.get_main_chart()
     taskdata,taskcol = chart.get_task_chart()
-    return render(request, 'include/base.html',{'data':json.dumps(data),'col':json.dumps(col),'taskdata':json.dumps(taskdata),'taskcol':json.dumps(taskcol)})
+    bingtu = chart.get_task_bingtu()
+    print json.dumps(bingtu)
+    return render(request, 'include/base.html',{'bingtu':json.dumps(bingtu),'data':json.dumps(data),'col':json.dumps(col),'taskdata':json.dumps(taskdata),'taskcol':json.dumps(taskcol)})
 
 
 @login_required

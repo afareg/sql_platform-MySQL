@@ -2,8 +2,12 @@
 </br>
 <table>
     <tr>
-        <td><div id="main" style="width: 600px;height:400px;"></div></td>
+
         <td><div id="task" style="width: 600px;height:400px;"></div></td>
+        <td><div id="bing" style="width: 600px;height:400px;"></div></td>
+    </tr>
+    <tr>
+        <td><div id="main" style="width: 600px;height:400px;"></div></td>
     </tr>
 </table>
 <script type="text/javascript">
@@ -99,7 +103,7 @@
     // 指定图表的配置项和数据
     var option1 = {
         title: {
-            text: 'TASK任务状态'
+            text: '今日任务状态统计'
         },
         tooltip: {},
         legend: {
@@ -118,4 +122,50 @@
 
     // 使用刚指定的配置项和数据显示图表。
     myChart1.setOption(option1);
+    var text = {{ bingtu|safe }}
+var myChart_b = echarts.init(document.getElementById('bing'));
+   option_b = {
+       title: {
+            text: '全部任务状态统计'
+        },
+    tooltip: {
+        trigger: 'item',
+        formatter: "{a} <br/>{b}: {c} ({d}%)"
+    },
+    legend: {
+        orient: 'vertical',
+        x: 'right',
+        data:['executed','executed failed','check not passed','check passed','running','NULL']
+    },
+    series: [
+        {
+            name:'任务状态',
+            type:'pie',
+            selectedMode: 'single',
+            radius: ['50%', '72%'],
+            avoidLabelOverlap: false,
+            label: {
+                normal: {
+                    show: false,
+                    position: 'center'
+                },
+                emphasis: {
+                    show: true,
+                    textStyle: {
+                        fontSize: '22',
+                        fontWeight: 'bold'
+                    }
+                }
+            },
+            labelLine: {
+                normal: {
+                    show: false
+                }
+            },
+            data:text
+        }
+    ]
+};
+
+    myChart_b.setOption(option_b);
 </script>

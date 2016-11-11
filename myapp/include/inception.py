@@ -174,7 +174,8 @@ def record_task(request,sqltext,dbtag):
     #create_time = datetime.datetime.now()+datetime.timedelta(hours=8)
     create_time = datetime.datetime.now()
     update_time = datetime.datetime.now()
-    mytask = Task (user=username,sqltext=sqltext,create_time=create_time,update_time=update_time,dbtag=dbtag)
+    status='NULL'
+    mytask = Task (user=username,sqltext=sqltext,create_time=create_time,update_time=update_time,dbtag=dbtag,status=status)
     mytask.save()
     return 1
 
