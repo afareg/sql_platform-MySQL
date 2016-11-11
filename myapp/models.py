@@ -81,5 +81,21 @@ class Task(models.Model):
     create_time = models.DateTimeField(db_index=True)
     update_time = models.DateTimeField()
     status = models.CharField(max_length=20,db_index=True)
+    sqlsha =  models.TextField()
     def __unicode__(self):
         return self.dbtag
+
+class Incep_error_log(models.Model):
+    myid = models.IntegerField()
+    stage = models.CharField(max_length= 20)
+    errlevel = models.IntegerField()
+    stagestatus = models.CharField(max_length=40)
+    errormessage = models.TextField()
+    sqltext = models.TextField()
+    affectrow = models.IntegerField()
+    sequence = models.CharField(max_length=30)
+    backup_db = models.CharField(max_length=100)
+    execute_time = models.CharField(max_length=20)
+    sqlsha = models.CharField(max_length=50)
+    create_time = models.DateTimeField(db_index=True)
+    finish_time = models.DateTimeField()

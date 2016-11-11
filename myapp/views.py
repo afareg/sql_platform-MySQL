@@ -330,6 +330,12 @@ def task_manager(request):
             results,col,tar_dbname = incept.task_check(id,request)
             data = incept.get_task_list(hosttag,request)
             return render(request,'task_manager.html',{'objlist':obj_list,'datalist':data,'choosed_host':hosttag,'result':results,'col':col})
+        elif request.POST.has_key('see_running'):
+            id = int(request.POST['see_running'])
+            results,col = incept.task_running_status(id)
+            print results
+            data = incept.get_task_list(hosttag,request)
+            return render(request,'task_manager.html',{'objlist':obj_list,'datalist':data,'choosed_host':hosttag,'result_status':results,'cols':col})
         elif request.POST.has_key('exec'):
             id = int(request.POST['exec'])
             incept.task_run(id,request)

@@ -2,7 +2,7 @@ import MySQLdb,sys,string,time,datetime
 from django.contrib.auth.models import User
 from myapp.include import function as func
 from multiprocessing import Process
-from myapp.models import Db_name,Db_account,Db_instance,Oper_log,Task
+from myapp.models import Db_name,Db_account,Db_instance,Oper_log,Task,Incep_error_log
 reload(sys)
 sys.setdefaultencoding('utf8')
 import ConfigParser
@@ -105,16 +105,26 @@ def inception_check(hosttag,sql,flag=0):
 def process_runtask(hosttag,sqltext,mytask):
     results,col,tar_dbname = inception_check(hosttag,sqltext,1)
     status='executed'
+    c_time = mytask.create_time
+    mytask.update_time = datetime.datetime.now()
     for row in results:
+        pa = Incep_error_log(myid=row[0],stage=row[1],errlevel=row[2],stagestatus=row[3],errormessage=row[4],\
+                     sqltext=row[5],affectrow=row[6],sequence=row[7],backup_db=row[8],execute_time=row[9],sqlsha=row[10],\
+                     create_time=c_time,finish_time=mytask.update_time)
         if (int(row[2])!=0):
             status='executed failed'
+            #record error message of incept exec
+
+        pa.save()
     mytask.status = status
-    mytask.update_time = datetime.datetime.now()
     mytask.save()
+
+
+
 
 def task_run(idnum,request):
     task = Task.objects.get(id=idnum)
-    if task.status!='executed':
+    if task.status!='executed' and task.status!='running' :
         hosttag = task.dbtag
         sql = task.sqltext
         log_incep_op(sql,hosttag,request)
@@ -136,9 +146,14 @@ def task_check(idnum,request):
         sql = task.sqltext
         results,col,dbname = inception_check(hosttag,sql)
         status='check passed'
+        str=''
         for row in results:
             if (int(row[2])!=0):
                 status='check not passed'
+            #record all sqlsha and sqltext of the task into task.sqlsha
+            if row[10]!='':
+                str = str+row[5]+row[10]+'^^'
+        task.sqlsha = str
         task.status = status
         task.update_time = datetime.datetime.now()
         task.save()
@@ -164,7 +179,7 @@ def get_task_list(dbtag,request):
 
 def delete_task(idnum):
     task = Task.objects.get(id=idnum)
-    if task.status!='executed':
+    if task.status!='executed' and task.status!='running':
         task.delete()
 
 #add task to tasktable
@@ -191,6 +206,69 @@ def log_incep_op(sqltext,dbtag,request):
     log.save()
     return 1
 
+#see task running status
+def task_running_status(idnum):
+    task = Task.objects.get(id=idnum)
+    if task.status=='executed failed'or task.status=='executed':
+        data = Incep_error_log.objects.filter(create_time=task.create_time).filter(finish_time=task.update_time).order_by("-myid")
+        col =[f.name for f in Incep_error_log._meta.get_fields()]
+        #delete first element "ID"
+        del col[0]
+        return data,col
+    else:
+        text = task.sqlsha
+        if text=='':
+            return(['no use of pt-online-schema-change'],''),['info']
+        else:
+            data = (['not running'],'')
+            col = ['info']
+            for i in text.split('^^'):
+                x = i.split('*')
+                if  len(x)>=2:
+                    sqlsha = '*'+ x[1]
+                    datalist,collist,mynum = incep_getstatus(sqlsha)
+                    #add sqltext to the end of the tuple
+                    if mynum >0:
+                        for d in datalist:
+                            data=d+(x[0],)
+                        data = (data,)
+                        col = collist.append('SQLTEXT')
+                        break
+            return data,col
+
+def incep_getstatus(sqlsha):
+    text = sqlsha
+    sql='inception get osc_percent \'%s\'' %(text)
+    try:
+        conn=MySQLdb.connect(host=incp_host,user=incp_user,passwd=incp_passwd,db='',port=incp_port,use_unicode=True, charset="utf8")
+        cur=conn.cursor()
+        ret=cur.execute(sql)
+        result=cur.fetchall()
+        field_names = [d[0] for d in cur.description]
+        cur.close()
+        conn.close()
+        return result,field_names,ret
+    except Exception,e:
+        return([str(e)],''),['error'],0
+
+
+
+
+
+def incep_stop(sqlsha):
+    text = sqlsha
+    sql='inception stop alter \'%s\'' %(text)
+    try:
+        conn=MySQLdb.connect(host=incp_host,user=incp_user,passwd=incp_passwd,db='',port=incp_port,use_unicode=True, charset="utf8")
+        cur=conn.cursor()
+        ret=cur.execute(sql)
+        result=cur.fetchall()
+        field_names = [d[0] for d in cur.description]
+        cur.close()
+        conn.close()
+        return result,field_names,ret
+    except Exception,e:
+        return([str(e)],''),['error'],0
 
 def main():
     x,y,z= incep_exec("insert into t2 values(2);",'test','test','10.1.70.220',3306,'test')
