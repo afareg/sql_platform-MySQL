@@ -45,6 +45,9 @@ class Logquery(forms.Form):
     begin = forms.DateTimeField(label='dateinfo')
     end = forms.DateTimeField()
 
+class Taskquery(forms.Form):
+    end = forms.DateTimeField()
+
 class Uploadform(forms.Form):
     filename = forms.FileField()
 

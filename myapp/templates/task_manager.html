@@ -19,6 +19,7 @@
                         <select class="form-control col-md-1" name = "hosttag">
                             <option value ="{{ choosed_host }}">{{ choosed_host }}</option>
                         </select></br>
+                        截止时间：{{ form.end }} </br>
                         <a href="/task/"><input type="button" value="重选数据源" class="btn btn-danger"></a>
                     {% else %}
                         <select class="form-control col-md-1" name = "hosttag">
@@ -26,7 +27,9 @@
                                 <option value ="{{ obj }}">{{ obj }}</option>
                             {% endfor %}
                         </select>
+                        选择截止时间:</br>{{ form.end }} </br>
                     {% endif %}
+
                     <button type="submit" name='commit' class="btn btn-primary">查询任务</button >
 
 
@@ -36,10 +39,21 @@
                         <h3>注意事项:</h3>
                         <p> 1. 输出结果默认按时间倒序</p>
                         <p> 2. 已执行成功的task状态不能修改</p>
+                        <p> 3. 默认返回前50项任务</p>
                     </div>
                 </td>
             </tr>
         </table>
+        <script type="text/javascript">
+            jeDate({
+                dateCell:"#id_end",
+                format:"YYYY-MM-DD hh:mm:ss",
+                isinitVal:true,
+                isTime:true, //isClear:false,
+                minDate:"2014-09-19 00:00:00",
+                okfun:function(val){alert(val)}
+            })
+        </script>
         {% if nllflag %}
             </br>
             <strong> {{ nllflag }}</strong>
@@ -118,7 +132,17 @@
                                 {% endif %}
                             {% endif %}
                         {% endif %}
-
+                    </tr>
+                    <tr>
+                        {% if 'SQLSHA1' in cols %}
+                            {% if '*' in item.2 %}
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" aria-valuenow=item.3 aria-valuemin="0" aria-valuemax="100" style="width: {{ item.3 }}%;" >
+                                        {{ item.3 }}%
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endif %}
                     </tr>
                 {% endfor %}
                 </tbody>

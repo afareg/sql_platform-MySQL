@@ -144,7 +144,7 @@ def task_run(idnum,request):
 
 def task_check(idnum,request):
     task = Task.objects.get(id=idnum)
-    if task.status!='executed':
+    if task.status!='executed' and  task.status!='running' and task.status!='executed failed':
         hosttag = task.dbtag
         sql = task.sqltext
         results,col,dbname = inception_check(hosttag,sql)
@@ -166,18 +166,18 @@ def task_check(idnum,request):
 
 
 
-def get_task_list(dbtag,request):
+def get_task_list(dbtag,request,end):
     username=request.user.username
     if request.user.has_perm('myapp.can_admin_task'):
         if (dbtag=='all'):
-            task_list = Task.objects.order_by("-create_time")[0:50]
+            task_list = Task.objects.filter(create_time__lte=end).order_by("-create_time")[0:50]
         else:
-            task_list = Task.objects.filter(dbtag=dbtag).order_by("-create_time")[0:50]
+            task_list = Task.objects.filter(dbtag=dbtag).filter(create_time__lte=end).order_by("-create_time")[0:50]
     else:
         if (dbtag=='all'):
-            task_list = Task.objects.filter(user=username).order_by("-create_time")[0:50]
+            task_list = Task.objects.filter(user=username).filter(create_time__lte=end).order_by("-create_time")[0:50]
         else:
-            task_list = Task.objects.filter(dbtag=dbtag).filter(user=username).order_by("-create_time")[0:50]
+            task_list = Task.objects.filter(dbtag=dbtag).filter(create_time__lte=end).filter(user=username).order_by("-create_time")[0:50]
     return task_list
 
 def delete_task(idnum):

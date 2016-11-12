@@ -15,11 +15,22 @@
                 <form role="form" method='post'>
                     {% csrf_token %}
                     CHOOSE:</br>
-                    <select class="form-control col-md-1" name = "hosttag">
+
+
+
+                    {%  if choosed_host %}
+                        <select class="form-control col-md-1" name = "hosttag">
+                            <option value ="{{ choosed_host }}">{{ choosed_host }}</option>
+                        </select></br>
+                        <a href="/log_query/"><input type="button" value="重选数据源" class="btn btn-danger"></a>
+                    {% else %}
+                            <select class="form-control col-md-1" name = "hosttag">
                         {% for obj in objlist %}
                             <option value ="{{ obj }}">{{ obj }}</option>
                         {% endfor %}
                     </select>
+                    {% endif %}
+
                     </br>
                     选择操作类型:</br>
                     <select class="form-control col-md-1" name = "optype">
