@@ -40,6 +40,10 @@
                 </td>
             </tr>
         </table>
+        {% if nllflag %}
+            </br>
+            <strong> {{ nllflag }}</strong>
+        {% endif %}
         {% if result %}
             {% include "include/pagejump/pagejump2.html" %}
             <table id="mytable1" class="table table-condensed" border="1">
@@ -70,7 +74,8 @@
 
 
         {% if result_status %}
-            <table id="result" class="table table-condensed" border="1">
+            {% include "include/pagejump/pagejump2.html" %}
+            <table id="mytable1" class="table table-condensed" border="1">
                 <thead>
                 <tr class="danger">
                     {% for colname in cols %}
@@ -89,10 +94,10 @@
                             <td> {{ item.errormessage|linebreaks }}</td>
                             <td> {{ item.sqltext }}</td>
                             <td> {{ item.affectrow }}</td>
-                            <td> {{ item.sequence }}</td>
+                            <td> {{ item.sequence|truncatechars:10  }}</td>
                             <td> {{ item.backup_db }}</td>
                             <td> {{ item.execute_time }}</td>
-                            <td> {{ item.sqlsha }}</td>
+                            <td> {{ item.sqlsha|truncatechars:7 }}</td>
                             <td> {{ item.create_time|date:"Y-m-d H:i:s"  }}</td>
                             <td> {{ item.finish_time|date:"Y-m-d H:i:s"  }}</td>
                         {% else %}
@@ -105,10 +110,15 @@
                                     <td> {{ item_detail }}</td>
                                 {% endif %}
                             {% endfor %}
-                            {% if item.SQLSHA1 %}
-                                <td><button type="submit" name='stop' class="btn btn-danger" value={{ item.SQLSHA1 }}>停止</button></td>
+                            {% if perms.myapp.can_admin_task %}
+                                {% if 'SQLSHA1' in cols %}
+                                    {% if '*' in item.2 %}
+                                        <td><button type="submit" name='stop' class="btn btn-danger" value={{ item.2 }}>停止</button></td>
+                                    {% endif %}
+                                {% endif %}
                             {% endif %}
                         {% endif %}
+
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -156,7 +166,7 @@
                     {% if perms.myapp.can_admin_task %}
                         <td><button type="submit" name='exec' class="btn btn-danger" value={{ item.id }}>执行</button></td>
                     {% endif %}
-                    <td><button type="submit" name='see_running' class="btn btn-info" value={{ item.id }}>执行状态</button></td>
+                    <td><button type="submit" name='see_running' class="btn btn-info" value={{ item.id }}>查询状态</button></td>
                 </tr>
             {% endfor %}
 

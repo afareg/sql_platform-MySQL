@@ -124,7 +124,7 @@ def process_runtask(hosttag,sqltext,mytask):
 
 def task_run(idnum,request):
     task = Task.objects.get(id=idnum)
-    if task.status!='executed' and task.status!='running' :
+    if task.status!='executed' and task.status!='running' and task.status!='NULL':
         hosttag = task.dbtag
         sql = task.sqltext
         log_incep_op(sql,hosttag,request)
@@ -134,6 +134,9 @@ def task_run(idnum,request):
         task.status = status
         task.update_time = datetime.datetime.now()
         task.save()
+        return ''
+    elif task.status=='NULL':
+        return 'PLEASE CHECK THE SQL FIRST'
 
 #        return [],[],''
 #    else:
@@ -221,7 +224,7 @@ def task_running_status(idnum):
             return(['no use of pt-online-schema-change'],''),['info']
         else:
             data = (['not running'],'')
-            col = ['info']
+            cols = ['info']
             for i in text.split('^^'):
                 x = i.split('*')
                 if  len(x)>=2:
@@ -231,10 +234,11 @@ def task_running_status(idnum):
                     if mynum >0:
                         for d in datalist:
                             data=d+(x[0],)
+                        collist.append('SQLTEXT')
+                        cols = collist
                         data = (data,)
-                        col = collist.append('SQLTEXT')
                         break
-            return data,col
+            return data,cols
 
 def incep_getstatus(sqlsha):
     text = sqlsha
@@ -244,10 +248,10 @@ def incep_getstatus(sqlsha):
         cur=conn.cursor()
         ret=cur.execute(sql)
         result=cur.fetchall()
-        field_names = [d[0] for d in cur.description]
+        my_field_names = [i[0] for i in cur.description]
         cur.close()
         conn.close()
-        return result,field_names,ret
+        return result,my_field_names,ret
     except Exception,e:
         return([str(e)],''),['error'],0
 
@@ -262,13 +266,14 @@ def incep_stop(sqlsha):
         conn=MySQLdb.connect(host=incp_host,user=incp_user,passwd=incp_passwd,db='',port=incp_port,use_unicode=True, charset="utf8")
         cur=conn.cursor()
         ret=cur.execute(sql)
-        result=cur.fetchall()
-        field_names = [d[0] for d in cur.description]
+        # result=cur.fetchall()
+        field_names = ['success']
         cur.close()
         conn.close()
-        return result,field_names,ret
+        result = ([sqlsha+' is stopped'],)
+        return result,field_names
     except Exception,e:
-        return([str(e)],''),['error'],0
+        return([str(e)],''),['error']
 
 def main():
     x,y,z= incep_exec("insert into t2 values(2);",'test','test','10.1.70.220',3306,'test')

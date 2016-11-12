@@ -314,7 +314,6 @@ def login(request):
 def task_manager(request):
     #obj_list = func.get_mysql_hostlist(request.user.username,'log')
     obj_list = ['all'] + func.get_mysql_hostlist(request.user.username,'exec')
-    print obj_list
     if request.method == 'POST' :
         hosttag = request.POST['hosttag']
         if request.POST.has_key('commit'):
@@ -332,15 +331,20 @@ def task_manager(request):
             return render(request,'task_manager.html',{'objlist':obj_list,'datalist':data,'choosed_host':hosttag,'result':results,'col':col})
         elif request.POST.has_key('see_running'):
             id = int(request.POST['see_running'])
-            results,col = incept.task_running_status(id)
-            print results
+            results,cols = incept.task_running_status(id)
             data = incept.get_task_list(hosttag,request)
-            return render(request,'task_manager.html',{'objlist':obj_list,'datalist':data,'choosed_host':hosttag,'result_status':results,'cols':col})
+            return render(request,'task_manager.html',{'objlist':obj_list,'datalist':data,'choosed_host':hosttag,'result_status':results,'cols':cols})
         elif request.POST.has_key('exec'):
             id = int(request.POST['exec'])
-            incept.task_run(id,request)
+            nllflag = incept.task_run(id,request)
             data = incept.get_task_list(hosttag,request)
-            return render(request,'task_manager.html',{'objlist':obj_list,'datalist':data,'choosed_host':hosttag})
+            return render(request,'task_manager.html',{'objlist':obj_list,'datalist':data,'choosed_host':hosttag,'nllflag':nllflag})
+        elif request.POST.has_key('stop'):
+            sqlsha = request.POST['stop']
+            incept.incep_stop(sqlsha)
+            results,cols  = incept.incep_stop(sqlsha)
+            data = incept.get_task_list(hosttag,request)
+            return render(request,'task_manager.html',{'objlist':obj_list,'datalist':data,'choosed_host':hosttag,'result_status':results,'cols':cols})
 
     else:
         data = incept.get_task_list('all',request)
