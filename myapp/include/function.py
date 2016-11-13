@@ -186,12 +186,12 @@ def log_mysql_op(user,sqltext,mydbname,dbtag,request):
 def get_log_data(dbtag,optype,begin,end):
     if (optype=='all'):
         #如果结束时间小于开始时间，则以结束时间为准
-        if (end >= begin):
+        if (end > begin):
             log = Oper_log.objects.filter(dbtag=dbtag).filter(create_time__lte=end).filter(create_time__gte=begin).order_by("-create_time")[0:100]
         else:
             log = Oper_log.objects.filter(dbtag=dbtag).filter(create_time__lte=end).order_by("-create_time")[0:100]
     else:
-        if (end >=begin):
+        if (end > begin):
             log = Oper_log.objects.filter(dbtag=dbtag).filter(sqltype=optype).filter(create_time__lte=end).filter(create_time__gte=begin).order_by("-create_time")[0:100]
         else:
             log = Oper_log.objects.filter(dbtag=dbtag).filter(sqltype=optype).filter(create_time__lte=end).order_by("-create_time")[0:100]
