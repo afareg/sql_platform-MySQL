@@ -9,10 +9,30 @@ import ConfigParser
 import smtplib
 from email.mime.text import MIMEText
 from email.message import Message
+from django.db import connection, connections
 from email.header import Header
+import logging
+
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
+                    datefmt='%a, %d %b %Y %H:%M:%S',
+                    filename='/tmp/logger.log',
+                    filemode='w')
 
 
 #'executed','executed failed','check not passed','check passed','running'
+
+def make_sure_mysql_usable():
+    # mysql is lazily connected to in django.
+    # connection.connection is None means
+    # you have not connected to mysql before
+    if connection.connection and not connection.is_usable():
+        # destroy the default mysql connection
+        # after this line, when you use ORM methods
+        # django will reconnect to the default mysql
+        del connections._connections.default
+
+
 def get_item(data_dict,item):
     try:
        item_value = data_dict[item]
@@ -43,6 +63,7 @@ incp_passwd = get_config('settings','incp_passwd')
 
 #0 for check and 1 for execute
 def incep_exec(sqltext,myuser,mypasswd,myhost,myport,mydbname,flag=0):
+    logging.info(sqltext)
     if (int(flag)==0):
         flagcheck='--enable-check'
     elif(int(flag)==1):
@@ -57,6 +78,8 @@ def incep_exec(sqltext,myuser,mypasswd,myhost,myport,mydbname,flag=0):
             use %s;"% (myuser,mypasswd,myhost,flagcheck,myport,mydbname)
     sql2='inception_magic_commit;'
     sql = sql1 + sqltext + sql2
+    logging.info(sql)
+
     try:
         conn=MySQLdb.connect(host=incp_host,user=incp_user,passwd=incp_passwd,db='',port=incp_port,use_unicode=True, charset="utf8")
         cur=conn.cursor()
@@ -64,6 +87,8 @@ def incep_exec(sqltext,myuser,mypasswd,myhost,myport,mydbname,flag=0):
         result=cur.fetchall()
         #num_fields = len(cur.description)
         field_names = [i[0] for i in cur.description]
+        logging.info("resulting in incept exec!!")
+        logging.info(result)
         #print field_names
         #for row in result:
         #    print row[0], "|",row[1],"|",row[2],"|",row[3],"|",row[4],"|",row[5],"|",row[6],"|",row[7],"|",row[8],"|",row[9],"|",row[10]
@@ -76,6 +101,8 @@ def incep_exec(sqltext,myuser,mypasswd,myhost,myport,mydbname,flag=0):
 
 #flag=0 for check and 1 for execute
 def inception_check(hosttag,sql,flag=0):
+    logging.info("start inception_check")
+    logging.info(hosttag)
     a = Db_name.objects.filter(dbtag=hosttag)[0]
     #a = Db_name.objects.get(dbtag=hosttag)
     tar_dbname = a.dbname
@@ -99,6 +126,9 @@ def inception_check(hosttag,sql,flag=0):
             tar_username = i.user
             tar_passwd = i.passwd
     #print tar_port+tar_passwd+tar_username+tar_host
+    logging.info("incept_check")
+    logging.info(flag)
+    logging.info(sql)
     results,col = incep_exec(sql,tar_username,tar_passwd,tar_host,tar_port,tar_dbname,flag)
     return results,col,tar_dbname
 
@@ -107,16 +137,20 @@ def process_runtask(hosttag,sqltext,mytask):
     status='executed'
     c_time = mytask.create_time
     mytask.update_time = datetime.datetime.now()
+    make_sure_mysql_usable()
+    mytask.save()
     for row in results:
-        pa = Incep_error_log(myid=row[0],stage=row[1],errlevel=row[2],stagestatus=row[3],errormessage=row[4],\
+
+        inclog = Incep_error_log(myid=row[0],stage=row[1],errlevel=row[2],stagestatus=row[3],errormessage=row[4],\
                      sqltext=row[5],affectrow=row[6],sequence=row[7],backup_db=row[8],execute_time=row[9],sqlsha=row[10],\
                      create_time=c_time,finish_time=mytask.update_time)
+        make_sure_mysql_usable()
+        inclog.save()
         if (int(row[2])!=0):
             status='executed failed'
             #record error message of incept exec
-
-        pa.save()
     mytask.status = status
+    make_sure_mysql_usable()
     mytask.save()
 
 
@@ -133,6 +167,7 @@ def task_run(idnum,request):
         status='running'
         task.status = status
         task.update_time = datetime.datetime.now()
+        make_sure_mysql_usable()
         task.save()
         return ''
     elif task.status=='NULL':

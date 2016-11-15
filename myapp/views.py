@@ -340,6 +340,7 @@ def task_manager(request):
             id = int(request.POST['exec'])
             nllflag = incept.task_run(id,request)
             data = incept.get_task_list(hosttag,request,endtime)
+            print nllflag
             return render(request,'task_manager.html',{'form':form,'objlist':obj_list,'datalist':data,'choosed_host':hosttag,'nllflag':nllflag})
         elif request.POST.has_key('stop'):
             sqlsha = request.POST['stop']

@@ -73,7 +73,7 @@
                     <tr>
                         {% for item_detail in item %}
                             {% if forloop.counter == 6 %}
-                                <td> {{ item_detail|truncatechars:250|linebreaks}}</td>
+                                <td> {{ item_detail|truncatechars:550|linebreaks}}</td>
                             {% elif forloop.counter == 5 %}
                                 <td> {{ item_detail|linebreaks}}</td>
                             {% else %}
