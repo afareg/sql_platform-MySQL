@@ -109,6 +109,8 @@ def mysql_query(request):
                 elif request.POST.has_key('query'):
                 #get nomal query
                     a,numlimit = func.check_mysql_query(a,request.user.username)
+                    print type(a)
+                    print a
                     (data_mysql,collist,dbname) = func.get_mysql_data(c,a,request.user.username,request,numlimit)
                     return render(request,'mysql_query.html',{'form': form,'objlist':obj_list,'data_list':data_mysql,'col':collist,'choosed_host':c,'dbname':dbname})
             except Exception,e:
