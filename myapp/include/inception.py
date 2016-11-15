@@ -101,18 +101,7 @@ def incep_exec(sqltext,myuser,mypasswd,myhost,myport,mydbname,flag=0):
 
 #flag=0 for check and 1 for execute
 def inception_check(hosttag,sql,flag=0):
-    logging.info("start inception_check")
-    logging.info(hosttag)
-    logging.info(type(hosttag))
-    logging.info(sql)
-    logging.info(flag)
-    try:
-        make_sure_mysql_usable()
-        qs = Db_name.objects.get(dbtag=hosttag)
-        a = qs
-    except IndexError:
-        a = ''
-        logging.info("fuck the a")
+    a = Db_name.objects.get(dbtag=hosttag)
     #a = Db_name.objects.get(dbtag=hosttag)
     logging.info(a)
     tar_dbname = a.dbname
@@ -136,18 +125,12 @@ def inception_check(hosttag,sql,flag=0):
             tar_username = i.user
             tar_passwd = i.passwd
     #print tar_port+tar_passwd+tar_username+tar_host
-    logging.info("incept_check")
-    logging.info(flag)
-    logging.info(sql)
     results,col = incep_exec(sql,tar_username,tar_passwd,tar_host,tar_port,tar_dbname,flag)
-    logging.info(results)
     return results,col,tar_dbname
 
 def process_runtask(hosttag,sqltext,mytask):
     time.sleep(1)
     results,col,tar_dbname = inception_check(hosttag,sqltext,1)
-    logging.info("process_runtask show results below")
-    logging.info(results)
     status='executed'
     c_time = mytask.create_time
     mytask.update_time = datetime.datetime.now()

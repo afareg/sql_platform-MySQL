@@ -145,7 +145,11 @@ def check_mysql_query(sqltext,user,type='select'):
         else:
             break
     #判断语句中是否已经存在limit，has_limit 为0时说明原来语句中是有limit的
-    has_limit = cmp(sqltext.split()[-2].lower(),'limit')
+    try:
+        has_limit = cmp(sqltext.split()[-2].lower(),'limit')
+    except Exception,e:
+        #prevent some input like '1' or 'ss' ...
+        return wrong_msg, num
 
     for i in list_type:
         if (not cmp(i,sqltype)):
