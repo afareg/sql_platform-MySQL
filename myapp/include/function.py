@@ -12,13 +12,6 @@ import smtplib
 from email.mime.text import MIMEText
 from email.message import Message
 from email.header import Header
-import logging
-
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
-                    datefmt='%a, %d %b %Y %H:%M:%S',
-                    filename='/tmp/logger.log',
-                    filemode='w')
 
 
 
@@ -50,8 +43,6 @@ wrong_msg = get_config('settings','wrong_msg')
 
 def mysql_query(sql,user=user,passwd=passwd,host=host,port=int(port),dbname=dbname,limitnum=select_limit):
     try:
-        logging.info("startting mysql query")
-        logging.info(sql)
         conn=MySQLdb.connect(host=host,user=user,passwd=passwd,port=int(port),connect_timeout=5,charset='utf8')
         conn.select_db(dbname)
         cursor = conn.cursor()
@@ -185,9 +176,6 @@ def check_mysql_query(sqltext,user,type='select'):
 
 #记录用户所有操作
 def log_mysql_op(user,sqltext,mydbname,dbtag,request):
-    logging.info("startting log_mysql_op")
-    logging.info(sqltext)
-    logging.info(type(sqltext))
     user = User.objects.get(username=user)
     #lastlogin = user.last_login+datetime.timedelta(hours=8)
     #create_time = datetime.datetime.now()+datetime.timedelta(hours=8)
