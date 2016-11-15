@@ -318,35 +318,31 @@ def task_manager(request):
             endtime = form.cleaned_data['end']
             print endtime
         hosttag = request.POST['hosttag']
+        data = incept.get_task_list(hosttag, request, endtime)
         if request.POST.has_key('commit'):
             data = incept.get_task_list(hosttag,request,endtime)
             return render(request,'task_manager.html',{'form':form,'objlist':obj_list,'datalist':data,'choosed_host':hosttag})
         elif request.POST.has_key('delete'):
             id = int(request.POST['delete'])
             incept.delete_task(id)
-            data = incept.get_task_list(hosttag,request,endtime)
             return render(request,'task_manager.html',{'form':form,'objlist':obj_list,'datalist':data,'choosed_host':hosttag})
         elif request.POST.has_key('check'):
             id = int(request.POST['check'])
             results,col,tar_dbname = incept.task_check(id,request)
-            data = incept.get_task_list(hosttag,request,endtime)
             return render(request,'task_manager.html',{'form':form,'objlist':obj_list,'datalist':data,'choosed_host':hosttag,'result':results,'col':col})
         elif request.POST.has_key('see_running'):
             id = int(request.POST['see_running'])
             results,cols = incept.task_running_status(id)
-            data = incept.get_task_list(hosttag,request,endtime)
             return render(request,'task_manager.html',{'form':form,'objlist':obj_list,'datalist':data,'choosed_host':hosttag,'result_status':results,'cols':cols})
         elif request.POST.has_key('exec'):
             id = int(request.POST['exec'])
             nllflag = incept.task_run(id,request)
-            data = incept.get_task_list(hosttag,request,endtime)
             print nllflag
             return render(request,'task_manager.html',{'form':form,'objlist':obj_list,'datalist':data,'choosed_host':hosttag,'nllflag':nllflag})
         elif request.POST.has_key('stop'):
             sqlsha = request.POST['stop']
             incept.incep_stop(sqlsha)
             results,cols  = incept.incep_stop(sqlsha)
-            data = incept.get_task_list(hosttag,request,endtime)
             return render(request,'task_manager.html',{'form':form,'objlist':obj_list,'datalist':data,'choosed_host':hosttag,'result_status':results,'cols':cols})
     else:
         data = incept.get_task_list('all',request,datetime.datetime.now())
