@@ -101,6 +101,7 @@ def incep_exec(sqltext,myuser,mypasswd,myhost,myport,mydbname,flag=0):
 
 #flag=0 for check and 1 for execute
 def inception_check(hosttag,sql,flag=0):
+    make_sure_mysql_usable()
     a = Db_name.objects.get(dbtag=hosttag)
     #a = Db_name.objects.get(dbtag=hosttag)
     logging.info(a)

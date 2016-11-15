@@ -188,7 +188,7 @@
                     <td><button type="submit" name='delete' class="btn btn-primary" value={{ item.id }}>删除</button></td>
                     <td><button type="submit" name='check' class="btn btn-warning" value={{ item.id }}>审核</button></td>
                     {% if perms.myapp.can_admin_task %}
-                        <td><button type="submit" name='exec' class="btn btn-danger" value={{ item.id }}>执行</button></td>
+                        <td><button type="submit" name='exec' onclick="return confirm('PLEASE COMFIRM')"  class="btn btn-danger" value={{ item.id }}>执行</button></td>
                     {% endif %}
                     <td><button type="submit" name='see_running' class="btn btn-info" value={{ item.id }}>查询状态</button></td>
                 </tr>
