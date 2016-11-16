@@ -7,6 +7,13 @@ read_write = (
     ('write', 'write'),
     ('all','all'),
 )
+read_write_account = (
+    ('read', 'read'),
+    ('write', 'write'),
+    ('all','all'),
+    ('admin','admin'),
+)
+
 class Db_instance(models.Model):
     ip = models.CharField(max_length=30)
     port = models.CharField(max_length=10)
@@ -25,9 +32,10 @@ class Db_name (models.Model):
 class Db_account(models.Model):
     user = models.CharField(max_length=30)
     passwd = models.CharField(max_length=30)
-    role =  models.CharField(max_length=30,choices=read_write,default='all')
+    role =  models.CharField(max_length=30,choices=read_write_account,default='all')
     tags = models.CharField(max_length=30)
     dbname = models.ManyToManyField(Db_name)
+    account = models.ManyToManyField(User)
     def __unicode__(self):
         return  u'%s %s' % ( self.tags,self.role)
 

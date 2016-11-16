@@ -38,7 +38,7 @@ incp_passwd = get_config('settings','incp_passwd')
 
 def task_sche_run():
     try:
-        print "1111111"
+        print "starting scheduler task"
         make_sure_mysql_usable()
         task = Task.objects.filter(status='appointed').filter(sche_time__lte=datetime.datetime.now())
         if len(task)>0:
@@ -53,13 +53,8 @@ def task_sche_run():
                 make_sure_mysql_usable()
                 mytask.save()
                 Process(target=process_runtask, args=(hosttag, sql, mytask)).start()
-        return "what the success"
-        logging.info("what the try")
     except Exception,e:
-        print "111111"
         print e
-        logging.info("what the fuck")
-        return e
 
 
 
@@ -79,8 +74,6 @@ def incep_exec(sqltext,myuser,mypasswd,myhost,myport,mydbname,flag=0):
             use %s;"% (myuser,mypasswd,myhost,flagcheck,myport,mydbname)
     sql2='inception_magic_commit;'
     sql = sql1 + sqltext + sql2
-    logging.info(sql)
-
     try:
         conn=MySQLdb.connect(host=incp_host,user=incp_user,passwd=incp_passwd,db='',port=incp_port,use_unicode=True, charset="utf8")
         cur=conn.cursor()
@@ -122,10 +115,12 @@ def inception_check(hosttag,sql,flag=0):
             wrongmsg = "select \"" +str(e).replace('"',"\"")+"\""
             results,col = mysql_query(wrongmsg,user,passwd,host,int(port),dbname)
             return results,col,tar_dbname
+    tag=0
     for i in a.db_account_set.all():
-        if i.role!='read':
+        if i.role=='admin':
             tar_username = i.user
             tar_passwd = i.passwd
+            tag=1
     #print tar_port+tar_passwd+tar_username+tar_host
     results,col = incep_exec(sql,tar_username,tar_passwd,tar_host,tar_port,tar_dbname,flag)
     return results,col,tar_dbname
@@ -139,11 +134,15 @@ def process_runtask(hosttag,sqltext,mytask):
     make_sure_mysql_usable()
     mytask.save()
     for row in results:
-        inclog = Incep_error_log(myid=row[0],stage=row[1],errlevel=row[2],stagestatus=row[3],errormessage=row[4],\
-                     sqltext=row[5],affectrow=row[6],sequence=row[7],backup_db=row[8],execute_time=row[9],sqlsha=row[10],\
-                     create_time=c_time,finish_time=mytask.update_time)
-        make_sure_mysql_usable()
-        inclog.save()
+        try:
+            inclog = Incep_error_log(myid=row[0],stage=row[1],errlevel=row[2],stagestatus=row[3],errormessage=row[4],\
+                         sqltext=row[5],affectrow=row[6],sequence=row[7],backup_db=row[8],execute_time=row[9],sqlsha=row[10],\
+                         create_time=c_time,finish_time=mytask.update_time)
+            make_sure_mysql_usable()
+            inclog.save()
+        except Exception,e:
+            inclog = Incep_error_log(errormessage=row[0],finish_time=mytask.update_time)
+            inclog.save()
         if (int(row[2])!=0):
             status='executed failed'
             #record error message of incept exec

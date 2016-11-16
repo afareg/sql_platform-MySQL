@@ -122,7 +122,7 @@ def inception_check(hosttag,sql,flag=0):
             results,col = func.mysql_query(wrongmsg,user,passwd,host,int(port),dbname)
             return results,col,tar_dbname
     for i in a.db_account_set.all():
-        if i.role!='read':
+        if i.role=='admin':
             tar_username = i.user
             tar_passwd = i.passwd
     #print tar_port+tar_passwd+tar_username+tar_host

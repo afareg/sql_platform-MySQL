@@ -67,7 +67,7 @@ def get_mysql_hostlist(username,tag='tag'):
         a = User.objects.get(username=username)
         #如果没有对应role='read'或者role='all'的account账号，则不显示在下拉菜单中
         for row in a.db_name_set.all():
-            if row.db_account_set.all().exclude(role='write'):
+            if row.db_account_set.all().filter(role__in=['read','all']):
                 if row.instance.all():
                     host_list.append(row.dbtag)
     elif (tag=='log'):
@@ -77,7 +77,7 @@ def get_mysql_hostlist(username,tag='tag'):
         a = User.objects.get(username=username)
         #如果没有对应role='write'或者role='all'的account账号，则不显示在下拉菜单中
         for row in a.db_name_set.all():
-            if row.db_account_set.all().exclude(role='read'):
+            if row.db_account_set.all().filter(role__in=['write','all']):
         #排除只读实例
                 if row.instance.all().exclude(role='read'):
                     host_list.append(row.dbtag)
@@ -104,9 +104,15 @@ def get_mysql_data(hosttag,sql,useraccount,request,limitnum):
         tar_host = a.instance.all()[0].ip
         tar_port = a.instance.all()[0].port
     for i in a.db_account_set.all():
-        if i.role!='write ':
-            tar_username = i.user
-            tar_passwd = i.passwd
+        if i.role!='write ' and i.role!='admin':
+            # find the specified account for the user
+            if i.account.all().filter(username=useraccount):
+                tar_username = i.user
+                tar_passwd = i.passwd
+                break
+            else:
+                tar_username = i.user
+                tar_passwd = i.passwd
     #print tar_port+tar_passwd+tar_username+tar_host
     try:
         if (cmp(sql,wrong_msg)):
@@ -307,11 +313,17 @@ def run_mysql_exec(hosttag,sql,useraccount,request):
             wrongmsg = "select \"" +str(e).replace('"',"\"")+"\""
             results,col = mysql_query(wrongmsg,user,passwd,host,int(port),dbname)
             return results,col,tar_dbname
-    #用第一个role不为read的账号
+    #用第一个role不为read or admin 的账号
     for i in a.db_account_set.all():
-        if i.role!='read':
-            tar_username = i.user
-            tar_passwd = i.passwd
+        if i.role != 'read ' and i.role != 'admin':
+            #find the specified account for the user
+            if i.account.all().filter(username=useraccount):
+                tar_username = i.user
+                tar_passwd = i.passwd
+                break
+            else:
+                tar_username = i.user
+                tar_passwd = i.passwd
     #print tar_port+tar_passwd+tar_username+tar_host
     try:
         #之前根据check_mysql_exec判断过权限，如果是select则说明没权限，不记录日志
