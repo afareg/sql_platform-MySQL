@@ -46,6 +46,18 @@ class Oper_log(models.Model):
         index_together = [["dbtag","sqltype", "create_time"],]
 
 
+# class Task_scheduler(models.Model):
+#     task = models.OneToOneField(Task)
+#     appoint_time = models.DateTimeField(db_index=True)
+#     def __unicode__(self):
+#         return  self.task.id
+
+
+
+
+
+
+
 
 class User_profile(models.Model):
     user = models.OneToOneField(User)
@@ -82,6 +94,7 @@ class Task(models.Model):
     update_time = models.DateTimeField()
     status = models.CharField(max_length=20,db_index=True)
     sqlsha =  models.TextField()
+    sche_time = models.DateTimeField(db_index=True,default='2199-01-01 00:00:00')
     def __unicode__(self):
         return self.dbtag
 

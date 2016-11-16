@@ -40,6 +40,10 @@ INSTALLED_APPS = [
     'myapp',
 ]
 
+CRONJOBS = [
+    ('*/1 * * * *', 'myapp.test.task_sche_run','> /tmp/last_scheduled_job.log'),
+]
+
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

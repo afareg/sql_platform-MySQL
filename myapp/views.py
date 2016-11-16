@@ -4,7 +4,7 @@ from django.template.context import RequestContext
 from ratelimit.decorators import ratelimit,is_ratelimited
 from django.shortcuts import render,render_to_response
 from django.contrib import auth
-from form import AddForm,LoginForm,Logquery,Uploadform,Captcha,Taskquery
+from form import AddForm,LoginForm,Logquery,Uploadform,Captcha,Taskquery,Taskscheduler
 from captcha.fields import CaptchaField,CaptchaStore
 from captcha.helpers import captcha_image_url
 from django.http import HttpResponse,HttpResponseRedirect,StreamingHttpResponse
@@ -316,40 +316,53 @@ def task_manager(request):
     obj_list = ['all'] + func.get_mysql_hostlist(request.user.username,'exec')
     if request.method == 'POST' :
         form = Taskquery(request.POST)
+        form2 = Taskscheduler(request.POST)
         if form.is_valid():
             endtime = form.cleaned_data['end']
-            print endtime
+        else:
+            endtime = datetime.datetime.now()
+        if form2.is_valid():
+            sche_time = form2.cleaned_data['sche_time']
+            print sche_time
+        else:
+            sche_time = datetime.datetime.now()
         hosttag = request.POST['hosttag']
         data = incept.get_task_list(hosttag, request, endtime)
         if request.POST.has_key('commit'):
             data = incept.get_task_list(hosttag,request,endtime)
-            return render(request,'task_manager.html',{'form':form,'objlist':obj_list,'datalist':data,'choosed_host':hosttag})
+            return render(request,'task_manager.html',{'form':form,'form2':form2,'objlist':obj_list,'datalist':data,'choosed_host':hosttag})
         elif request.POST.has_key('delete'):
             id = int(request.POST['delete'])
             incept.delete_task(id)
-            return render(request,'task_manager.html',{'form':form,'objlist':obj_list,'datalist':data,'choosed_host':hosttag})
+            return render(request,'task_manager.html',{'form':form,'form2':form2,'objlist':obj_list,'datalist':data,'choosed_host':hosttag})
         elif request.POST.has_key('check'):
             id = int(request.POST['check'])
             results,col,tar_dbname = incept.task_check(id,request)
-            return render(request,'task_manager.html',{'form':form,'objlist':obj_list,'datalist':data,'choosed_host':hosttag,'result':results,'col':col})
+            return render(request,'task_manager.html',{'form':form,'form2':form2,'objlist':obj_list,'datalist':data,'choosed_host':hosttag,'result':results,'col':col})
         elif request.POST.has_key('see_running'):
             id = int(request.POST['see_running'])
             results,cols = incept.task_running_status(id)
-            return render(request,'task_manager.html',{'form':form,'objlist':obj_list,'datalist':data,'choosed_host':hosttag,'result_status':results,'cols':cols})
+            return render(request,'task_manager.html',{'form':form,'form2':form2,'objlist':obj_list,'datalist':data,'choosed_host':hosttag,'result_status':results,'cols':cols})
         elif request.POST.has_key('exec'):
             id = int(request.POST['exec'])
             nllflag = incept.task_run(id,request)
             print nllflag
-            return render(request,'task_manager.html',{'form':form,'objlist':obj_list,'datalist':data,'choosed_host':hosttag,'nllflag':nllflag})
+            return render(request,'task_manager.html',{'form':form,'form2':form2,'objlist':obj_list,'datalist':data,'choosed_host':hosttag,'nllflag':nllflag})
         elif request.POST.has_key('stop'):
             sqlsha = request.POST['stop']
             incept.incep_stop(sqlsha)
             results,cols  = incept.incep_stop(sqlsha)
-            return render(request,'task_manager.html',{'form':form,'objlist':obj_list,'datalist':data,'choosed_host':hosttag,'result_status':results,'cols':cols})
+            return render(request,'task_manager.html',{'form':form,'form2':form2,'objlist':obj_list,'datalist':data,'choosed_host':hosttag,'result_status':results,'cols':cols})
+        elif request.POST.has_key('appoint'):
+            id = int(request.POST['appoint'])
+            incept.set_schetime(id,sche_time)
+            return render(request, 'task_manager.html',{'form': form,'form2':form2, 'objlist': obj_list, 'datalist': data, 'choosed_host': hosttag})
+
     else:
         data = incept.get_task_list('all',request,datetime.datetime.now())
         form = Taskquery()
-        return render(request, 'task_manager.html', {'form':form,'objlist':obj_list,'datalist':data})
+        form2 = Taskscheduler()
+        return render(request, 'task_manager.html', {'form':form,'form2':form2,'objlist':obj_list,'datalist':data})
 
 @ratelimit(key=func.my_key, rate='5/h')
 def test(request):

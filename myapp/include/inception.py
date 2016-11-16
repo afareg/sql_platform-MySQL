@@ -20,7 +20,7 @@ logging.basicConfig(level=logging.INFO,
                     filemode='w')
 
 
-#'executed','executed failed','check not passed','check passed','running'
+#'executed','executed failed','check not passed','check passed','running','appointed'
 
 def make_sure_mysql_usable():
     # mysql is lazily connected to in django.
@@ -150,9 +150,6 @@ def process_runtask(hosttag,sqltext,mytask):
     make_sure_mysql_usable()
     mytask.save()
 
-
-
-
 def task_run(idnum,request):
     task = Task.objects.get(id=idnum)
     if task.status!='executed' and task.status!='running' and task.status!='NULL':
@@ -169,10 +166,9 @@ def task_run(idnum,request):
         return ''
     elif task.status=='NULL':
         return 'PLEASE CHECK THE SQL FIRST'
+    else:
+        return 'Already executed or in running'
 
-#        return [],[],''
-#    else:
-#        return [],[],''
 
 def task_check(idnum,request):
     task = Task.objects.get(id=idnum)
@@ -287,9 +283,13 @@ def incep_getstatus(sqlsha):
     except Exception,e:
         return([str(e)],''),['error'],0
 
-
-
-
+def set_schetime(idnum,schetime):
+    task = Task.objects.get(id=idnum)
+    #can only appointed task in 'check passed' status
+    if task.status=='check passed':
+        task.status='appointed'
+        task.sche_time=schetime
+        task.save()
 
 def incep_stop(sqlsha):
     text = sqlsha
