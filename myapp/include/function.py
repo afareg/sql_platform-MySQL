@@ -110,9 +110,15 @@ def get_mysql_data(hosttag,sql,useraccount,request,limitnum):
                 tar_username = i.user
                 tar_passwd = i.passwd
                 break
-            else:
-                tar_username = i.user
-                tar_passwd = i.passwd
+    #not find specified account for the user ,specified the public account to the user
+    if not vars().has_key('tar_username'):
+        for i in a.db_account_set.all():
+            if i.role != 'write ' and i.role != 'admin':
+                # find the specified account for the user
+                if i.account.all().filter(username='public'):
+                    tar_username = i.user
+                    tar_passwd = i.passwd
+                    break
     #print tar_port+tar_passwd+tar_username+tar_host
     try:
         if (cmp(sql,wrong_msg)):
@@ -253,7 +259,7 @@ def get_client_ip(request):
     return regip
 
 def check_mysql_exec(sqltext,request,type='dml'):
-    request.user.has_perm('myapp.')
+    # request.user.has_perm('myapp.')
     sqltext = sqltext.strip()
     sqltype = sqltext.split()[0].lower()
     list_type = ['insert','update','delete','create','alter','drop','truncate']
@@ -287,6 +293,11 @@ def check_mysql_exec(sqltext,request,type='dml'):
             return sqltext
         else:
             return "select 'Don\\'t have permission to \"drop\"'"
+    elif (sqltype == 'alter'):
+        if request.user.has_perm('myapp.can_alter_mysql'):
+            return sqltext
+        else:
+            return "select 'Don\\'t have permission to \"alter\"'"
     else:
         return wrong_msg
 
@@ -313,7 +324,7 @@ def run_mysql_exec(hosttag,sql,useraccount,request):
             wrongmsg = "select \"" +str(e).replace('"',"\"")+"\""
             results,col = mysql_query(wrongmsg,user,passwd,host,int(port),dbname)
             return results,col,tar_dbname
-    #用第一个role不为read or admin 的账号
+    #find the useraccount and passwd for the user
     for i in a.db_account_set.all():
         if i.role != 'read ' and i.role != 'admin':
             #find the specified account for the user
@@ -321,10 +332,15 @@ def run_mysql_exec(hosttag,sql,useraccount,request):
                 tar_username = i.user
                 tar_passwd = i.passwd
                 break
-            else:
-                tar_username = i.user
-                tar_passwd = i.passwd
-    #print tar_port+tar_passwd+tar_username+tar_host
+    #not find specified account for the user ,specified the public account to the user
+    if not vars().has_key('tar_username'):
+        for i in a.db_account_set.all():
+            if i.role != 'read ' and i.role != 'admin':
+                # find the specified account for the user
+                if i.account.all().filter(username='public'):
+                    tar_username = i.user
+                    tar_passwd = i.passwd
+                    break
     try:
         #之前根据check_mysql_exec判断过权限，如果是select则说明没权限，不记录日志
         if (sql.split()[0]!='select'):

@@ -120,10 +120,16 @@ def inception_check(hosttag,sql,flag=0):
         if i.role=='admin':
             tar_username = i.user
             tar_passwd = i.passwd
-            tag=1
+            break
     #print tar_port+tar_passwd+tar_username+tar_host
-    results,col = incep_exec(sql,tar_username,tar_passwd,tar_host,tar_port,tar_dbname,flag)
-    return results,col,tar_dbname
+    try:
+        results,col = incep_exec(sql,tar_username,tar_passwd,tar_host,tar_port,tar_dbname,flag)
+        return results,col,tar_dbname
+    except Exception,e:
+        wrongmsg = "select \"no admin account being setted\""
+        results, col = mysql_query(wrongmsg, user, passwd, host, int(port), dbname)
+        return results, col, tar_dbname
+
 
 def process_runtask(hosttag,sqltext,mytask):
     time.sleep(1)
@@ -141,7 +147,10 @@ def process_runtask(hosttag,sqltext,mytask):
             make_sure_mysql_usable()
             inclog.save()
         except Exception,e:
-            inclog = Incep_error_log(errormessage=row[0],finish_time=mytask.update_time)
+            inclog = Incep_error_log(myid=999,stage='',errlevel=999,stagestatus='',errormessage=row[0],\
+                         sqltext=e,affectrow=999,sequence='',backup_db='',execute_time='',sqlsha='',\
+                         create_time=c_time,finish_time=mytask.update_time)
+            make_sure_mysql_usable()
             inclog.save()
         if (int(row[2])!=0):
             status='executed failed'

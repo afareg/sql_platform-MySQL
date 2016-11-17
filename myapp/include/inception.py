@@ -125,9 +125,16 @@ def inception_check(hosttag,sql,flag=0):
         if i.role=='admin':
             tar_username = i.user
             tar_passwd = i.passwd
+            break
     #print tar_port+tar_passwd+tar_username+tar_host
-    results,col = incep_exec(sql,tar_username,tar_passwd,tar_host,tar_port,tar_dbname,flag)
-    return results,col,tar_dbname
+    try:
+        results,col = incep_exec(sql,tar_username,tar_passwd,tar_host,tar_port,tar_dbname,flag)
+        return results,col,tar_dbname
+    except Exception,e:
+        wrongmsg = "select \"no admin account being setted\""
+        results, col = func.mysql_query(wrongmsg, user, passwd, host, int(port), dbname)
+        return results, col, tar_dbname
+
 
 def process_runtask(hosttag,sqltext,mytask):
     time.sleep(1)
@@ -138,11 +145,19 @@ def process_runtask(hosttag,sqltext,mytask):
     make_sure_mysql_usable()
     mytask.save()
     for row in results:
-        inclog = Incep_error_log(myid=row[0],stage=row[1],errlevel=row[2],stagestatus=row[3],errormessage=row[4],\
-                     sqltext=row[5],affectrow=row[6],sequence=row[7],backup_db=row[8],execute_time=row[9],sqlsha=row[10],\
-                     create_time=c_time,finish_time=mytask.update_time)
-        make_sure_mysql_usable()
-        inclog.save()
+        try:
+            inclog = Incep_error_log(myid=row[0],stage=row[1],errlevel=row[2],stagestatus=row[3],errormessage=row[4],\
+                         sqltext=row[5],affectrow=row[6],sequence=row[7],backup_db=row[8],execute_time=row[9],sqlsha=row[10],\
+                         create_time=c_time,finish_time=mytask.update_time)
+            make_sure_mysql_usable()
+            inclog.save()
+            #if some error occured in inception_check stage
+        except Exception,e:
+            inclog = Incep_error_log(myid=999,stage='',errlevel=999,stagestatus='',errormessage=row[0],\
+                         sqltext=e,affectrow=999,sequence='',backup_db='',execute_time='',sqlsha='',\
+                         create_time=c_time,finish_time=mytask.update_time)
+            make_sure_mysql_usable()
+            inclog.save()
         if (int(row[2])!=0):
             status='executed failed'
             #record error message of incept exec
