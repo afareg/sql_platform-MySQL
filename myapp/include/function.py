@@ -40,6 +40,7 @@ dbname = get_config('settings','dbname')
 select_limit = int(get_config('settings','select_limit'))
 export_limit = int(get_config('settings','export_limit'))
 wrong_msg = get_config('settings','wrong_msg')
+public_user = get_config('settings','public_user')
 
 def mysql_query(sql,user=user,passwd=passwd,host=host,port=int(port),dbname=dbname,limitnum=select_limit):
     try:
@@ -81,6 +82,13 @@ def get_mysql_hostlist(username,tag='tag'):
         #排除只读实例
                 if row.instance.all().exclude(role='read'):
                     host_list.append(row.dbtag)
+    elif (tag == 'incept'):
+        a = User.objects.get(username=username)
+        for row in a.db_name_set.all():
+            #find the account which is admin
+            if row.db_account_set.all().filter(role='admin'):
+                if row.instance.all().exclude(role='read'):
+                    host_list.append(row.dbtag)
     return host_list
 
 def get_op_type(methods='get'):
@@ -115,7 +123,7 @@ def get_mysql_data(hosttag,sql,useraccount,request,limitnum):
         for i in a.db_account_set.all():
             if i.role != 'write ' and i.role != 'admin':
                 # find the specified account for the user
-                if i.account.all().filter(username='public'):
+                if i.account.all().filter(username=public_user):
                     tar_username = i.user
                     tar_passwd = i.passwd
                     break
@@ -337,7 +345,7 @@ def run_mysql_exec(hosttag,sql,useraccount,request):
         for i in a.db_account_set.all():
             if i.role != 'read ' and i.role != 'admin':
                 # find the specified account for the user
-                if i.account.all().filter(username='public'):
+                if i.account.all().filter(username=public_user):
                     tar_username = i.user
                     tar_passwd = i.passwd
                     break

@@ -60,6 +60,7 @@ incp_host = get_config('settings','incp_host')
 incp_port = int(get_config('settings','incp_port'))
 incp_user = get_config('settings','incp_user')
 incp_passwd = get_config('settings','incp_passwd')
+public_user = get_config('settings','public_user')
 
 #0 for check and 1 for execute
 def incep_exec(sqltext,myuser,mypasswd,myhost,myport,mydbname,flag=0):

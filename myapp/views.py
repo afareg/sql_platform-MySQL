@@ -179,7 +179,7 @@ def mysql_exec(request):
         '''
 @login_required(login_url='/accounts/login/')
 def inception(request):
-    obj_list = func.get_mysql_hostlist(request.user.username,'exec')
+    obj_list = func.get_mysql_hostlist(request.user.username,'incept')
     if request.method == 'POST':
         if request.POST.has_key('check'):
             form = AddForm(request.POST)
@@ -313,7 +313,7 @@ def login(request):
 @login_required(login_url='/accounts/login/')
 def task_manager(request):
     #obj_list = func.get_mysql_hostlist(request.user.username,'log')
-    obj_list = ['all'] + func.get_mysql_hostlist(request.user.username,'exec')
+    obj_list = ['all'] + func.get_mysql_hostlist(request.user.username,'incept')
     if request.method == 'POST' :
         form = Taskquery(request.POST)
         form2 = Taskscheduler(request.POST)
