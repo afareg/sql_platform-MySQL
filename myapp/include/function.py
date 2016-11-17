@@ -378,6 +378,12 @@ def mysql_exec(sql,user=user,passwd=passwd,host=host,port=int(port),dbname=dbnam
             return([str(e)],''),['error']
 
 
+def get_pre(dbtag):
+    db = Db_name.objects.get(dbtag=dbtag)
+    ins = db.instance.all()
+    acc_list = Db_account.objects.filter(dbname=db)
+    return acc_list,ins
+
 def main():
     return 1
 if __name__=='__main__':

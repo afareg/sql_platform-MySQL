@@ -1,0 +1,104 @@
+{% extends "include/base.html" %}
+{% block title %}
+    <title>PRE_QUERY</title>
+{% endblock %}
+{% block name %}
+    欢迎使用MySQL数据库执行功能
+{% endblock %}
+{%block content%}
+    <table >
+        <tr>
+            <td>
+                </br>
+                </br>
+                <form role="form" method='post'>
+                    {% csrf_token %}
+                    CHOOSE :
+                    {%  if choosed_host %}
+                        <select class="form-control col-md-1" name = "cx">
+                            <option value ="{{ choosed_host }}">{{ choosed_host }}</option>
+                        </select></br>
+                        <a href="/pre_query/"><input type="button" value="重选DB" class="btn btn-danger"></a>
+                    {% else %}
+                        <select class="form-control col-md-1" name = "cx">
+                            {% for obj in objlist %}
+                                <option value ="{{ obj }}">{{ obj }}</option>
+                            {% endfor %}
+                        </select>
+                        </br> </br>
+                    {% endif %}
+
+
+                    <button type="submit" name="commit"  class="btn btn-primary">执行</button >
+                </form >
+            </td>
+            <td>
+                <div class="col-md-12">
+                    <h1>注意事项:</h1>
+                    <p class="bg-danger"> 1. 只支持"单条语句"执行，勿在框中重复输入多条sql语句</p>
+                    <p class="bg-info"> 2. 点击"检查语句"后，如果返回的结果中"errlevel"都为0,则语句没问题,不然请查看"errormessage"中的提示</p>
+                    <p class="bg-danger"> 3. 建议在所有的表名前加上库名限定，如dbname.tablename</p>
+                    <p> 4. 如果返回"Don't have permission to..."则说明你的账户没有执行相关命令的权限</p>
+                    <p> 5. 需要权限请提申请给DBA开通平台权限</p>
+                </div>
+            </td>
+        </tr>
+    </table>
+    {% if ins_list %}
+        <table id="instable" class="table table-condensed" border="1">
+            <thead>
+            <tr class="danger">
+                <th>IP_ADDRESS</th>
+                <th>DB_PORT</th>
+                <th>INSTANCE_ROLE</th>
+            </tr>
+            </thead>
+            <tbody  >
+            {% for item in ins_list %}
+                <tr>
+                    <td> {{ item.ip }}</td>
+                    <td> {{ item.port }}</td>
+                    <td> {{ item.role }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+
+    {% if data_list %}
+        {% include "include/pagejump/pagebutton.html" %}
+        <table id="mytable" class="table table-condensed" border="1">
+            <thead>
+            <tr class="danger">
+                <th>TAG&ROLE</th>
+                <th>DB_ACCOUNT</th>
+                <th>DBNAME</th>
+                <th>USER_ACCOUNT</th>
+            </tr>
+            </thead>
+            <tbody  >
+            {% for item in data_list %}
+                <tr>
+                    <td> {{ item.tags }} + {{ item.role }}</td>
+                    <td> {{ item.user }}</td>
+                    <td>
+                        {% for i in item.dbname.all %}
+                            {{i.dbtag}}+{{ i.dbname }} </br>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for i in item.account.all %}
+                            {{i.username}} </br>
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+{% endblock %}
+{% block script %}
+    {% include "include/pagejump/pagejump.html" %}
+{% endblock %}

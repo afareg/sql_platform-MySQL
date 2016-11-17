@@ -364,6 +364,23 @@ def task_manager(request):
         form2 = Taskscheduler()
         return render(request, 'task_manager.html', {'form':form,'form2':form2,'objlist':obj_list,'datalist':data})
 
+
+@login_required(login_url='/accounts/login/')
+def pre_query(request):
+    objlist = func.get_mysql_hostlist(request.user.username,'log')
+    if request.method == 'POST':
+        if request.POST.has_key('cx'):
+            c = request.POST['cx']
+            data,instance = func.get_pre(c)
+            print data
+        return render(request, 'prequery.html',{'objlist':objlist,'choosed_host':c,'data_list':data,'ins_list':instance})
+    else:
+        return render(request, 'prequery.html',{'objlist':objlist})
+
+
+
+
+
 @ratelimit(key=func.my_key, rate='5/h')
 def test(request):
     was_limited = getattr(request, 'limited', False)
