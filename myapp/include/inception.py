@@ -167,11 +167,18 @@ def process_runtask(hosttag,sqltext,mytask):
     mytask.save()
 
 def task_run(idnum,request):
-    task = Task.objects.get(id=idnum)
+    while 1:
+        try:
+            task = Task.objects.get(id=idnum)
+        except:
+            continue
+        break
+
     if task.status!='executed' and task.status!='running' and task.status!='NULL':
         hosttag = task.dbtag
         sql = task.sqltext
-        log_incep_op(sql,hosttag,request)
+        mycreatetime = task.create_time
+        log_incep_op(sql,hosttag,request,mycreatetime)
         status='running'
         task.status = status
         task.update_time = datetime.datetime.now()
@@ -242,10 +249,10 @@ def record_task(request,sqltext,dbtag):
     return 1
 
 
-def log_incep_op(sqltext,dbtag,request):
+def log_incep_op(sqltext,dbtag,request,mycreatetime):
     user = User.objects.get(username=request.user.username)
     lastlogin = user.last_login
-    create_time = datetime.datetime.now()
+    create_time = mycreatetime
     username = user.username
     sqltype='incept'
     ipaddr = func.get_client_ip(request)

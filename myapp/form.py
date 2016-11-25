@@ -33,6 +33,8 @@ class LoginForm(forms.Form):
         else:
             cleaned_data = super(LoginForm, self).clean()
 
+# class Userpri_form(forms.Form):
+#     accountname = forms.CharField(max_length=25)
 
 class AddForm (forms.Form):
     a = forms.CharField(widget=forms.Textarea)

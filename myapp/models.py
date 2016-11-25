@@ -86,6 +86,7 @@ class User_profile(models.Model):
                       ('can_truncate_mysql','can truncate mysql'),
                       ('can_alter_mysql','can alter mysql'),
                       ('can_admin_task','can admin task'),
+                      ('can_query_pri', 'can query pri'),
                       )
 
 class Upload(models.Model):

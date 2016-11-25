@@ -366,14 +366,18 @@ def task_manager(request):
 
 
 @login_required(login_url='/accounts/login/')
+@permission_required('myapp.can_query_pri', login_url='/')
 def pre_query(request):
     objlist = func.get_mysql_hostlist(request.user.username,'log')
     if request.method == 'POST':
-        if request.POST.has_key('cx'):
+        if request.POST.has_key('accountname') and request.POST['accountname']!='':
+            username = request.POST['accountname']
+            userdblist,info = func.get_user_pre(username,request)
+            return render(request, 'prequery.html', {'objlist':objlist,'userdblist': userdblist,'info':info})
+        elif request.POST.has_key('cx'):
             c = request.POST['cx']
-            data,instance = func.get_pre(c)
-            print data
-        return render(request, 'prequery.html',{'objlist':objlist,'choosed_host':c,'data_list':data,'ins_list':instance})
+            data,instance,acc = func.get_pre(c)
+            return render(request, 'prequery.html',{'objlist':objlist,'choosed_host':c,'data_list':data,'ins_list':instance,'acc':acc})
     else:
         return render(request, 'prequery.html',{'objlist':objlist})
 

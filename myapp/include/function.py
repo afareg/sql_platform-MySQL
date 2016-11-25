@@ -381,8 +381,22 @@ def mysql_exec(sql,user=user,passwd=passwd,host=host,port=int(port),dbname=dbnam
 def get_pre(dbtag):
     db = Db_name.objects.get(dbtag=dbtag)
     ins = db.instance.all()
+    acc = db.account.all()
     acc_list = Db_account.objects.filter(dbname=db)
-    return acc_list,ins
+    return acc_list,ins,acc
+
+def get_user_pre(username,request):
+    if len(username)<25:
+        try :
+            info = "PRIVILEGES FOR " + username
+            dblist = User.objects.get(username=username).db_name_set.all()
+        except :
+            info = "PLEASE CHECK YOUR INPUT"
+            dblist = User.objects.get(username=request.user.username).db_name_set.all()
+    else:
+        info = "INPUT TOO LONG"
+        dblist = User.objects.get(username=request.user.username).db_name_set.all()
+    return dblist,info
 
 def main():
     return 1

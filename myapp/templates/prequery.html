@@ -3,7 +3,7 @@
     <title>PRE_QUERY</title>
 {% endblock %}
 {% block name %}
-    欢迎使用MySQL数据库执行功能
+    欢迎使用权限查询功能
 {% endblock %}
 {%block content%}
     <table >
@@ -28,18 +28,16 @@
                         </br> </br>
                     {% endif %}
 
-
-                    <button type="submit" name="commit"  class="btn btn-primary">执行</button >
+                    <input type=="text" class="form-control" placeholder="input username for query" name="accountname">
+                    <button type="submit" name="commit"  class="btn btn-primary">查询</button >
                 </form >
             </td>
             <td>
                 <div class="col-md-12">
                     <h1>注意事项:</h1>
-                    <p class="bg-danger"> 1. 只支持"单条语句"执行，勿在框中重复输入多条sql语句</p>
-                    <p class="bg-info"> 2. 点击"检查语句"后，如果返回的结果中"errlevel"都为0,则语句没问题,不然请查看"errormessage"中的提示</p>
-                    <p class="bg-danger"> 3. 建议在所有的表名前加上库名限定，如dbname.tablename</p>
-                    <p> 4. 如果返回"Don't have permission to..."则说明你的账户没有执行相关命令的权限</p>
-                    <p> 5. 需要权限请提申请给DBA开通平台权限</p>
+                    <p class="bg-danger"> 1. 可以按库来查询，也可以按用户名查询</p>
+                    <p class="bg-success"> 2. 默认如果用户名输入框为空时，按照库来查询权限</p>
+                    <p class="bg-danger"> 3. 如果用户名输入有问题，默认返回当前用户的权限</p>
                 </div>
             </td>
         </tr>
@@ -65,13 +63,29 @@
         </table>
     {% endif %}
 
+    {% if acc %}
+        <table id="account" class="table table-condensed" border="1">
+            <thead>
+            <tr class="danger">
+                <th>USERACCOUNT</th>
+            </tr>
+            </thead>
+            <tbody  >
+            {% for account in acc %}
+                <tr>
+                    <td> {{ account.username }}  </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
 
     {% if data_list %}
         {% include "include/pagejump/pagebutton.html" %}
         <table id="mytable" class="table table-condensed" border="1">
             <thead>
             <tr class="danger">
-                <th>TAG&ROLE</th>
+                <th>TAG + ROLE</th>
                 <th>DB_ACCOUNT</th>
                 <th>DBNAME</th>
                 <th>USER_ACCOUNT</th>
@@ -97,6 +111,40 @@
             </tbody>
         </table>
     {% endif %}
+
+    {% if userdblist %}
+        {{ info }}
+        <table id="userlist" class="table table-condensed" border="1">
+            <thead>
+            <tr class="danger">
+                <th>DBTAG</th>
+                <th>DBNAME</th>
+                <th>INSTANCE</th>
+                <th>USER FOR THIS DB</th>
+            </tr>
+            </thead>
+            <tbody  >
+            {% for db in userdblist %}
+                <tr>
+                    <td> {{ db.dbtag }}  </td>
+                    <td> {{ db.dbname }}  </td>
+                    <td>
+                        {% for i in db.instance.all %}
+                            {{i.ip}} + {{ i.port }} +{{ i.role }} </br>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for i in db.account.all %}
+                            {{i.username}} </br>
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+
 
 {% endblock %}
 {% block script %}

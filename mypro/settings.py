@@ -41,7 +41,7 @@ INSTALLED_APPS = [
 ]
 
 CRONJOBS = [
-    ('*/1 * * * *', 'myapp.test.task_sche_run','>> /tmp/last_scheduled_job.log'),
+    ('*/1 * * * *', 'myapp.scheduled.task_sche_run','>> /tmp/last_scheduled_job.log'),
 ]
 
 MIDDLEWARE_CLASSES = [

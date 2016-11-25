@@ -49,15 +49,25 @@ def task_sche_run():
                 hosttag = mytask.dbtag
                 status = 'running'
                 sql = mytask.sqltext
+                mycreatetime = mytask.create_time
                 mytask.status = status
                 mytask.update_time = datetime.datetime.now()
                 make_sure_mysql_usable()
                 mytask.save()
+                log_incep_op(sql, hosttag, mycreatetime)
                 Process(target=process_runtask, args=(hosttag, sql, mytask)).start()
     except Exception,e:
         print e
 
-
+def log_incep_op(sqltext,dbtag,mycreatetime):
+    lastlogin = mycreatetime
+    create_time = mycreatetime
+    username = 'scheduled'
+    sqltype='incept'
+    ipaddr = 'localhost'
+    log = Oper_log (user=username,sqltext=sqltext,sqltype=sqltype,login_time=lastlogin,create_time=create_time,dbname='',dbtag=dbtag,ipaddr=ipaddr)
+    log.save()
+    return 1
 
 def incep_exec(sqltext,myuser,mypasswd,myhost,myport,mydbname,flag=0):
     logging.info(sqltext)
