@@ -196,7 +196,7 @@
                     <td><button type="submit" name='check' class="btn btn-warning" value={{ item.id }}>审核</button></td>
                     {% if perms.myapp.can_admin_task %}
                         <td><button type="submit" name='exec' onclick="return confirm('PLEASE COMFIRM')"  class="btn btn-danger" value={{ item.id }}>执行</button></td>
-                        <td><button type="submit" name='appoint' onclick="return confirm('PLEASE COMFIRM')"  class="btn btn-success" value={{ item.id }}>预约执行时间</button></td>
+                        <td><button type="submit" name='appoint' onclick="return confirm('PLEASE COMFIRM')"  class="btn btn-success" value={{ item.id }}>预约时间执行</button></td>
                     {% endif %}
                     <td><button type="submit" name='see_running' class="btn btn-info" value={{ item.id }}>查询状态</button></td>
                 </tr>

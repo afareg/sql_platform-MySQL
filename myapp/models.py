@@ -53,6 +53,11 @@ class Oper_log(models.Model):
     class Meta:
         index_together = [["dbtag","sqltype", "create_time"],]
 
+class Login_log(models.Model):
+    user = models.CharField(max_length=35)
+    ipaddr = models.CharField(max_length=35)
+    action = models.CharField(max_length=20)
+    create_time = models.DateTimeField(db_index=True)
 
 # class Task_scheduler(models.Model):
 #     task = models.OneToOneField(Task)

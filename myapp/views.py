@@ -255,8 +255,11 @@ def login(request):
                         user = auth.authenticate(username=username, password=password)
                         if user is not None and user.is_active:
                             auth.login(request, user)
+                            func.log_userlogin(request)
                             return HttpResponseRedirect("/")
                         else:
+                            #login failed
+                            func.log_loginfailed(request, username)
                             #request.session["wrong_login"] =  request.session["wrong_login"]+1
                             return render_to_response('login.html', RequestContext(request, {'form': form,'myform':myform,'password_is_wrong':True}))
                     else:

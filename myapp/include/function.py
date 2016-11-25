@@ -2,7 +2,7 @@
 #-*-coding:utf-8-*-
 import MySQLdb,sys,string,time,datetime,uuid
 from django.contrib.auth.models import User
-from myapp.models import Db_name,Db_account,Db_instance,Oper_log
+from myapp.models import Db_name,Db_account,Db_instance,Oper_log,Login_log
 from myapp.form import LoginForm,Captcha
 
 reload(sys)
@@ -208,6 +208,23 @@ def log_mysql_op(user,sqltext,mydbname,dbtag,request):
     log = Oper_log (user=username,sqltext=sqltext,sqltype=sqltype,login_time=lastlogin,create_time=create_time,dbname=mydbname,dbtag=dbtag,ipaddr=ipaddr)
     log.save()
     return 1
+
+def log_userlogin(request):
+    username = request.user.username
+    user = User.objects.get(username=username)
+    ipaddr = get_client_ip(request)
+    action = 'login'
+    create_time = datetime.datetime.now()
+    log = Login_log(user=username,ipaddr=ipaddr,action=action,create_time=create_time)
+    log.save()
+
+def log_loginfailed(request,username):
+
+    ipaddr = get_client_ip(request)
+    action = 'login_failed'
+    create_time = datetime.datetime.now()
+    log = Login_log(user=username, ipaddr=ipaddr, action=action,create_time=create_time)
+    log.save()
 
 def get_log_data(dbtag,optype,begin,end):
     if (optype=='all'):
