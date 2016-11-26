@@ -91,6 +91,7 @@ class User_profile(models.Model):
                       ('can_truncate_mysql','can truncate mysql'),
                       ('can_alter_mysql','can alter mysql'),
                       ('can_admin_task','can admin task'),
+                      ('can_update_task', 'can update task'),
                       ('can_query_pri', 'can query pri'),
                       )
 
@@ -109,6 +110,7 @@ class Task(models.Model):
     status = models.CharField(max_length=20,db_index=True)
     sqlsha =  models.TextField()
     sche_time = models.DateTimeField(db_index=True,default='2199-01-01 00:00:00')
+    specification = models.CharField(max_length=100,default='')
     def __unicode__(self):
         return self.dbtag
 

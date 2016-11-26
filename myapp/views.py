@@ -10,7 +10,7 @@ from captcha.helpers import captcha_image_url
 from django.http import HttpResponse,HttpResponseRedirect,StreamingHttpResponse
 from django.contrib.auth.decorators import login_required,permission_required
 from myapp.include import function as func,inception as incept,chart
-from myapp.models import Db_name,Db_account,Db_instance,Oper_log,Upload
+from myapp.models import Db_name,Db_account,Db_instance,Oper_log,Upload,Task
 from django.core.files import File
 #path='./myapp/include'
 #sys.path.insert(0,path)
@@ -181,6 +181,7 @@ def mysql_exec(request):
 def inception(request):
     obj_list = func.get_mysql_hostlist(request.user.username,'incept')
     if request.method == 'POST':
+        specification = request.POST['specification'][0:30]
         if request.POST.has_key('check'):
             form = AddForm(request.POST)
             upform = Uploadform()
@@ -204,7 +205,6 @@ def inception(request):
                     except Exception,e:
                         chunk = chunk.decode('gbk')
                     sqltext = sqltext + chunk
-                print sqltext
                 form = AddForm(initial={'a': sqltext})
                 return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':obj_list})
             else:
@@ -217,7 +217,7 @@ def inception(request):
             if form.is_valid():
                 sqltext = form.cleaned_data['a']
                 c = request.POST['cx']
-                incept.record_task(request,sqltext,c)
+                incept.record_task(request,sqltext,c,specification)
                 status='UPLOAD TASK OK'
                 return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':obj_list,'status':status})
             else:
@@ -360,13 +360,35 @@ def task_manager(request):
             id = int(request.POST['appoint'])
             incept.set_schetime(id,sche_time)
             return render(request, 'task_manager.html',{'form': form,'form2':form2, 'objlist': obj_list, 'datalist': data, 'choosed_host': hosttag})
-
+        elif request.POST.has_key('update'):
+            id = int(request.POST['update'])
+            request.session['update_taskid']=id
+            return HttpResponseRedirect("/update_task/")
     else:
         data = incept.get_task_list('all',request,datetime.datetime.now())
         form = Taskquery()
         form2 = Taskscheduler()
         return render(request, 'task_manager.html', {'form':form,'form2':form2,'objlist':obj_list,'datalist':data})
 
+@login_required(login_url='/accounts/login/')
+def update_task(request):
+    id = request.session['update_taskid']
+    if request.method == 'POST':
+        flag,str = incept.check_task_status(id)
+        if flag:
+            sqltext = request.POST['sqltext']
+            specify = request.POST['specify'][0:30]
+            incept.update_task(id, sqltext, specify)
+            return HttpResponseRedirect("/task/")
+        else:
+            return render(request, 'update_task.html', {'str': str})
+    else:
+        try:
+            data = incept.get_task_forupdate(id)
+            return render(request, 'update_task.html', {'data': data})
+        except Exception,e:
+            str = "ID NOT EXISTS , PLEASE CHECK !"
+            return render(request, 'update_task.html', {'str': str})
 
 @login_required(login_url='/accounts/login/')
 @permission_required('myapp.can_query_pri', login_url='/')

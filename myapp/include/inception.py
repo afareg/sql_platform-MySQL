@@ -20,7 +20,7 @@ logging.basicConfig(level=logging.INFO,
                     filemode='w')
 
 
-#'executed','executed failed','check not passed','check passed','running','appointed'
+#'executed','executed failed','check not passed','check passed','running','appointed','NULL'
 
 def make_sure_mysql_usable():
     # mysql is lazily connected to in django.
@@ -215,6 +215,33 @@ def task_check(idnum,request):
     else:
         return [],[],''
 
+#'executed','executed failed','check not passed','check passed','running','appointed','NULL'
+def check_task_status(id):
+    try:
+        task = Task.objects.get(id=id)
+    except Exception,e:
+        return False,"ID NOT EXISTS , PLEASE CHECK !"
+    status = task.status
+    if status =='NULL' or status=='executed failed' or status=='check not passed':
+        return True,"CAN BE UPDATED"
+    else:
+        return False,"TASK IN THIS STATUS CAN'T BE UPDATED,PLEASE CHECK!"
+
+
+def get_task_forupdate(id):
+    task_data = Task.objects.get(id=id)
+    return task_data
+
+def update_task(id,sqltext,specify):
+    task_data = Task.objects.get(id=id)
+    old_sqltext = task_data.sqltext
+    task_data.sqltext = sqltext
+    task_data.specification = specify
+    task_data.update_time = datetime.datetime.now()
+    #if old_sqltext != sqltext ,then update the status
+    if  cmp(old_sqltext,sqltext):
+        task_data.status='NULL'
+    task_data.save()
 
 
 def get_task_list(dbtag,request,end):
@@ -237,14 +264,14 @@ def delete_task(idnum):
         task.delete()
 
 #add task to tasktable
-def record_task(request,sqltext,dbtag):
+def record_task(request,sqltext,dbtag,specify):
     username = request.user.username
     #lastlogin = user.last_login+datetime.timedelta(hours=8)
     #create_time = datetime.datetime.now()+datetime.timedelta(hours=8)
     create_time = datetime.datetime.now()
     update_time = datetime.datetime.now()
     status='NULL'
-    mytask = Task (user=username,sqltext=sqltext,create_time=create_time,update_time=update_time,dbtag=dbtag,status=status)
+    mytask = Task (user=username,sqltext=sqltext,create_time=create_time,update_time=update_time,dbtag=dbtag,status=status,specification=specify)
     mytask.save()
     return 1
 

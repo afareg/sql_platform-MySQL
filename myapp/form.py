@@ -37,10 +37,10 @@ class LoginForm(forms.Form):
 #     accountname = forms.CharField(max_length=25)
 
 class AddForm (forms.Form):
-    a = forms.CharField(widget=forms.Textarea)
+    a = forms.CharField(widget=forms.Textarea(attrs={'cols': 100, 'rows': 15}))
 
 class SqlForm (forms.Form):
-    a = forms.CharField(widget=forms.Textarea)
+    a = forms.CharField(widget=forms.Textarea(attrs={'cols': 100, 'rows': 15}))
     filename = forms.FileField()
 
 class Logquery(forms.Form):
