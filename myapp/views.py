@@ -32,7 +32,7 @@ def index(request):
     data,col = chart.get_main_chart()
     taskdata,taskcol = chart.get_task_chart()
     bingtu = chart.get_task_bingtu()
-    print json.dumps(bingtu)
+    # print json.dumps(bingtu)
     return render(request, 'include/base.html',{'bingtu':json.dumps(bingtu),'data':json.dumps(data),'col':json.dumps(col),'taskdata':json.dumps(taskdata),'taskcol':json.dumps(taskcol)})
 
 
@@ -70,7 +70,7 @@ def log_query(request):
 @permission_required('myapp.can_mysql_query', login_url='/')
 def mysql_query(request):
     #print request.user.username
-    print request.user.has_perm('myapp.can_mysql_query')
+    # print request.user.has_perm('myapp.can_mysql_query')
     obj_list = func.get_mysql_hostlist(request.user.username)
     if request.method == 'POST':
         form = AddForm(request.POST)
@@ -109,12 +109,13 @@ def mysql_query(request):
                 elif request.POST.has_key('query'):
                 #get nomal query
                     a,numlimit = func.check_mysql_query(a,request.user.username)
-                    print type(a)
-                    print a
+                    # print type(a)
+                    # print a
                     (data_mysql,collist,dbname) = func.get_mysql_data(c,a,request.user.username,request,numlimit)
                     return render(request,'mysql_query.html',{'form': form,'objlist':obj_list,'data_list':data_mysql,'col':collist,'choosed_host':c,'dbname':dbname})
             except Exception,e:
                 print e
+                return render(request, 'mysql_query.html', {'form': form, 'objlist': obj_list})
         else:
             return render(request, 'mysql_query.html', {'form': form,'objlist':obj_list})
     else:
@@ -326,7 +327,7 @@ def task_manager(request):
             endtime = datetime.datetime.now()
         if form2.is_valid():
             sche_time = form2.cleaned_data['sche_time']
-            print sche_time
+            # print sche_time
         else:
             sche_time = datetime.datetime.now()
         hosttag = request.POST['hosttag']
@@ -349,7 +350,7 @@ def task_manager(request):
         elif request.POST.has_key('exec'):
             id = int(request.POST['exec'])
             nllflag = incept.task_run(id,request)
-            print nllflag
+            # print nllflag
             return render(request,'task_manager.html',{'form':form,'form2':form2,'objlist':obj_list,'datalist':data,'choosed_host':hosttag,'nllflag':nllflag})
         elif request.POST.has_key('stop'):
             sqlsha = request.POST['stop']
@@ -370,9 +371,15 @@ def task_manager(request):
         form2 = Taskscheduler()
         return render(request, 'task_manager.html', {'form':form,'form2':form2,'objlist':obj_list,'datalist':data})
 
+
+
 @login_required(login_url='/accounts/login/')
 def update_task(request):
-    id = request.session['update_taskid']
+    try:
+        id = request.session['update_taskid']
+    except Exception,e:
+        str = "ERROR"
+        return render(request, 'update_task.html', {'str': str})
     if request.method == 'POST':
         flag,str = incept.check_task_status(id)
         if flag:
@@ -389,6 +396,8 @@ def update_task(request):
         except Exception,e:
             str = "ID NOT EXISTS , PLEASE CHECK !"
             return render(request, 'update_task.html', {'str': str})
+
+
 
 @login_required(login_url='/accounts/login/')
 @permission_required('myapp.can_query_pri', login_url='/')
