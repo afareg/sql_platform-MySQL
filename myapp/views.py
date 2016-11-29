@@ -196,6 +196,7 @@ def inception(request):
                 return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':obj_list})
         elif request.POST.has_key('upload'):
             upform = Uploadform(request.POST,request.FILES)
+            #c = request.POST['cx']
             if upform.is_valid():
                 c = request.POST['cx']
                 sqltext=''
@@ -207,7 +208,7 @@ def inception(request):
                         chunk = chunk.decode('gbk')
                     sqltext = sqltext + chunk
                 form = AddForm(initial={'a': sqltext})
-                return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':obj_list})
+                return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':obj_list,'choosed_host':c})
             else:
                 form = AddForm()
                 upform = Uploadform()

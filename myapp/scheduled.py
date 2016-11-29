@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.INFO,
 
 def get_config(group,config_name):
     config = ConfigParser.ConfigParser()
-    config.readfp(open('/root/PycharmProjects/mypro/myapp/etc/config.ini','r'))
+    config.readfp(open('/usr/local/django_project/mypro/myapp/etc/config.ini','r'))
     config_value=config.get(group,config_name).strip(' ').strip('\'').strip('\"')
     return config_value
 
