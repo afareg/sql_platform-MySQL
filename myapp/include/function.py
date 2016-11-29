@@ -121,7 +121,7 @@ def get_mysql_data(hosttag,sql,useraccount,request,limitnum):
     #not find specified account for the user ,specified the public account to the user
     if not vars().has_key('tar_username'):
         for i in a.db_account_set.all():
-            if i.role != 'write ' and i.role != 'admin':
+            if i.role != 'write' and i.role != 'admin':
                 # find the specified account for the user
                 if i.account.all().filter(username=public_user):
                     tar_username = i.user
