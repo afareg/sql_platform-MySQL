@@ -2,7 +2,7 @@
 #-*-coding:utf-8-*-
 import MySQLdb,sys,string,time,datetime,uuid
 from django.contrib.auth.models import User
-from myapp.models import Db_name,Db_account,Db_instance,Oper_log,Login_log
+from myapp.models import Db_name,Db_account,Db_instance,Oper_log,Login_log,Db_group
 from myapp.form import LoginForm,Captcha
 
 reload(sys)
@@ -112,7 +112,7 @@ def get_mysql_data(hosttag,sql,useraccount,request,limitnum):
         tar_host = a.instance.all()[0].ip
         tar_port = a.instance.all()[0].port
     for i in a.db_account_set.all():
-        if i.role!='write ' and i.role!='admin':
+        if i.role!='write' and i.role!='admin':
             # find the specified account for the user
             if i.account.all().filter(username=useraccount):
                 tar_username = i.user
@@ -351,7 +351,7 @@ def run_mysql_exec(hosttag,sql,useraccount,request):
             return results,col,tar_dbname
     #find the useraccount and passwd for the user
     for i in a.db_account_set.all():
-        if i.role != 'read ' and i.role != 'admin':
+        if i.role != 'read' and i.role != 'admin':
             #find the specified account for the user
             if i.account.all().filter(username=useraccount):
                 tar_username = i.user
@@ -360,7 +360,7 @@ def run_mysql_exec(hosttag,sql,useraccount,request):
     #not find specified account for the user ,specified the public account to the user
     if not vars().has_key('tar_username'):
         for i in a.db_account_set.all():
-            if i.role != 'read ' and i.role != 'admin':
+            if i.role != 'read' and i.role != 'admin':
                 # find the specified account for the user
                 if i.account.all().filter(username=public_user):
                     tar_username = i.user
@@ -414,6 +414,37 @@ def get_user_pre(username,request):
         info = "INPUT TOO LONG"
         dblist = User.objects.get(username=request.user.username).db_name_set.all()
     return dblist,info
+
+def get_UserAndGroup():
+    user_list = []
+    group_list = Db_group.objects.all()
+    for row in User.objects.all():
+        user_list.append(row.username)
+    return user_list,group_list
+
+def clear_userpri(username):
+    user = User.objects.get(username=username)
+    for i in Db_name.objects.all():
+        i.account.remove(user)
+    for i in Db_group.objects.all():
+        i.account.remove(user)
+
+
+def set_groupdb(username,li):
+    user = User.objects.get(username=username)
+    tag_list=[]
+    for i in li:
+        tmp_gp = Db_group.objects.get(id=i)
+        tmp_gp.account.add(user)
+        for x in tmp_gp.dbname.all():
+            tag_list.append(x.dbtag)
+            try:
+                x.account.add(user)
+            except Exception,e:
+                pass
+    tag_list = list(set(tag_list))
+    return tag_list
+
 
 def main():
     return 1

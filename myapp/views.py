@@ -419,6 +419,25 @@ def pre_query(request):
 
 
 
+def pre_set(request):
+    userlist,grouplist = func.get_UserAndGroup()
+    if request.method == 'POST':
+        username = request.POST['account']
+        if request.POST.has_key('set'):
+            dblist = request.POST.getlist('choosedlist')
+            list = func.set_groupdb(username,dblist)
+            print list
+            return render(request, 'pre_set.html', {'userlist': userlist, 'grouplist': grouplist})
+        elif request.POST.has_key('reset'):
+            username = request.POST['account']
+            func.clear_userpri(username)
+            return render(request, 'pre_set.html', {'userlist': userlist, 'grouplist': grouplist})
+    else:
+        return render(request, 'pre_set.html',{'userlist':userlist,'grouplist':grouplist})
+
+
+
+
 
 @ratelimit(key=func.my_key, rate='5/h')
 def test(request):

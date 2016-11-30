@@ -39,6 +39,13 @@ class Db_account(models.Model):
     def __unicode__(self):
         return  u'%s %s' % ( self.tags,self.role)
 
+class Db_group(models.Model):
+    groupname = models.CharField(max_length=30)
+    dbname = models.ManyToManyField(Db_name)
+    account = models.ManyToManyField(User)
+    def __unicode__(self):
+        return self.groupname
+
 class Oper_log(models.Model):
     user = models.CharField(max_length=35)
     ipaddr = models.CharField(max_length=35)

@@ -30,6 +30,7 @@ urlpatterns = (
     url(r'^sqlcheck/$', myapp_view.inception,name='inception'),
     url(r'^task/$', myapp_view.task_manager,name='task_manager'),
     url(r'^pre_query/$', myapp_view.pre_query,name='pre_query'),
+    url(r'^pre_set/$', myapp_view.pre_set,name='pre_set'),
     url(r'^test/$', myapp_view.test,name='test'),
     url(r'^update_task/$', myapp_view.update_task,name='update_task'),
     url(r'^site_media/(?P<path>.*)$', 'django.views.static.serve',{'document_root': settings.MEDIA_ROOT}),

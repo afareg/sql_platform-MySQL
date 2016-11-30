@@ -1,0 +1,86 @@
+{% extends "include/base.html" %}
+{% block title %}
+    <title>PRE_QUERY</title>
+{% endblock %}
+{% block name %}
+    欢迎使用权限查询功能
+{% endblock %}
+{%block content%}
+    <table >
+        <tr>
+            <td>
+                </br>
+                </br>
+                <form role="form" method='post'>
+                    {% csrf_token %}
+                    CHOOSE USERNAME:
+
+                    <select class="form-control col-md-1" name = "account">
+                        {% for obj in userlist %}
+                            <option value ="{{ obj }}">{{ obj }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <input type=="text" class="form-control" placeholder="input username here" name="accountname">
+
+                    <table id="mytable" class="table table-condensed" border="1">
+                        <thead>
+                        <tr class="danger">
+                            <th>ID</th>
+                            <th>GROUP_NAME</th>
+                            <th>DBLIST</th>
+                            <th>USERACCOUNT</th>
+                        </tr>
+                        </thead>
+                        <tbody  >
+                        {% for item in grouplist %}
+                            <tr>
+                                <td>{{ item.id }}</td>
+                                <td>{{ item.groupname }}</td>
+                                <td>
+                                    {% for i in item.dbname.all %}
+                                        {{i.dbtag}} &nbsp + {{ i.dbname }} </br>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% for i in item.account.all %}
+                                        {{i.username}} </br>
+                                    {% endfor %}
+                                </td>
+                                <td><input type="checkbox" name="choosedlist" value={{ item.id }}></td>
+                            </tr>
+
+                        {% endfor %}
+
+
+                        </tbody>
+
+                    </table>
+
+
+                    {#                    <select class="form-control col-md-1" multiple="multiple" name = "grouplist" size="10">#}
+                    {#                        {% for obj in grouplist %}#}
+                    {#                            <option value ="{{ obj }}">{{ obj }}</option>#}
+                    {#                        {% endfor %}#}
+                    {#                    </select>#}
+
+                    <button type="submit" name='set' onclick="return confirm('PLEASE COMFIRM')"  class="btn btn-danger" >set</button>
+                    <button type="submit" name='reset' onclick="return confirm('PLEASE COMFIRM')"  class="btn btn-success" >reset</button>
+
+                </form >
+            </td>
+            <td>
+                <div class="col-md-12">
+                    <h1>注意事项:</h1>
+                    <p class="bg-danger"> 1. 可以按库来查询，也可以按用户名查询</p>
+                    <p class="bg-success"> 2. 默认如果用户名输入框为空时，按照库来查询权限</p>
+                    <p class="bg-danger"> 3. 如果用户名输入有问题，默认返回当前用户的权限</p>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+{% endblock %}
+{% block script %}
+    {% include "include/pagejump/pagejump.html" %}
+{% endblock %}
