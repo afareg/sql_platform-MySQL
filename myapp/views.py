@@ -9,6 +9,7 @@ from captcha.fields import CaptchaField,CaptchaStore
 from captcha.helpers import captcha_image_url
 from django.http import HttpResponse,HttpResponseRedirect,StreamingHttpResponse
 from django.contrib.auth.decorators import login_required,permission_required
+from django.contrib.auth.models import User,Permission,ContentType,Group
 from myapp.include import function as func,inception as incept,chart
 from myapp.models import Db_name,Db_account,Db_instance,Oper_log,Upload,Task
 from django.core.files import File
@@ -407,6 +408,7 @@ def pre_query(request):
     if request.method == 'POST':
         if request.POST.has_key('accountname') and request.POST['accountname']!='':
             username = request.POST['accountname']
+            dbgp, usergp = func.get_user_grouppri(username)
             userdblist,info = func.get_user_pre(username,request)
             return render(request, 'prequery.html', {'objlist':objlist,'userdblist': userdblist,'info':info})
         elif request.POST.has_key('cx'):
@@ -418,22 +420,48 @@ def pre_query(request):
 
 
 
-
+@login_required(login_url='/accounts/login/')
 def pre_set(request):
     userlist,grouplist = func.get_UserAndGroup()
+    usergroup=func.get_usergp_list()
     if request.method == 'POST':
         username = request.POST['account']
         if request.POST.has_key('set'):
-            dblist = request.POST.getlist('choosedlist')
-            list = func.set_groupdb(username,dblist)
-            print list
-            return render(request, 'pre_set.html', {'userlist': userlist, 'grouplist': grouplist})
+            try :
+                dblist = request.POST.getlist('choosedlist')
+                group = request.POST.getlist('user_group')
+                func.set_groupdb(username,dblist)
+                user = User.objects.get(username=username)
+                func.set_usergroup(user, group)
+                info = 'SET USER ' + username + '  OK!'
+                return render(request, 'pre_set.html', {'info':info,'userlist': userlist, 'grouplist': grouplist,'usergroup':usergroup})
+            except Exception,e:
+                info = 'SET USER ' + username + '  FAILED!'
+                return render(request, 'pre_set.html', {'info':info,'userlist': userlist, 'grouplist': grouplist,'usergroup':usergroup})
         elif request.POST.has_key('reset'):
-            username = request.POST['account']
             func.clear_userpri(username)
-            return render(request, 'pre_set.html', {'userlist': userlist, 'grouplist': grouplist})
+            info = 'RESET USER '+ username + '  OK!'
+            return render(request, 'pre_set.html', {'info':info,'userlist': userlist, 'grouplist': grouplist,'usergroup':usergroup})
+        elif request.POST.has_key('query'):
+            dbgp,usergp = func.get_user_grouppri(username)
+            return render(request, 'pre_set.html', {'username':username,'dbgp':dbgp,'usergp':usergp,'userlist': userlist, 'grouplist': grouplist,'usergroup':usergroup})
+        elif  request.POST.has_key('create'):
+            try:
+                username = request.POST['newname']
+                passwd = request.POST['newpasswd']
+                group = request.POST.getlist('user_group')
+                dblist = request.POST.getlist('choosedlist')
+                user = func.create_user(username,passwd)
+                func.set_groupdb(username, dblist)
+                func.set_usergroup(user,group)
+                info = "CREATE USER SUCCESS!"
+                return render(request,'pre_set.html', {'info':info,'userlist': userlist, 'grouplist': grouplist,'usergroup':usergroup})
+            except Exception,e:
+                info = "CREATE USER FAILED!"
+                print info
+                return render(request,'pre_set.html',{'info':info,'userlist': userlist, 'grouplist': grouplist,'usergroup':usergroup})
     else:
-        return render(request, 'pre_set.html',{'userlist':userlist,'grouplist':grouplist})
+        return render(request, 'pre_set.html',{'userlist':userlist,'grouplist':grouplist,'usergroup':usergroup})
 
 
 

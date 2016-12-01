@@ -3,82 +3,131 @@
     <title>PRE_QUERY</title>
 {% endblock %}
 {% block name %}
-    欢迎使用权限查询功能
+    欢迎使用权限设置功能
 {% endblock %}
 {%block content%}
-    <table >
-        <tr>
-            <td>
+    {% if info %}
+        </br>
+        </br>
+        <strong> <span style="color:red">{{ info }}</span></strong>
+    {% endif %}
+    <form role="form" method='post'>
+        {% csrf_token %}
+        <table >
+            <tr>
                 </br>
                 </br>
-                <form role="form" method='post'>
-                    {% csrf_token %}
-                    CHOOSE USERNAME:
-
+                <td>
+                    <strong>CHOOSE USERNAME:</strong>
                     <select class="form-control col-md-1" name = "account">
                         {% for obj in userlist %}
-                            <option value ="{{ obj }}">{{ obj }}</option>
+                            {% if obj == username %}
+                                <option selected="selected" value ="{{ obj }}">{{ obj }}</option>
+                            {% else %}
+                                <option value ="{{ obj }}">{{ obj }}</option>
+                            {% endif %}
                         {% endfor %}
                     </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <button type="submit" name='query' class="btn btn-primary" >查询</button>
+                    <button type="submit" name='set' onclick="return confirm('PLEASE COMFIRM')"  class="btn btn-danger" >设置权限</button>
+                    <button type="submit" name='reset' onclick="return confirm('PLEASE COMFIRM')"  class="btn btn-success" >用户权限清空</button>
+                </td>
+            </tr>
+            <tr>
 
-                    <input type=="text" class="form-control" placeholder="input username here" name="accountname">
+                <td>
+                    </br>
+                    <input type=="text" class="form-control" maxlength="30" placeholder="input username here" name="newname">
+                </td>
+                <td>
+                    </br>
+                    <input type=="text" class="form-control" maxlength="20" placeholder="input password here" name="newpasswd">
+                </td>
 
-                    <table id="mytable" class="table table-condensed" border="1">
-                        <thead>
-                        <tr class="danger">
-                            <th>ID</th>
-                            <th>GROUP_NAME</th>
-                            <th>DBLIST</th>
-                            <th>USERACCOUNT</th>
-                        </tr>
-                        </thead>
-                        <tbody  >
-                        {% for item in grouplist %}
-                            <tr>
-                                <td>{{ item.id }}</td>
-                                <td>{{ item.groupname }}</td>
-                                <td>
-                                    {% for i in item.dbname.all %}
-                                        {{i.dbtag}} &nbsp + {{ i.dbname }} </br>
-                                    {% endfor %}
-                                </td>
-                                <td>
-                                    {% for i in item.account.all %}
-                                        {{i.username}} </br>
-                                    {% endfor %}
-                                </td>
-                                <td><input type="checkbox" name="choosedlist" value={{ item.id }}></td>
-                            </tr>
+            </tr>
+            <tr>
+                <td>
+                    <button type="submit" name='create' onclick="return confirm('PLEASE COMFIRM')"  class="btn btn-info" >创建账号</button>
+                </td>
+            </tr>
+        </table>
 
+        {% if usergroup %}
+            </br>
+            <strong>CHOOSE USERGROUP FOR USER :</strong>
+            <select class="form-control col-md-1" multiple="multiple" size=10 name = "user_group">
+                {% for obj in usergroup %}
+                    {% if obj in usergp %}
+                        <option selected = "selected" value ="{{ obj }}">{{ obj }}</option>
+                    {% else %}
+                        <option value ="{{ obj }}">{{ obj }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        {% endif %}
+        </br>
+        <strong>CHOOSE DBGROUP FOR USER :</strong>
+        <table id="mytable" class="table table-condensed" border="1">
+            <thead>
+            <tr class="danger">
+                <th>ID</th>
+                <th>GROUP_NAME</th>
+                <th>DBLIST</th>
+                <th>USERACCOUNT</th>
+                <th>勾选GROUP</th>
+            </tr>
+            </thead>
+            <tbody  >
+            {% for item in grouplist %}
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.groupname }}</td>
+                    <td>
+                        {% for i in item.dbname.all %}
+                            {% if forloop.counter < 9 %}
+                                {{i.dbtag}}  + {{ i.dbname }} </br>
+                            {% elif forloop.counter == 9 %}
+                                ...
+                            {% endif %}
                         {% endfor %}
+                    </td>
+                    <td>
+                        {% for i in item.account.all %}
+                            {% if forloop.counter < 9 %}
+                                {{i.username}} </br>
+                            {% elif forloop.counter == 9 %}
+                                ...
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    {% if item in dbgp %}
+                        <td><input type="checkbox" checked="1" size="100" name="choosedlist" value={{ item.id }}></td>
+                    {% else %}
+                        <td><input type="checkbox" size="100" name="choosedlist" value={{ item.id }}></td>
+                    {% endif %}
+                </tr>
+
+            {% endfor %}
 
 
-                        </tbody>
+            </tbody>
 
-                    </table>
+        </table>
 
 
-                    {#                    <select class="form-control col-md-1" multiple="multiple" name = "grouplist" size="10">#}
-                    {#                        {% for obj in grouplist %}#}
-                    {#                            <option value ="{{ obj }}">{{ obj }}</option>#}
-                    {#                        {% endfor %}#}
-                    {#                    </select>#}
+        {#                    <select class="form-control col-md-1" multiple="multiple" name = "grouplist" size="10">#}
+        {#                        {% for obj in grouplist %}#}
+        {#                            <option value ="{{ obj }}">{{ obj }}</option>#}
+        {#                        {% endfor %}#}
+        {#                    </select>#}
 
-                    <button type="submit" name='set' onclick="return confirm('PLEASE COMFIRM')"  class="btn btn-danger" >set</button>
-                    <button type="submit" name='reset' onclick="return confirm('PLEASE COMFIRM')"  class="btn btn-success" >reset</button>
 
-                </form >
-            </td>
-            <td>
-                <div class="col-md-12">
-                    <h1>注意事项:</h1>
-                    <p class="bg-danger"> 1. 可以按库来查询，也可以按用户名查询</p>
-                    <p class="bg-success"> 2. 默认如果用户名输入框为空时，按照库来查询权限</p>
-                    <p class="bg-danger"> 3. 如果用户名输入有问题，默认返回当前用户的权限</p>
-                </div>
-            </td>
-        </tr>
-    </table>
+    </form >
+
 
 {% endblock %}
 {% block script %}

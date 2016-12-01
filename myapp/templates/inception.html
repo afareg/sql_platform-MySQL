@@ -30,7 +30,7 @@
                     请输入要审核的SQL脚本:</br>
                     {{ form.a }} </br> </br>
                     {{ upform.filename }}
-                    <input type=="text" class="form-control" placeholder="执行说明，可选，最多30字" name="specification">
+                    <input type=="text" maxlength="30" class="form-control" placeholder="执行说明，可选，最多30字" name="specification">
                     <button type="submit" name='check' class="btn btn-primary">审核</button >
                     <button type="submit" name='upload' class="btn btn-warning">脚本上传</button >
                     <button type="submit" name='addtask' onclick="return confirm('PLEASE COMFIRM')" class="btn btn-danger">提交任务</button >

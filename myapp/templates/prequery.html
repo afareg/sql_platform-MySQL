@@ -28,7 +28,7 @@
                         </br> </br>
                     {% endif %}
 
-                    <input type=="text" class="form-control" placeholder="input username for query" name="accountname">
+                    <input type=="text" class="form-control" maxlength="30" placeholder="input username for query" name="accountname">
                     <button type="submit" name="commit"  class="btn btn-primary">查询</button >
                 </form >
             </td>
@@ -113,7 +113,7 @@
     {% endif %}
 
     {% if userdblist %}
-        {{ info }}
+        <strong><span style="color:red">{{ info }}</span></strong>
         <table id="userlist" class="table table-condensed" border="1">
             <thead>
             <tr class="danger">
@@ -135,7 +135,11 @@
                     </td>
                     <td>
                         {% for i in db.account.all %}
-                            {{i.username}} </br>
+                            {% if forloop.counter < 9 %}
+                                {{i.username}} </br>
+                            {% elif forloop.counter == 9 %}
+                                ...
+                            {% endif %}
                         {% endfor %}
                     </td>
                 </tr>

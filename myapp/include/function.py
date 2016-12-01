@@ -1,7 +1,7 @@
 #!/bin/env python
 #-*-coding:utf-8-*-
 import MySQLdb,sys,string,time,datetime,uuid
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User,Permission,ContentType,Group
 from myapp.models import Db_name,Db_account,Db_instance,Oper_log,Login_log,Db_group
 from myapp.form import LoginForm,Captcha
 
@@ -12,6 +12,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.message import Message
 from email.header import Header
+
 
 
 
@@ -415,6 +416,10 @@ def get_user_pre(username,request):
         dblist = User.objects.get(username=request.user.username).db_name_set.all()
     return dblist,info
 
+
+
+
+
 def get_UserAndGroup():
     user_list = []
     group_list = Db_group.objects.all()
@@ -422,20 +427,31 @@ def get_UserAndGroup():
         user_list.append(row.username)
     return user_list,group_list
 
+def get_user_grouppri(username):
+    user = User.objects.get(username=username)
+    a = user.db_group_set.all()
+    b = user.groups.all()
+    return  a,b
+
 def clear_userpri(username):
     user = User.objects.get(username=username)
     for i in Db_name.objects.all():
         i.account.remove(user)
     for i in Db_group.objects.all():
         i.account.remove(user)
-
+    user.user_permissions.clear()
+    user.groups.clear()
 
 def set_groupdb(username,li):
     user = User.objects.get(username=username)
     tag_list=[]
     for i in li:
         tmp_gp = Db_group.objects.get(id=i)
-        tmp_gp.account.add(user)
+        try:
+            tmp_gp.account.add(user)
+        except Exception,e:
+            pass
+
         for x in tmp_gp.dbname.all():
             tag_list.append(x.dbtag)
             try:
@@ -445,6 +461,29 @@ def set_groupdb(username,li):
     tag_list = list(set(tag_list))
     return tag_list
 
+def create_user(username,passwd):
+    user = User.objects.create_user(username=username,password=passwd)
+    user.save()
+    return user
+
+# a = Permission.objects.filter(codename__istartswith='can')
+
+def set_usergroup(user,group):
+    # user.groups.clear()
+    grouplist = Group.objects.filter(name__in=group)
+    for i in grouplist:
+        try:
+            user.groups.add(i)
+            user.save()
+        except Exception,e:
+            pass
+    # for i in a:
+    #     print i.codename
+
+def get_usergp_list():
+    # perlist = Permission.objects.filter(codename__istartswith='can')
+    grouplist = Group.objects.all()
+    return grouplist
 
 def main():
     return 1
