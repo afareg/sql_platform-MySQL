@@ -404,7 +404,7 @@ def get_pre(dbtag):
     return acc_list,ins,acc
 
 def get_user_pre(username,request):
-    if len(username)<25:
+    if len(username)<30:
         try :
             info = "PRIVILEGES FOR " + username
             dblist = User.objects.get(username=username).db_name_set.all()
@@ -416,9 +416,15 @@ def get_user_pre(username,request):
         dblist = User.objects.get(username=request.user.username).db_name_set.all()
     return dblist,info
 
+#used in prequery.html
+def get_groupdb(group):
+    grouplist = Db_group.objects.filter(groupname=group)
+    return grouplist
 
-
-
+#used in prequery.html
+def get_privileges(username):
+    pri = User.objects.get(username=username).user_permissions.all()
+    return pri
 
 def get_UserAndGroup():
     user_list = []
@@ -461,6 +467,7 @@ def set_groupdb(username,li):
     tag_list = list(set(tag_list))
     return tag_list
 
+#create user in pre_set.html
 def create_user(username,passwd):
     user = User.objects.create_user(username=username,password=passwd)
     user.save()

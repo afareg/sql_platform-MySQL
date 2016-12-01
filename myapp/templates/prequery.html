@@ -8,36 +8,49 @@
 {%block content%}
     <table >
         <tr>
-            <td>
-                </br>
-                </br>
-                <form role="form" method='post'>
+            <form role="form" method='post'>
+                <td>
+                    </br>
+                    </br>
+
                     {% csrf_token %}
                     CHOOSE :
-                    {%  if choosed_host %}
-                        <select class="form-control col-md-1" name = "cx">
-                            <option value ="{{ choosed_host }}">{{ choosed_host }}</option>
-                        </select></br>
-                        <a href="/pre_query/"><input type="button" value="重选DB" class="btn btn-danger"></a>
-                    {% else %}
-                        <select class="form-control col-md-1" name = "cx">
-                            {% for obj in objlist %}
+                    <select class="form-control col-md-1" name = "cx">
+                        {% for obj in objlist %}
+                            {% if obj == choosed_host %}
+                                <option selected="selected" value ="{{ obj }}">{{ obj }}</option>
+                            {% else %}
                                 <option value ="{{ obj }}">{{ obj }}</option>
-                            {% endfor %}
-                        </select>
-                        </br> </br>
-                    {% endif %}
-
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    </br> </br>
                     <input type=="text" class="form-control" maxlength="30" placeholder="input username for query" name="accountname">
-                    <button type="submit" name="commit"  class="btn btn-primary">查询</button >
-                </form >
-            </td>
+
+                    <select class="form-control col-md-1" name = "choosed_gp">
+                        {% for obj in usergroup %}
+                            {% if obj in dbgroup %}
+                                <option selected = "selected" value ="{{ obj.groupname }}">{{ obj.groupname }}</option>
+                            {% else %}
+                                <option value ="{{ obj.groupname }}">{{ obj.groupname }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    </br>
+                    </br>
+                    </br>
+                    <button type="submit" name="querydb" value="1" class="btn btn-success">查询</button > </br>
+                    <button type="submit" name="queryuser"  value="1" class="btn btn-primary">查询</button > </br>
+                    <button type="submit" name="querygp" value="1" class="btn btn-danger">查询</button > (DB_GROUP)
+                </td>
+            </form >
             <td>
                 <div class="col-md-12">
                     <h1>注意事项:</h1>
-                    <p class="bg-danger"> 1. 可以按库来查询，也可以按用户名查询</p>
-                    <p class="bg-success"> 2. 默认如果用户名输入框为空时，按照库来查询权限</p>
-                    <p class="bg-danger"> 3. 如果用户名输入有问题，默认返回当前用户的权限</p>
+                    <p class="bg-danger"> 1. 可以按库查询，按用户名查询，按DBgroup名查询</p>
+                    <p class="bg-success"> 2. 如果用户名输入有问题，返回空</p>
                 </div>
             </td>
         </tr>
@@ -136,7 +149,7 @@
                     <td>
                         {% for i in db.account.all %}
                             {% if forloop.counter < 9 %}
-                                {{i.username}} </br>
+                                {{i.username}} ,
                             {% elif forloop.counter == 9 %}
                                 ...
                             {% endif %}
@@ -148,6 +161,143 @@
         </table>
     {% endif %}
 
+
+    {% if dbgp %}
+        <strong>DB_GROUP FOR THE USER:</strong>
+        <table id="mytable" class="table table-condensed" border="1">
+            <thead>
+            <tr class="danger">
+                <th>ID</th>
+                <th>GROUP_NAME</th>
+                <th>DBLIST</th>
+                <th>USERACCOUNT</th>
+            </tr>
+            </thead>
+            <tbody  >
+            {% for item in dbgp %}
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.groupname }}</td>
+                    <td>
+                        {% for i in item.dbname.all %}
+                            {{i.dbtag}}  + {{ i.dbname }} </br>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for i in item.account.all %}
+                            {{i.username}} ,
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+    {% endif %}
+
+
+    {% if usergp %}
+        <strong>GROUP FOR THE USER:</strong>
+        <table id="mytable" class="table table-condensed" border="1">
+            <thead>
+            <tr class="danger">
+                <th>GROUPNAME</th>
+                <th>PERMISSION</th>
+            </tr>
+            </thead>
+            <tbody  >
+            {% for item in usergp %}
+                <tr>
+                    <td>{{ item }}</td>
+                    <td>
+                        {% for i in item.permissions.all %}
+                            {{ i.codename }} </br>
+                        {% endfor %}
+                    </td>
+
+
+                </tr>
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+    {% endif %}
+
+    {% if pri %}
+        <strong>PRIVILEGES FOR THE USER:</strong>
+        <table class="table table-condensed" border="1">
+            <thead>
+            <tr class="danger">
+                <th>SELECT_LIMIT</th>
+                <th>EXPORT_LIMIT</th>
+            </tr>
+            </thead>
+            <tbody  >
+            {% for item in pri %}
+                <tr>
+                    <td>{{ item.codename  }}</td>
+                    <td>{{ item  }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+
+
+    {% if profile %}
+        <table class="table table-condensed" border="1">
+            <thead>
+            <tr class="danger">
+                <th>SELECT_LIMIT</th>
+                <th>EXPORT_LIMIT</th>
+            </tr>
+            </thead>
+            <tbody  >
+            <tr>
+                <td>{{ profile.select_limit }}</td>
+                <td>
+                    {{ profile.export_limit }}
+                </td>
+            </tr>
+
+            </tbody>
+        </table>
+    {% endif %}
+
+
+    {% if dbgroup %}
+        <table class="table table-condensed" border="1">
+            <thead>
+            <tr class="danger">
+                <th>ID</th>
+                <th>GROUP_NAME</th>
+                <th>DBLIST</th>
+                <th>USERACCOUNT</th>
+            </tr>
+            </thead>
+            <tbody  >
+            {% for item in dbgroup %}
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.groupname }}</td>
+                    <td>
+                        {% for i in item.dbname.all %}
+                            {{i.dbtag}}  + {{ i.dbname }} </br>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for i in item.account.all %}
+                            {{i.username}} </br>
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
 
 
 {% endblock %}

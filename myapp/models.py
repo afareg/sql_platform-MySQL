@@ -100,6 +100,7 @@ class User_profile(models.Model):
                       ('can_admin_task','can admin task'),
                       ('can_update_task', 'can update task'),
                       ('can_query_pri', 'can query pri'),
+                      ('can_set_pri', 'can set pri'),
                       )
 
 class Upload(models.Model):

@@ -11,7 +11,7 @@ from django.http import HttpResponse,HttpResponseRedirect,StreamingHttpResponse
 from django.contrib.auth.decorators import login_required,permission_required
 from django.contrib.auth.models import User,Permission,ContentType,Group
 from myapp.include import function as func,inception as incept,chart
-from myapp.models import Db_name,Db_account,Db_instance,Oper_log,Upload,Task
+from myapp.models import Db_group,Db_name,Db_account,Db_instance,Oper_log,Upload,Task
 from django.core.files import File
 #path='./myapp/include'
 #sys.path.insert(0,path)
@@ -400,27 +400,49 @@ def update_task(request):
             return render(request, 'update_task.html', {'str': str})
 
 
-
 @login_required(login_url='/accounts/login/')
 @permission_required('myapp.can_query_pri', login_url='/')
 def pre_query(request):
     objlist = func.get_mysql_hostlist(request.user.username,'log')
+    usergroup = Db_group.objects.all()
     if request.method == 'POST':
-        if request.POST.has_key('accountname') and request.POST['accountname']!='':
-            username = request.POST['accountname']
-            dbgp, usergp = func.get_user_grouppri(username)
-            userdblist,info = func.get_user_pre(username,request)
-            return render(request, 'prequery.html', {'objlist':objlist,'userdblist': userdblist,'info':info})
-        elif request.POST.has_key('cx'):
-            c = request.POST['cx']
-            data,instance,acc = func.get_pre(c)
-            return render(request, 'prequery.html',{'objlist':objlist,'choosed_host':c,'data_list':data,'ins_list':instance,'acc':acc})
+        if request.POST.has_key('queryuser'):
+        # if request.POST.has_key('accountname') and request.POST['accountname']!='':
+            try:
+                username = request.POST['accountname']
+                dbgp, usergp = func.get_user_grouppri(username)
+
+                pri = func.get_privileges(username)
+                profile = []
+                try:
+                    profile = User.objects.get(username=username).user_profile
+                except Exception,e:
+                    pass
+                userdblist,info = func.get_user_pre(username,request)
+                return render(request, 'prequery.html', {'pri':pri,'profile':profile,'dbgp':dbgp,'usergp':usergp,'objlist':objlist,'userdblist': userdblist,'info':info,'usergroup':usergroup})
+            except Exception,e:
+                return render(request, 'prequery.html',{'objlist':objlist,'usergroup':usergroup})
+        elif request.POST.has_key('querydb'):
+            try:
+                choosed_host = request.POST['cx']
+                data,instance,acc = func.get_pre(choosed_host)
+                return render(request, 'prequery.html',{'objlist':objlist,'choosed_host':choosed_host,'data_list':data,'ins_list':instance,'acc':acc,'usergroup':usergroup})
+            except Exception, e:
+                return render(request, 'prequery.html', {'objlist': objlist, 'usergroup': usergroup})
+        elif request.POST.has_key('querygp'):
+            try:
+                choosed_gp = request.POST['choosed_gp']
+                dbgroup = func.get_groupdb(choosed_gp)
+                return render(request, 'prequery.html', {'objlist': objlist,'dbgroup':dbgroup,'usergroup': usergroup})
+            except Exception,e:
+                return render(request, 'prequery.html', {'objlist': objlist, 'usergroup': usergroup})
     else:
-        return render(request, 'prequery.html',{'objlist':objlist})
+        return render(request, 'prequery.html',{'objlist':objlist,'usergroup':usergroup})
 
 
 
 @login_required(login_url='/accounts/login/')
+@permission_required('myapp.can_set_pri', login_url='/')
 def pre_set(request):
     userlist,grouplist = func.get_UserAndGroup()
     usergroup=func.get_usergp_list()
