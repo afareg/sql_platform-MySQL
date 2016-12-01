@@ -196,7 +196,9 @@
                     <td > {{ item.status }}</td>
                     <td > {{ item.sche_time|date:"Y-m-d H:i" }}</td>
                     <td > {{ item.specification|truncatechars:30|linebreaks}}</td>
-                    <td><button type="submit" name='delete' class="btn btn-primary" value={{ item.id }}>删除</button></td>
+                    {% if perms.myapp.can_admin_task or perms.myapp.can_delete_task %}
+                        <td><button type="submit" name='delete' class="btn btn-primary" value={{ item.id }}>删除</button></td>
+                    {% endif %}
                     <td><button type="submit" name='check' class="btn btn-warning" value={{ item.id }}>审核</button></td>
                     {% if perms.myapp.can_admin_task %}
                         <td><button type="submit" name='exec' onclick="return confirm('PLEASE COMFIRM')"  class="btn btn-danger" value={{ item.id }}>执行</button></td>

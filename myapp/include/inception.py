@@ -243,7 +243,7 @@ def update_task(id,sqltext,specify):
         task_data.status='NULL'
     task_data.save()
 
-
+#"can_admin_task" users can see all tasks ,others can only see their own tasks
 def get_task_list(dbtag,request,end):
     username=request.user.username
     if request.user.has_perm('myapp.can_admin_task'):
