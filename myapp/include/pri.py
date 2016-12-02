@@ -190,3 +190,5 @@ def create_ugroup(groupname,persetlist,usersetlist):
 def del_ugroup(groupname):
     group = Group.objects.get(name=groupname)
     group.delete()
+
+

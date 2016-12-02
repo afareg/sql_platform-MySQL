@@ -582,7 +582,8 @@ def set_ugroup(request):
                 groupname = request.POST['group_set']
                 persetlist = request.POST.getlist('per_set')
                 usersetlist = request.POST.getlist('user_set')
-
+                pri.del_ugroup(groupname)
+                s_perlist, s_userlist = pri.create_ugroup(groupname, persetlist,usersetlist)
                 return render(request, 'previliges/u_group.html', locals())
             except Exception,e:
                 info = "SET FAILED!"
