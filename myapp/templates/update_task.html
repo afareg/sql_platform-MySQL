@@ -7,7 +7,7 @@
 {% endblock %}
 {%block content%}
     {% if str %}
-        <h2>{{ str }}</h2>
+        <h2><span style="color:red">{{ str }}</span></h2>
     {% endif %}
     <form role="form" method='post'>
         {% csrf_token %}

@@ -35,6 +35,8 @@
                     <button type="submit" name='query' class="btn btn-primary" >查询</button>
                     <button type="submit" name='set' onclick="return confirm('PLEASE COMFIRM')"  class="btn btn-danger" >设置权限</button>
                     <button type="submit" name='reset' onclick="return confirm('PLEASE COMFIRM')"  class="btn btn-success" >用户权限清空</button>
+                    <button type="submit" name='delete' onclick="return confirm('PLEASE COMFIRM')"  class="btn btn-default" >删除用户</button>
+
                 </td>
             </tr>
             <tr>
@@ -110,12 +112,8 @@
                         <td><input type="checkbox" size="100" name="choosedlist" value={{ item.id }}></td>
                     {% endif %}
                 </tr>
-
             {% endfor %}
-
-
             </tbody>
-
         </table>
 
 
@@ -124,7 +122,19 @@
         {#                            <option value ="{{ obj }}">{{ obj }}</option>#}
         {#                        {% endfor %}#}
         {#                    </select>#}
-
+        {% if dblist %}
+            </br>
+            <strong>CHOOSE DB FOR USER (optional) :</strong>
+            <select class="form-control col-md-1" multiple="multiple" size=10 name = "user_dblist">
+                {% for obj in dblist %}
+                    {% if obj in userdblist %}
+                        <option selected = "selected" value ="{{ obj.dbtag }}">{{ obj.dbtag }}</option>
+                    {% else %}
+                        <option value ="{{ obj.dbtag }}">{{ obj.dbtag }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        {% endif %}
 
     </form >
 

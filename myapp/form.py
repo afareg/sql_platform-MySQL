@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from captcha.fields import CaptchaField
+from myapp.models import Db_group,Db_name,Db_account,Db_instance,Oper_log,Upload,Task
 from django.contrib.admin import widgets
 from django.contrib.auth.models import User
 class LoginForm(forms.Form):
@@ -58,3 +59,9 @@ class Uploadform(forms.Form):
 
 class Captcha(forms.Form):
     mycaptcha = CaptchaField(label="验证码:",)
+
+
+class Dbgroupform(forms.ModelForm):
+    class Meta:
+        model = Db_group
+        fields = '__all__'

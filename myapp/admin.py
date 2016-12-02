@@ -5,6 +5,6 @@ from django.contrib.auth.models import User
 admin.site.register(Db_name)
 admin.site.register(Db_account)
 admin.site.register(Db_instance)
-admin.site.register(Db_group)
+# admin.site.register(Db_group)
 admin.site.register(User_profile)
 # Register your models here.

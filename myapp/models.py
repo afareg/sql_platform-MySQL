@@ -40,7 +40,7 @@ class Db_account(models.Model):
         return  u'%s %s' % ( self.tags,self.role)
 
 class Db_group(models.Model):
-    groupname = models.CharField(max_length=30)
+    groupname = models.CharField(max_length=30,unique=True)
     dbname = models.ManyToManyField(Db_name)
     account = models.ManyToManyField(User)
     def __unicode__(self):

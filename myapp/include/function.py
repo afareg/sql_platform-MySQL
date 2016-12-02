@@ -404,7 +404,7 @@ def get_pre(dbtag):
     return acc_list,ins,acc
 
 def get_user_pre(username,request):
-    if len(username)<30:
+    if len(username)<=30:
         try :
             info = "PRIVILEGES FOR " + username
             dblist = User.objects.get(username=username).db_name_set.all()
@@ -472,8 +472,23 @@ def create_user(username,passwd):
     user = User.objects.create_user(username=username,password=passwd)
     user.save()
     return user
+#delete user in pre_set.html
+def delete_user(username):
+    user = User.objects.get(username=username)
+    user.delete()
+
+#user dbtaglist and user to set user-db relation
+def set_user_db(user,dblist):
+    setdblist = Db_name.objects.filter(dbtag__in=dblist)
+    for i in setdblist:
+        try:
+            i.account.add(user)
+            i.save()
+        except Exception,e:
+            pass
 
 # a = Permission.objects.filter(codename__istartswith='can')
+
 
 def set_usergroup(user,group):
     # user.groups.clear()
@@ -491,6 +506,9 @@ def get_usergp_list():
     # perlist = Permission.objects.filter(codename__istartswith='can')
     grouplist = Group.objects.all()
     return grouplist
+
+
+
 
 def main():
     return 1

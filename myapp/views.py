@@ -4,13 +4,13 @@ from django.template.context import RequestContext
 from ratelimit.decorators import ratelimit,is_ratelimited
 from django.shortcuts import render,render_to_response
 from django.contrib import auth
-from form import AddForm,LoginForm,Logquery,Uploadform,Captcha,Taskquery,Taskscheduler
+from form import AddForm,LoginForm,Logquery,Uploadform,Captcha,Taskquery,Taskscheduler,Dbgroupform
 from captcha.fields import CaptchaField,CaptchaStore
 from captcha.helpers import captcha_image_url
 from django.http import HttpResponse,HttpResponseRedirect,StreamingHttpResponse
 from django.contrib.auth.decorators import login_required,permission_required
 from django.contrib.auth.models import User,Permission,ContentType,Group
-from myapp.include import function as func,inception as incept,chart
+from myapp.include import function as func,inception as incept,chart,pri
 from myapp.models import Db_group,Db_name,Db_account,Db_instance,Oper_log,Upload,Task
 from django.core.files import File
 #path='./myapp/include'
@@ -419,25 +419,25 @@ def pre_query(request):
                 except Exception,e:
                     pass
                 userdblist,info = func.get_user_pre(username,request)
-                return render(request, 'prequery.html', {'pri':pri,'profile':profile,'dbgp':dbgp,'usergp':usergp,'objlist':objlist,'userdblist': userdblist,'info':info,'usergroup':usergroup})
+                return render(request, 'previliges/prequery.html', {'pri':pri, 'profile':profile, 'dbgp':dbgp, 'usergp':usergp, 'objlist':objlist, 'userdblist': userdblist, 'info':info, 'usergroup':usergroup})
             except Exception,e:
-                return render(request, 'prequery.html',{'objlist':objlist,'usergroup':usergroup})
+                return render(request, 'previliges/prequery.html', {'objlist':objlist, 'usergroup':usergroup})
         elif request.POST.has_key('querydb'):
             try:
                 choosed_host = request.POST['cx']
                 data,instance,acc = func.get_pre(choosed_host)
-                return render(request, 'prequery.html',{'objlist':objlist,'choosed_host':choosed_host,'data_list':data,'ins_list':instance,'acc':acc,'usergroup':usergroup})
+                return render(request, 'previliges/prequery.html', {'objlist':objlist, 'choosed_host':choosed_host, 'data_list':data, 'ins_list':instance, 'acc':acc, 'usergroup':usergroup})
             except Exception, e:
-                return render(request, 'prequery.html', {'objlist': objlist, 'usergroup': usergroup})
+                return render(request, 'previliges/prequery.html', {'objlist': objlist, 'usergroup': usergroup})
         elif request.POST.has_key('querygp'):
             try:
                 choosed_gp = request.POST['choosed_gp']
                 dbgroup = func.get_groupdb(choosed_gp)
-                return render(request, 'prequery.html', {'objlist': objlist,'dbgroup':dbgroup,'usergroup': usergroup})
+                return render(request, 'previliges/prequery.html', {'objlist': objlist, 'dbgroup':dbgroup, 'usergroup': usergroup})
             except Exception,e:
-                return render(request, 'prequery.html', {'objlist': objlist, 'usergroup': usergroup})
+                return render(request, 'previliges/prequery.html', {'objlist': objlist, 'usergroup': usergroup})
     else:
-        return render(request, 'prequery.html',{'objlist':objlist,'usergroup':usergroup})
+        return render(request, 'previliges/prequery.html', {'objlist':objlist, 'usergroup':usergroup})
 
 
 
@@ -446,47 +446,149 @@ def pre_query(request):
 def pre_set(request):
     userlist,grouplist = func.get_UserAndGroup()
     usergroup=func.get_usergp_list()
+    dblist = Db_name.objects.all()
     if request.method == 'POST':
         username = request.POST['account']
         if request.POST.has_key('set'):
             try :
-                dblist = request.POST.getlist('choosedlist')
+                dbgplist = request.POST.getlist('choosedlist')
                 group = request.POST.getlist('user_group')
-                func.set_groupdb(username,dblist)
+                ch_db = request.POST.getlist('user_dblist')
+                func.clear_userpri(username)
+                func.set_groupdb(username,dbgplist)
                 user = User.objects.get(username=username)
                 func.set_usergroup(user, group)
+                func.set_user_db(user, ch_db)
                 info = 'SET USER ' + username + '  OK!'
-                return render(request, 'pre_set.html', {'info':info,'userlist': userlist, 'grouplist': grouplist,'usergroup':usergroup})
+                return render(request, 'previliges/pre_set.html', {'info':info, 'dblist':dblist, 'userlist': userlist, 'grouplist': grouplist, 'usergroup':usergroup})
             except Exception,e:
                 info = 'SET USER ' + username + '  FAILED!'
-                return render(request, 'pre_set.html', {'info':info,'userlist': userlist, 'grouplist': grouplist,'usergroup':usergroup})
+                return render(request, 'previliges/pre_set.html', {'info':info, 'dblist':dblist, 'userlist': userlist, 'grouplist': grouplist, 'usergroup':usergroup})
         elif request.POST.has_key('reset'):
             func.clear_userpri(username)
             info = 'RESET USER '+ username + '  OK!'
-            return render(request, 'pre_set.html', {'info':info,'userlist': userlist, 'grouplist': grouplist,'usergroup':usergroup})
+            return render(request, 'previliges/pre_set.html', {'info':info, 'dblist':dblist, 'userlist': userlist, 'grouplist': grouplist, 'usergroup':usergroup})
         elif request.POST.has_key('query'):
             dbgp,usergp = func.get_user_grouppri(username)
-            return render(request, 'pre_set.html', {'username':username,'dbgp':dbgp,'usergp':usergp,'userlist': userlist, 'grouplist': grouplist,'usergroup':usergroup})
+            userdblist,info = func.get_user_pre(username, request)
+            return render(request, 'previliges/pre_set.html', {'username':username, 'dbgp':dbgp, 'usergp':usergp, 'userdblist':userdblist, 'dblist':dblist, 'userlist': userlist, 'grouplist': grouplist, 'usergroup':usergroup})
+        elif request.POST.has_key('delete'):
+            try:
+                info = 'DELETE USER ' + username + '  OK!'
+                func.delete_user(username)
+                return render(request, 'previliges/pre_set.html',{'info': info, 'dblist': dblist, 'userlist': userlist, 'grouplist': grouplist,'usergroup': usergroup})
+            except Exception,e:
+                info = 'DELETE USER ' + username + '  FAILED!'
+                return render(request, 'previliges/pre_set.html', {'info': info, 'dblist': dblist, 'userlist': userlist, 'grouplist': grouplist,'usergroup': usergroup})
         elif  request.POST.has_key('create'):
             try:
                 username = request.POST['newname']
                 passwd = request.POST['newpasswd']
                 group = request.POST.getlist('user_group')
-                dblist = request.POST.getlist('choosedlist')
+                dbgplist = request.POST.getlist('choosedlist')
+                ch_db = request.POST.getlist('user_dblist')
                 user = func.create_user(username,passwd)
-                func.set_groupdb(username, dblist)
+                func.set_groupdb(username, dbgplist)
+                func.set_user_db(user, ch_db)
                 func.set_usergroup(user,group)
                 info = "CREATE USER SUCCESS!"
-                return render(request,'pre_set.html', {'info':info,'userlist': userlist, 'grouplist': grouplist,'usergroup':usergroup})
+                return render(request, 'previliges/pre_set.html', {'info':info, 'dblist':dblist, 'userlist': userlist, 'grouplist': grouplist, 'usergroup':usergroup})
             except Exception,e:
                 info = "CREATE USER FAILED!"
-                print info
-                return render(request,'pre_set.html',{'info':info,'userlist': userlist, 'grouplist': grouplist,'usergroup':usergroup})
+                return render(request, 'previliges/pre_set.html', {'info':info, 'dblist':dblist, 'userlist': userlist, 'grouplist': grouplist, 'usergroup':usergroup})
     else:
-        return render(request, 'pre_set.html',{'userlist':userlist,'grouplist':grouplist,'usergroup':usergroup})
+        return render(request, 'previliges/pre_set.html', {'dblist':dblist, 'userlist':userlist, 'grouplist':grouplist, 'usergroup':usergroup})
 
 
+def set_dbgroup(request):
+    dbgrouplist,userlist,dbnamelist = pri.get_full()
+    if request.method == 'POST':
+        if request.POST.has_key('query'):
+            try:
+                groupname = request.POST['dbgroup_set']
+                s_dbnamelist,s_userlist = pri.get_group_detail(groupname)
+                return render(request, 'previliges/db_group.html', locals())
+            except Exception,e:
+                return render(request, 'previliges/db_group.html', locals())
+        elif request.POST.has_key('create'):
+            try:
+                info = "CREATE OK!"
+                groupname = request.POST['newname']
+                dbnamesetlist = request.POST.getlist('dbname_set')
+                usersetlist = request.POST.getlist('user_set')
+                s_dbnamelist,s_userlist = pri.create_dbgroup(groupname,dbnamesetlist,usersetlist)
+                return render(request, 'previliges/db_group.html', locals())
+            except Exception,e:
+                info = "CREATE FAILED!"
+                return render(request, 'previliges/db_group.html', locals())
+        elif request.POST.has_key('set'):
+            try:
+                info = "SET OK!"
+                groupname = request.POST['dbgroup_set']
+                a =request.POST.getlist('dbname_set')
+                b =  request.POST.getlist('user_set')
+                s_dbnamelist, s_userlist = pri.set_dbgroup(groupname, a, b)
+                return render(request, 'previliges/db_group.html', locals())
+            except Exception,e:
+                info = "SET FAILED"
+                return render(request, 'previliges/db_group.html', locals())
 
+        elif request.POST.has_key('delete'):
+            try:
+                info = "DELETE OK!"
+                groupname = request.POST['dbgroup_set']
+                pri.del_dbgroup(groupname)
+                return render(request, 'previliges/db_group.html', locals())
+            except Exception,e:
+                info = "DELETE FAILED!"
+                return render(request, 'previliges/db_group.html', locals())
+    else:
+        return render(request,'previliges/db_group.html',locals())
+
+
+def set_ugroup(request):
+    grouplist, perlist,userlist = pri.get_full_per()
+    if request.method == 'POST':
+        if request.POST.has_key('query'):
+            try:
+                groupname = request.POST['group_set']
+                s_perlist,s_userlist = pri.get_ugroup_detail(groupname)
+                return render(request, 'previliges/u_group.html', locals())
+            except Exception,e:
+                return render(request, 'previliges/u_group.html', locals())
+        elif request.POST.has_key('create'):
+            try:
+                info = "CREATE OK!"
+                groupname = request.POST['newname']
+                persetlist = request.POST.getlist('per_set')
+                usersetlist = request.POST.getlist('user_set')
+                s_perlist,s_userlist = pri.create_ugroup(groupname,persetlist,usersetlist)
+                return render(request, 'previliges/u_group.html', locals())
+            except Exception,e:
+                info = "CREATE FAILED!"
+                return render(request, 'previliges/u_group.html', locals())
+        elif request.POST.has_key('delete'):
+            try:
+                groupname = request.POST['group_set']
+                info = "DELETE OK!"
+                pri.del_ugroup(groupname)
+                return render(request, 'previliges/u_group.html', locals())
+            except Exception,e:
+                info = "DELETE FAILED!"
+                return render(request, 'previliges/u_group.html', locals())
+        elif request.POST.has_key('set'):
+            try:
+                info = "SET OK!"
+                groupname = request.POST['group_set']
+                persetlist = request.POST.getlist('per_set')
+                usersetlist = request.POST.getlist('user_set')
+
+                return render(request, 'previliges/u_group.html', locals())
+            except Exception,e:
+                info = "SET FAILED!"
+                return render(request, 'previliges/u_group.html', locals())
+    else:
+        return render(request, 'previliges/u_group.html', locals())
 
 
 @ratelimit(key=func.my_key, rate='5/h')
