@@ -1,9 +1,9 @@
 {% extends "include/base.html" %}
 {% block title %}
-    <title>PRE_QUERY</title>
+    <title>用户账户</title>
 {% endblock %}
 {% block name %}
-    欢迎使用权限设置功能
+    用户权限设置
 {% endblock %}
 {%block content%}
     {% if info %}
@@ -21,10 +21,10 @@
                     <strong>CHOOSE USERNAME:</strong>
                     <select class="form-control col-md-1" name = "account">
                         {% for obj in userlist %}
-                            {% if obj == username %}
-                                <option selected="selected" value ="{{ obj }}">{{ obj }}</option>
+                            {% if obj.username == username %}
+                                <option selected="selected" value ="{{ obj.username }}">{{ obj.username }}</option>
                             {% else %}
-                                <option value ="{{ obj }}">{{ obj }}</option>
+                                <option value ="{{ obj.username }}">{{ obj.username }}</option>
                             {% endif %}
                         {% endfor %}
                     </select>
@@ -40,15 +40,23 @@
                 </td>
             </tr>
             <tr>
-
-                <td>
-                    </br>
-                    <input type=="text" class="form-control" maxlength="30" placeholder="input username here" name="newname">
-                </td>
+                {% if username %}
+                    <td>
+                        </br>
+                        <input type=="text" class="form-control" maxlength="30" value="{{ username }}" placeholder="input username here" name="newname">
+                    </td>
+                {% else %}
+                    <td>
+                        </br>
+                        <input type=="text" class="form-control" maxlength="30" placeholder="input username here" name="newname">
+                    </td>
+                {% endif %}
                 <td>
                     </br>
                     <input type=="text" class="form-control" maxlength="20" placeholder="input password here" name="newpasswd">
                 </td>
+
+
 
             </tr>
             <tr>

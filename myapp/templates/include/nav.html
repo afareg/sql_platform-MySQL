@@ -33,18 +33,29 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li><a href="{% url 'pre_query' %}">权限查询</a></li>
-                        <li><a href="{% url 'pre_set' %}">账户设置</a></li>
-                        <li><a href="{% url 'set_dbgroup' %}">设置DBGROUP</a></li>
+                        <li><a href="{% url 'pre_set' %}">用户账户</a></li>
+                        <li><a href="{% url 'fast_dbset' %}">快速创建DB</a></li>
+                        <li role="presentation" class="divider"></li>
+
+                        <li><a href="{% url 'set_dbname' %}">设置DB</a></li>
+                        <li role="presentation" class="divider"></li>
                         <li><a href="{% url 'set_ugroup' %}">设置USER_GROUP</a></li>
+                        <li><a href="{% url 'set_dbgroup' %}">设置DB_GROUP</a></li>
+
+
+
+                        {#                        <li><a href="{% url 'set_ugroup' %}">设置USER_GROUP</a></li>#}
+
+
                     </ul>
                 </li>
 
 
             </ul>
 
-            {% if user.is_authenticated %}
+            {% if request.user.is_authenticated %}
                 <ul  class="nav navbar-nav navbar-right">
-                    <li><a href="#">WELCOME: {{ user.username }} </a></li>
+                    <li><a href="#">WELCOME: {{ request.user.username }} </a></li>
                     <li><a href="{% url 'logout' %}">LOGOUT</a></li>
                 </ul>
             {% else %}

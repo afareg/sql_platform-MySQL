@@ -33,7 +33,9 @@ urlpatterns = (
     url(r'^pre_set/$', myapp_view.pre_set,name='pre_set'),
     url(r'^set_dbgroup/$', myapp_view.set_dbgroup,name='set_dbgroup'),
     url(r'^set_ugroup/$', myapp_view.set_ugroup,name='set_ugroup'),
-    url(r'^test/$', myapp_view.test,name='test'),
+    url(r'^fast_dbset/$', myapp_view.fast_dbset,name='fast_dbset'),
+    url(r'^set_dbname/$', myapp_view.set_dbname,name='set_dbname'),
+    # url(r'^test/$', myapp_view.test,name='test'),
     url(r'^update_task/$', myapp_view.update_task,name='update_task'),
     url(r'^site_media/(?P<path>.*)$', 'django.views.static.serve',{'document_root': settings.MEDIA_ROOT}),
 )

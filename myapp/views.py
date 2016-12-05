@@ -180,6 +180,7 @@ def mysql_exec(request):
             print sqltext
         '''
 @login_required(login_url='/accounts/login/')
+@permission_required('myapp.can_see_inception', login_url='/')
 def inception(request):
     obj_list = func.get_mysql_hostlist(request.user.username,'incept')
     if request.method == 'POST':
@@ -317,6 +318,7 @@ def login(request):
 #         return  render(request, 'upload.html', {'form': form})
 
 @login_required(login_url='/accounts/login/')
+@permission_required('myapp.can_see_taskview', login_url='/')
 def task_manager(request):
     #obj_list = func.get_mysql_hostlist(request.user.username,'log')
     obj_list = ['all'] + func.get_mysql_hostlist(request.user.username,'incept')
@@ -401,45 +403,60 @@ def update_task(request):
 
 
 @login_required(login_url='/accounts/login/')
-@permission_required('myapp.can_query_pri', login_url='/')
 def pre_query(request):
-    objlist = func.get_mysql_hostlist(request.user.username,'log')
-    usergroup = Db_group.objects.all()
-    if request.method == 'POST':
-        if request.POST.has_key('queryuser'):
-        # if request.POST.has_key('accountname') and request.POST['accountname']!='':
-            try:
-                username = request.POST['accountname']
-                dbgp, usergp = func.get_user_grouppri(username)
-
-                pri = func.get_privileges(username)
-                profile = []
+    if request.user.has_perm('myapp.can_query_pri') or request.user.has_perm('myapp.can_set_pri') :
+        objlist = func.get_mysql_hostlist(request.user.username,'log')
+        usergroup = Db_group.objects.all()
+        inslist = Db_instance.objects.all()
+        if request.method == 'POST':
+            if request.POST.has_key('queryuser'):
+            # if request.POST.has_key('accountname') and request.POST['accountname']!='':
                 try:
-                    profile = User.objects.get(username=username).user_profile
+                    username = request.POST['accountname']
+                    dbgp, usergp = func.get_user_grouppri(username)
+
+                    pri = func.get_privileges(username)
+                    profile = []
+                    try:
+                        profile = User.objects.get(username=username).user_profile
+                    except Exception,e:
+                        pass
+                    userdblist,info = func.get_user_pre(username,request)
+                    ur = User.objects.get(username=username)
+                    return render(request, 'previliges/prequery.html', {'inslist':inslist,'pri':pri, 'profile':profile, 'dbgp':dbgp, 'usergp':usergp, 'objlist':objlist, 'userdblist': userdblist, 'info':info, 'usergroup':usergroup,'ur':ur})
                 except Exception,e:
-                    pass
-                userdblist,info = func.get_user_pre(username,request)
-                return render(request, 'previliges/prequery.html', {'pri':pri, 'profile':profile, 'dbgp':dbgp, 'usergp':usergp, 'objlist':objlist, 'userdblist': userdblist, 'info':info, 'usergroup':usergroup})
-            except Exception,e:
-                return render(request, 'previliges/prequery.html', {'objlist':objlist, 'usergroup':usergroup})
-        elif request.POST.has_key('querydb'):
-            try:
-                choosed_host = request.POST['cx']
-                data,instance,acc = func.get_pre(choosed_host)
-                return render(request, 'previliges/prequery.html', {'objlist':objlist, 'choosed_host':choosed_host, 'data_list':data, 'ins_list':instance, 'acc':acc, 'usergroup':usergroup})
-            except Exception, e:
-                return render(request, 'previliges/prequery.html', {'objlist': objlist, 'usergroup': usergroup})
-        elif request.POST.has_key('querygp'):
-            try:
-                choosed_gp = request.POST['choosed_gp']
-                dbgroup = func.get_groupdb(choosed_gp)
-                return render(request, 'previliges/prequery.html', {'objlist': objlist, 'dbgroup':dbgroup, 'usergroup': usergroup})
-            except Exception,e:
-                return render(request, 'previliges/prequery.html', {'objlist': objlist, 'usergroup': usergroup})
+                    return render(request, 'previliges/prequery.html', {'inslist':inslist,'objlist':objlist, 'usergroup':usergroup})
+            elif request.POST.has_key('querydb'):
+                try:
+                    choosed_host = request.POST['cx']
+                    data,instance,acc,gp = func.get_pre(choosed_host)
+                    return render(request, 'previliges/prequery.html', {'inslist':inslist,'objlist':objlist, 'choosed_host':choosed_host, 'data_list':data, 'ins_list':instance, 'acc':acc,'gp':gp, 'usergroup':usergroup})
+                except Exception, e:
+                    return render(request, 'previliges/prequery.html', {'inslist':inslist,'objlist': objlist, 'usergroup': usergroup})
+            elif request.POST.has_key('querygp'):
+                try:
+                    choosed_gp = request.POST['choosed_gp']
+                    dbgroup = func.get_groupdb(choosed_gp)
+                    return render(request, 'previliges/prequery.html', {'inslist':inslist,'objlist': objlist, 'dbgroup':dbgroup, 'usergroup': usergroup})
+                except Exception,e:
+                    return render(request, 'previliges/prequery.html', {'inslist':inslist,'objlist': objlist, 'usergroup': usergroup})
+            elif request.POST.has_key('queryins'):
+                try:
+                    insname = Db_instance.objects.get(id=int(request.POST['ins_set']))
+                    tmpli = []
+                    for i in insname.db_name_set.all():
+                        for x in i.instance.all():
+                            tmpli.append(int(x.id))
+                    tmpli = list(set(tmpli))
+                    bro = Db_instance.objects.filter(id__in=tmpli)
+                    return render(request, 'previliges/prequery.html', locals())
+                except Exception,e:
+                    return render(request, 'previliges/prequery.html', locals())
+
+        else:
+            return render(request, 'previliges/prequery.html', locals())
     else:
-        return render(request, 'previliges/prequery.html', {'objlist':objlist, 'usergroup':usergroup})
-
-
+        return HttpResponseRedirect("/")
 
 @login_required(login_url='/accounts/login/')
 @permission_required('myapp.can_set_pri', login_url='/')
@@ -447,6 +464,7 @@ def pre_set(request):
     userlist,grouplist = func.get_UserAndGroup()
     usergroup=func.get_usergp_list()
     dblist = Db_name.objects.all()
+    public_user = func.public_user
     if request.method == 'POST':
         username = request.POST['account']
         if request.POST.has_key('set'):
@@ -454,13 +472,27 @@ def pre_set(request):
                 dbgplist = request.POST.getlist('choosedlist')
                 group = request.POST.getlist('user_group')
                 ch_db = request.POST.getlist('user_dblist')
+                #change username or password
+                new_username = request.POST['newname']
+                new_passwd = request.POST['newpasswd']
+                if len(new_username)>0:
+                    tmp = User.objects.get(username=username)
+                    tmp.username = new_username
+                    tmp.save()
+                    username = new_username
+                if len(new_passwd)>0:
+                    tmp = User.objects.get(username=username)
+                    print new_passwd
+                    tmp.set_password(new_passwd)
+                    tmp.save()
                 func.clear_userpri(username)
                 func.set_groupdb(username,dbgplist)
                 user = User.objects.get(username=username)
                 func.set_usergroup(user, group)
                 func.set_user_db(user, ch_db)
                 info = 'SET USER ' + username + '  OK!'
-                return render(request, 'previliges/pre_set.html', {'info':info, 'dblist':dblist, 'userlist': userlist, 'grouplist': grouplist, 'usergroup':usergroup})
+                userlist = User.objects.exclude(username=public_user)
+                return render(request, 'previliges/pre_set.html', {'username':username,'info':info, 'dblist':dblist, 'userlist': userlist, 'grouplist': grouplist, 'usergroup':usergroup})
             except Exception,e:
                 info = 'SET USER ' + username + '  FAILED!'
                 return render(request, 'previliges/pre_set.html', {'info':info, 'dblist':dblist, 'userlist': userlist, 'grouplist': grouplist, 'usergroup':usergroup})
@@ -469,13 +501,18 @@ def pre_set(request):
             info = 'RESET USER '+ username + '  OK!'
             return render(request, 'previliges/pre_set.html', {'info':info, 'dblist':dblist, 'userlist': userlist, 'grouplist': grouplist, 'usergroup':usergroup})
         elif request.POST.has_key('query'):
-            dbgp,usergp = func.get_user_grouppri(username)
-            userdblist,info = func.get_user_pre(username, request)
-            return render(request, 'previliges/pre_set.html', {'username':username, 'dbgp':dbgp, 'usergp':usergp, 'userdblist':userdblist, 'dblist':dblist, 'userlist': userlist, 'grouplist': grouplist, 'usergroup':usergroup})
+            try:
+                dbgp,usergp = func.get_user_grouppri(username)
+                userdblist,info = func.get_user_pre(username, request)
+                return render(request, 'previliges/pre_set.html', {'username':username, 'dbgp':dbgp, 'usergp':usergp, 'userdblist':userdblist, 'dblist':dblist, 'userlist': userlist, 'grouplist': grouplist, 'usergroup':usergroup})
+            except Exception,e:
+                return render(request, 'previliges/pre_set.html',{'dblist': dblist, 'userlist': userlist, 'grouplist': grouplist, 'usergroup': usergroup})
+
         elif request.POST.has_key('delete'):
             try:
                 info = 'DELETE USER ' + username + '  OK!'
                 func.delete_user(username)
+                userlist = User.objects.exclude(username=public_user)
                 return render(request, 'previliges/pre_set.html',{'info': info, 'dblist': dblist, 'userlist': userlist, 'grouplist': grouplist,'usergroup': usergroup})
             except Exception,e:
                 info = 'DELETE USER ' + username + '  FAILED!'
@@ -492,15 +529,19 @@ def pre_set(request):
                 func.set_user_db(user, ch_db)
                 func.set_usergroup(user,group)
                 info = "CREATE USER SUCCESS!"
-                return render(request, 'previliges/pre_set.html', {'info':info, 'dblist':dblist, 'userlist': userlist, 'grouplist': grouplist, 'usergroup':usergroup})
+                userlist = User.objects.exclude(username=public_user)
+                return render(request, 'previliges/pre_set.html', {'user':user,'info':info, 'dblist':dblist, 'userlist': userlist, 'grouplist': grouplist, 'usergroup':usergroup})
             except Exception,e:
                 info = "CREATE USER FAILED!"
                 return render(request, 'previliges/pre_set.html', {'info':info, 'dblist':dblist, 'userlist': userlist, 'grouplist': grouplist, 'usergroup':usergroup})
     else:
+        pri.init_ugroup
         return render(request, 'previliges/pre_set.html', {'dblist':dblist, 'userlist':userlist, 'grouplist':grouplist, 'usergroup':usergroup})
 
-
+@login_required(login_url='/accounts/login/')
+@permission_required('myapp.can_set_pri', login_url='/')
 def set_dbgroup(request):
+    public_user = func.public_user
     dbgrouplist,userlist,dbnamelist = pri.get_full()
     if request.method == 'POST':
         if request.POST.has_key('query'):
@@ -525,8 +566,16 @@ def set_dbgroup(request):
             try:
                 info = "SET OK!"
                 groupname = request.POST['dbgroup_set']
+                new_groupname = request.POST['newname']
                 a =request.POST.getlist('dbname_set')
                 b =  request.POST.getlist('user_set')
+                #rename group name
+                if len(groupname)>0:
+                    tmp = Db_group.objects.get(groupname=groupname)
+                    tmp.groupname = new_groupname
+                    tmp.save()
+                    groupname = new_groupname
+
                 s_dbnamelist, s_userlist = pri.set_dbgroup(groupname, a, b)
                 return render(request, 'previliges/db_group.html', locals())
             except Exception,e:
@@ -545,8 +594,10 @@ def set_dbgroup(request):
     else:
         return render(request,'previliges/db_group.html',locals())
 
-
+@login_required(login_url='/accounts/login/')
+@permission_required('myapp.can_set_pri', login_url='/')
 def set_ugroup(request):
+    public_user = func.public_user
     grouplist, perlist,userlist = pri.get_full_per()
     if request.method == 'POST':
         if request.POST.has_key('query'):
@@ -580,6 +631,13 @@ def set_ugroup(request):
             try:
                 info = "SET OK!"
                 groupname = request.POST['group_set']
+                #rename group
+                new_groupname = request.POST['newname']
+                if len(new_groupname)>0:
+                    tmp = Group.objects.get(name=groupname)
+                    tmp.name = new_groupname
+                    tmp.save()
+                    groupname = new_groupname
                 persetlist = request.POST.getlist('per_set')
                 usersetlist = request.POST.getlist('user_set')
                 pri.del_ugroup(groupname)
@@ -589,11 +647,180 @@ def set_ugroup(request):
                 info = "SET FAILED!"
                 return render(request, 'previliges/u_group.html', locals())
     else:
+        pri.init_ugroup()
         return render(request, 'previliges/u_group.html', locals())
 
+@login_required(login_url='/accounts/login/')
+@permission_required('myapp.can_set_pri', login_url='/')
+def set_dbname(request):
+    dblist,inslist,userlist = pri.get_fulldbname()
+    acc_userlist = User.objects.all()
+    acclist = Db_account.objects.all()
+    public_user = func.public_user
+    if request.method == 'POST':
+        if request.POST.has_key('query'):
+            try:
+                dbtagname = request.POST['dbtag_set']
+                dbtagdt = pri.get_dbtag_detail(dbtagname)
+                return render(request, 'previliges/set_dbname.html', locals())
+            except Exception,e:
+                return render(request, 'previliges/set_dbname.html', locals())
+        elif request.POST.has_key('delete'):
+            try:
+                dbtagname = request.POST['dbtag_set']
+                info = "DELETE OK!"
+                pri.del_dbtag(dbtagname)
+                return render(request, 'previliges/set_dbname.html', locals())
+            except Exception,e:
+                info = "DELETE FAILED!"
+                return render(request, 'previliges/set_dbname.html', locals())
+        elif request.POST.has_key('create'):
+            try:
+                info = "CREATE OK!"
+                dbtagname = request.POST['newdbtag']
+                newdbname = request.POST['newdbname']
+                inssetlist = request.POST.getlist('dbname_set')
+                usersetlist = request.POST.getlist('user_set')
+                dbtagdt = pri.create_dbtag(dbtagname,newdbname,inssetlist,usersetlist)
+                return render(request, 'previliges/set_dbname.html', locals())
+            except Exception,e:
+                info = "CREATE FAILED!"
+                return render(request, 'previliges/set_dbname.html', locals())
+        elif request.POST.has_key('set'):
+            try:
+                info = "SET OK!"
+                dbtagname = request.POST['dbtag_set']
+                inssetlist = request.POST.getlist('dbname_set')
+                usersetlist = request.POST.getlist('user_set')
 
-@ratelimit(key=func.my_key, rate='5/h')
-def test(request):
-    was_limited = getattr(request, 'limited', False)
-    print  was_limited
-    return render(request, 'test.html')
+                new_dbtagname = request.POST['newdbtag']
+                newdbname = request.POST['newdbname']
+                dbtagdt = pri.set_dbtag(dbtagname,new_dbtagname,newdbname,inssetlist, usersetlist)
+                print dbtagdt
+                return render(request, 'previliges/set_dbname.html', locals())
+            except Exception,e:
+                info = "SET FAILED!"
+                return render(request, 'previliges/set_dbname.html', locals())
+
+
+        elif request.POST.has_key('query_ins'):
+            try:
+                dbtagname = request.POST['dbtag_set']
+
+                insname  = Db_instance.objects.get(id = int(request.POST['ins_set']))
+
+                return render(request, 'previliges/set_dbname.html', locals())
+            except Exception,e:
+                return render(request, 'previliges/set_dbname.html', locals())
+
+        elif request.POST.has_key('set_ins'):
+            try:
+                dbtagname = request.POST['dbtag_set']
+                insname  = Db_instance.objects.get(id = int(request.POST['ins_set']))
+                insname = pri.set_ins(insname,request.POST['newinsip'],request.POST['newinsport'],request.POST['role'])
+                return render(request, 'previliges/set_dbname.html', locals())
+            except Exception,e:
+                return render(request, 'previliges/set_dbname.html', locals())
+
+        elif request.POST.has_key('create_ins'):
+            try:
+                info = "CREATE OK!"
+                insname = pri.create_dbinstance(request.POST['newinsip'],request.POST['newinsport'],request.POST['role'])
+                return render(request, 'previliges/set_dbname.html', locals())
+            except Exception,e:
+                info = "CREATE FAILED!"
+                return render(request, 'previliges/set_dbname.html', locals())
+        elif request.POST.has_key('delete_ins'):
+            try:
+                dbtagname = request.POST['dbtag_set']
+                insname  = Db_instance.objects.get(id = int(request.POST['ins_set']))
+
+                info = "DELETE OK!"
+                insname.delete()
+                return render(request, 'previliges/set_dbname.html', locals())
+            except Exception,e:
+                info = "DELETE FAILED!"
+                return render(request, 'previliges/set_dbname.html', locals())
+
+
+        elif request.POST.has_key('query_acc'):
+            try:
+                dbtagname = request.POST['dbtag_set']
+                account_set = Db_account.objects.get(id = int(request.POST['acc_set']))
+                return render(request, 'previliges/set_dbname.html', locals())
+            except Exception,e:
+                return render(request, 'previliges/set_dbname.html', locals())
+        elif request.POST.has_key('create_acc'):
+            try:
+                info = "CREATE db_account OK!"
+                dbtagname = request.POST['dbtag_set']
+                account_set = pri.create_acc(request.POST['newacctag'],request.POST['newaccuser'],request.POST['newaccpawd'],request.POST.getlist('accdb_set'),request.POST.getlist('accuser_set'),request.POST['acc_role'])
+                return render(request, 'previliges/set_dbname.html', locals())
+            except Exception,e:
+                info = "CREATE db_account FAILED!"
+                return render(request, 'previliges/set_dbname.html', locals())
+        elif request.POST.has_key('set_acc'):
+            try:
+                info = "SET db_account OK!"
+                dbtagname = request.POST['dbtag_set']
+                old_account = Db_account.objects.get(id = int(request.POST['acc_set']))
+                account_set = pri.set_acc(old_account,request.POST['newacctag'],request.POST['newaccuser'],request.POST['newaccpawd'],request.POST.getlist('accdb_set'),request.POST.getlist('accuser_set'),request.POST['acc_role'])
+                return render(request, 'previliges/set_dbname.html', locals())
+            except Exception,e:
+                info = "SET db_account FAILED!"
+                return render(request, 'previliges/set_dbname.html', locals())
+
+        elif request.POST.has_key('delete_acc'):
+            try:
+                dbtagname = request.POST['dbtag_set']
+                account_set = Db_account.objects.get(id=int(request.POST['acc_set']))
+                info = "DELETE db_account OK!"
+                account_set.delete()
+                return render(request, 'previliges/set_dbname.html', locals())
+            except Exception,e:
+                info = "DELETE db_account FAILED!"
+                return render(request, 'previliges/set_dbname.html', locals())
+    else:
+        pri.check_pubuser()
+        return render(request, 'previliges/set_dbname.html', locals())
+
+
+@login_required(login_url='/accounts/login/')
+@permission_required('myapp.can_set_pri', login_url='/')
+def fast_dbset(request):
+
+    inslist = Db_instance.objects.all()
+    if request.method == 'POST':
+        try:
+            info = "CREATE OK!"
+            ins_set = request.POST['ins_set']
+
+            newinsip = request.POST['newinsip']
+            newinsport = request.POST['newinsport']
+
+            newdbtag = request.POST['newdbtag']
+            newdbname = request.POST['newdbname']
+
+            newname_all = request.POST['newname_all']
+            newpass_all = request.POST['newpass_all']
+
+            newname_admin = request.POST['newname_admin']
+            newpass_admin = request.POST['newpass_admin']
+
+            info = pri.createdb_fast(ins_set,newinsip,newinsport,newdbtag,newdbname,newname_all,newpass_all,newname_admin,newpass_admin)
+
+            return render(request, 'previliges/fast_dbset.html', locals())
+        except Exception,e:
+            info = "CREATE FAILED!"
+            return render(request, 'previliges/fast_dbset.html', locals())
+    else:
+        pri.check_pubuser()
+        return render(request, 'previliges/fast_dbset.html', locals())
+
+
+
+# @ratelimit(key=func.my_key, rate='5/h')
+# def test(request):
+#     was_limited = getattr(request, 'limited', False)
+#     print  was_limited
+#     return render(request, 'test.html')

@@ -401,7 +401,8 @@ def get_pre(dbtag):
     ins = db.instance.all()
     acc = db.account.all()
     acc_list = Db_account.objects.filter(dbname=db)
-    return acc_list,ins,acc
+    gp = db.db_group_set.all()
+    return acc_list,ins,acc,gp
 
 def get_user_pre(username,request):
     if len(username)<=30:
@@ -427,10 +428,11 @@ def get_privileges(username):
     return pri
 
 def get_UserAndGroup():
-    user_list = []
+    user_list = User.objects.exclude(username=public_user)
     group_list = Db_group.objects.all()
-    for row in User.objects.all():
-        user_list.append(row.username)
+
+    # for row in User.objects.all():
+    #     user_list.append(row.username)
     return user_list,group_list
 
 def get_user_grouppri(username):
@@ -469,8 +471,9 @@ def set_groupdb(username,li):
 
 #create user in pre_set.html
 def create_user(username,passwd):
-    user = User.objects.create_user(username=username,password=passwd)
-    user.save()
+    if len(username)>0 and len(passwd)>0:
+        user = User.objects.create_user(username=username,password=passwd)
+        user.save()
     return user
 #delete user in pre_set.html
 def delete_user(username):

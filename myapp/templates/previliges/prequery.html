@@ -1,6 +1,6 @@
 {% extends "include/base.html" %}
 {% block title %}
-    <title>PRE_QUERY</title>
+    <title>权限查询</title>
 {% endblock %}
 {% block name %}
     欢迎使用权限查询功能
@@ -36,6 +36,15 @@
                             {% endif %}
                         {% endfor %}
                     </select>
+                    <select class="form-control col-md-3" name = "ins_set">
+                        {% for obj in inslist %}
+                            {% if obj == insname %}
+                                <option selected="selected" value ="{{ obj.id }}">{{ obj.ip }} + {{ obj.port }} ({{ obj.role }})</option>
+                            {% else %}
+                                <option value ="{{ obj.id }}">{{ obj.ip }} + {{ obj.port }} ({{ obj.role }})</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
                 </td>
                 <td>
                     </br>
@@ -43,7 +52,9 @@
                     </br>
                     <button type="submit" name="querydb" value="1" class="btn btn-success">查询</button > </br>
                     <button type="submit" name="queryuser"  value="1" class="btn btn-primary">查询</button > </br>
-                    <button type="submit" name="querygp" value="1" class="btn btn-danger">查询</button > (DB_GROUP)
+                    <button type="submit" name="querygp" value="1" class="btn btn-danger">查询</button > (DB_GROUP)</br>
+                    <button type="submit" name="queryins" value="1" class="btn btn-info">查询</button >
+
                 </td>
             </form >
             <td>
@@ -56,6 +67,7 @@
         </tr>
     </table>
     {% if ins_list %}
+        INSTANCE:</br>
         <table id="instable" class="table table-condensed" border="1">
             <thead>
             <tr class="danger">
@@ -77,7 +89,9 @@
     {% endif %}
 
     {% if acc %}
-        <table id="account" class="table table-condensed" border="1">
+        USERS :</br>
+        {% include "include/pagejump/pagejump2.html" %}
+        <table id="mytable1" class="table table-condensed" border="1">
             <thead>
             <tr class="danger">
                 <th>USERACCOUNT</th>
@@ -91,6 +105,38 @@
             {% endfor %}
             </tbody>
         </table>
+        </br>
+        </br>
+    {% endif %}
+
+    {% if gp %}
+
+
+        EXISTS IN GROUPS</br>
+        <table id="account" class="table table-condensed" border="1">
+            <thead>
+            <tr class="danger">
+                <th>GROUPNAME</th>
+                <th>DB in GROUP</th>
+            </tr>
+            </thead>
+            <tbody  >
+            {% for item in gp %}
+                <tr>
+                    <td> {{ item.groupname }}  </td>
+                    <td>
+
+                        {%for i in  item.dbname.all %}
+                            {{ i.dbtag }}({{ i.dbname }}),
+
+                        {% endfor %}
+                    </td>
+
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
     {% endif %}
 
     {% if data_list %}
@@ -98,7 +144,7 @@
         <table id="mytable" class="table table-condensed" border="1">
             <thead>
             <tr class="danger">
-                <th>TAG + ROLE</th>
+                <th>ACCOUNTTAG + ROLE</th>
                 <th>DB_ACCOUNT</th>
                 <th>DBNAME</th>
                 <th>USER_ACCOUNT</th>
@@ -190,9 +236,7 @@
                     </td>
                 </tr>
             {% endfor %}
-
             </tbody>
-
         </table>
     {% endif %}
 
@@ -212,16 +256,36 @@
                     <td>{{ item }}</td>
                     <td>
                         {% for i in item.permissions.all %}
-                            {{ i.codename }} </br>
+                            {{ i.codename }} ,
                         {% endfor %}
                     </td>
-
-
                 </tr>
             {% endfor %}
-
             </tbody>
+        </table>
+    {% endif %}
 
+    {% if ur %}
+        <strong>PERMISSIONS FOR THE USER:</strong>
+        <table class="table table-condensed" border="1">
+            <thead>
+            <tr class="danger">
+
+                <th>PERMISSION</th>
+            </tr>
+            </thead>
+            <tbody  >
+            <tr>
+                <td>
+                    {% for item in ur.get_all_permissions %}
+
+                        {{ item }} &nbsp;&nbsp;
+
+
+                    {% endfor %}
+                </td>
+            </tr>
+            </tbody>
         </table>
     {% endif %}
 
@@ -299,6 +363,48 @@
         </table>
     {% endif %}
 
+
+
+    {% if insname %}
+
+        <table class="table table-condensed" border="1">
+            <thead>
+            <tr class="danger">
+                <th>BRO_INS</th>
+            </tr>
+            </thead>
+            <tbody  >
+            {% for item in bro %}
+                <tr>
+
+                    <td>{{ item.ip}}+{{ item.port }} + {{ item.role }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <table class="table table-condensed" border="1">
+            <thead>
+            <tr class="danger">
+                <th>DB</th>
+                <th>USERACCOUNT</th>
+            </tr>
+            </thead>
+            <tbody  >
+            {% for item in insname.db_name_set.all %}
+                <tr>
+
+                    <td>{{ item.dbtag }}+{{ item.dbname }}</td>
+                    <td>
+                        {% for i in item.account.all %}
+                            {{i.username}} ,
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
 
 {% endblock %}
 {% block script %}
