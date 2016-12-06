@@ -546,6 +546,7 @@ def set_dbgroup(request):
     if request.method == 'POST':
         if request.POST.has_key('query'):
             try:
+
                 groupname = request.POST['dbgroup_set']
                 s_dbnamelist,s_userlist = pri.get_group_detail(groupname)
                 return render(request, 'previliges/db_group.html', locals())
