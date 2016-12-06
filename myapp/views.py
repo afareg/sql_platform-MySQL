@@ -233,7 +233,7 @@ def inception(request):
         return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':obj_list})
 
 
-#@ratelimit(key=func.my_key,method='POST', rate='5/15m')
+# @ratelimit(key=func.my_key,method='POST', rate='5/15m')
 def login(request):
     was_limited = getattr(request, 'limited', False)
     if was_limited:
@@ -654,8 +654,8 @@ def set_ugroup(request):
 @permission_required('myapp.can_set_pri', login_url='/')
 def set_dbname(request):
     dblist,inslist,userlist = pri.get_fulldbname()
-    acc_userlist = User.objects.all()
-    acclist = Db_account.objects.all()
+    acc_userlist = User.objects.all().order_by('username')
+    acclist = Db_account.objects.all().order_by('tags')
     public_user = func.public_user
     if request.method == 'POST':
         if request.POST.has_key('query'):
@@ -715,11 +715,13 @@ def set_dbname(request):
 
         elif request.POST.has_key('set_ins'):
             try:
+                info = "SET OK!"
                 dbtagname = request.POST['dbtag_set']
                 insname  = Db_instance.objects.get(id = int(request.POST['ins_set']))
                 insname = pri.set_ins(insname,request.POST['newinsip'],request.POST['newinsport'],request.POST['role'])
                 return render(request, 'previliges/set_dbname.html', locals())
             except Exception,e:
+                info = "SET FAILED!"
                 return render(request, 'previliges/set_dbname.html', locals())
 
         elif request.POST.has_key('create_ins'):

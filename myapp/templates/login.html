@@ -8,12 +8,15 @@
             <p style="color: red;">错误! 用户名或密码错误</p>
         </div>
     {% endif %}
-    <div class="main">
+
+    <div class="col-md-3 main ">
+    <hr/>
         <form role="form" action="" method="post">
             {% csrf_token %}
             <div class="form-group">
                 <table>
                     {{ form }}
+
 {#                    <tr>#}
 {#                        <td>{{ form.username.label }}     </td>#}
 {#                        <td>{{ form.username }}</td>#}
@@ -27,11 +30,13 @@
 {#                    </tr>#}
                     <tr>
                         <td><strong>{{ myform.mycaptcha.label }}</strong> </td>
+
                         <td>{{ myform.mycaptcha }}  </td>
 
                     </tr>
                 </table>
                 <input type="submit" value="登录" class="btn btn-primary">
+{#                <input type="button" onclick="return confirm('请联系DBA')" value="忘记密码" class="btn btn-danger">#}
                 <a href="/accounts/login/"><input type="button" value="忘记密码" class="btn btn-danger"></a>
             </div>
         </form>

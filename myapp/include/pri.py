@@ -4,9 +4,9 @@ from myapp.include import function as func
 import uuid
 #function for db_group.html
 def get_full():
-    dbgrouplist =  Db_group.objects.all()
-    userlist = User.objects.all()
-    dbnamelist = Db_name.objects.all()
+    dbgrouplist =  Db_group.objects.all().order_by('groupname')
+    userlist = User.objects.all().order_by('username')
+    dbnamelist = Db_name.objects.all().order_by('dbtag')
     return dbgrouplist,userlist,dbnamelist
 
 def get_group_detail(groupname):
@@ -196,9 +196,9 @@ def del_ugroup(groupname):
 
 #used for set_dbname.html
 def get_fulldbname():
-    a = Db_name.objects.all()
-    b = Db_instance.objects.all()
-    c = User.objects.exclude(username=func.public_user)
+    a = Db_name.objects.all().order_by('dbtag')
+    b = Db_instance.objects.all().order_by('ip','port')
+    c = User.objects.exclude(username=func.public_user).order_by('username')
     return a,b,c
 
 def get_dbtag_detail(dbtagname):
