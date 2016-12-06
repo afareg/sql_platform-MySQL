@@ -428,8 +428,8 @@ def get_privileges(username):
     return pri
 
 def get_UserAndGroup():
-    user_list = User.objects.exclude(username=public_user)
-    group_list = Db_group.objects.all()
+    user_list = User.objects.exclude(username=public_user).order_by('username')
+    group_list = Db_group.objects.all().order_by('groupname')
 
     # for row in User.objects.all():
     #     user_list.append(row.username)
@@ -507,7 +507,7 @@ def set_usergroup(user,group):
 
 def get_usergp_list():
     # perlist = Permission.objects.filter(codename__istartswith='can')
-    grouplist = Group.objects.all()
+    grouplist = Group.objects.all().order_by('name')
     return grouplist
 
 

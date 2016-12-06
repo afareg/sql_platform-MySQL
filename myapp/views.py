@@ -406,8 +406,8 @@ def update_task(request):
 def pre_query(request):
     if request.user.has_perm('myapp.can_query_pri') or request.user.has_perm('myapp.can_set_pri') :
         objlist = func.get_mysql_hostlist(request.user.username,'log')
-        usergroup = Db_group.objects.all()
-        inslist = Db_instance.objects.all()
+        usergroup = Db_group.objects.all().order_by('groupname')
+        inslist = Db_instance.objects.all().order_by('ip')
         if request.method == 'POST':
             if request.POST.has_key('queryuser'):
             # if request.POST.has_key('accountname') and request.POST['accountname']!='':
@@ -463,7 +463,7 @@ def pre_query(request):
 def pre_set(request):
     userlist,grouplist = func.get_UserAndGroup()
     usergroup=func.get_usergp_list()
-    dblist = Db_name.objects.all()
+    dblist = Db_name.objects.all().order_by('dbtag')
     public_user = func.public_user
     if request.method == 'POST':
         username = request.POST['account']
@@ -491,7 +491,7 @@ def pre_set(request):
                 func.set_usergroup(user, group)
                 func.set_user_db(user, ch_db)
                 info = 'SET USER ' + username + '  OK!'
-                userlist = User.objects.exclude(username=public_user)
+                userlist = User.objects.exclude(username=public_user).order_by('username')
                 return render(request, 'previliges/pre_set.html', {'username':username,'info':info, 'dblist':dblist, 'userlist': userlist, 'grouplist': grouplist, 'usergroup':usergroup})
             except Exception,e:
                 info = 'SET USER ' + username + '  FAILED!'
@@ -529,7 +529,7 @@ def pre_set(request):
                 func.set_user_db(user, ch_db)
                 func.set_usergroup(user,group)
                 info = "CREATE USER SUCCESS!"
-                userlist = User.objects.exclude(username=public_user)
+                userlist = User.objects.exclude(username=public_user).order_by('username')
                 return render(request, 'previliges/pre_set.html', {'user':user,'info':info, 'dblist':dblist, 'userlist': userlist, 'grouplist': grouplist, 'usergroup':usergroup})
             except Exception,e:
                 info = "CREATE USER FAILED!"

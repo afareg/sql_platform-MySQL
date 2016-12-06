@@ -160,9 +160,9 @@ def create_dbgroup(groupname,dbnamesetlist,usersetlist):
 
 #u_group.html
 def get_full_per():
-    a = Group.objects.all()
+    a = Group.objects.all().order_by('name')
     b = Permission.objects.filter(codename__istartswith='can')
-    c = User.objects.all()
+    c = User.objects.all().order_by('username')
     return a,b,c
 
 def get_ugroup_detail(groupname):
