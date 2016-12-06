@@ -706,7 +706,6 @@ def set_dbname(request):
 
         elif request.POST.has_key('query_ins'):
             try:
-                dbtagname = request.POST['dbtag_set']
 
                 insname  = Db_instance.objects.get(id = int(request.POST['ins_set']))
 
@@ -717,7 +716,6 @@ def set_dbname(request):
         elif request.POST.has_key('set_ins'):
             try:
                 info = "SET OK!"
-                dbtagname = request.POST['dbtag_set']
                 insname  = Db_instance.objects.get(id = int(request.POST['ins_set']))
                 insname = pri.set_ins(insname,request.POST['newinsip'],request.POST['newinsport'],request.POST['role'])
                 return render(request, 'previliges/set_dbname.html', locals())
@@ -735,7 +733,6 @@ def set_dbname(request):
                 return render(request, 'previliges/set_dbname.html', locals())
         elif request.POST.has_key('delete_ins'):
             try:
-                dbtagname = request.POST['dbtag_set']
                 insname  = Db_instance.objects.get(id = int(request.POST['ins_set']))
 
                 info = "DELETE OK!"
@@ -748,7 +745,6 @@ def set_dbname(request):
 
         elif request.POST.has_key('query_acc'):
             try:
-                dbtagname = request.POST['dbtag_set']
                 account_set = Db_account.objects.get(id = int(request.POST['acc_set']))
                 return render(request, 'previliges/set_dbname.html', locals())
             except Exception,e:
@@ -756,7 +752,7 @@ def set_dbname(request):
         elif request.POST.has_key('create_acc'):
             try:
                 info = "CREATE db_account OK!"
-                dbtagname = request.POST['dbtag_set']
+                # dbtagname = request.POST['dbtag_set']
                 account_set = pri.create_acc(request.POST['newacctag'],request.POST['newaccuser'],request.POST['newaccpawd'],request.POST.getlist('accdb_set'),request.POST.getlist('accuser_set'),request.POST['acc_role'])
                 return render(request, 'previliges/set_dbname.html', locals())
             except Exception,e:
@@ -765,7 +761,7 @@ def set_dbname(request):
         elif request.POST.has_key('set_acc'):
             try:
                 info = "SET db_account OK!"
-                dbtagname = request.POST['dbtag_set']
+                # dbtagname = request.POST['dbtag_set']
                 old_account = Db_account.objects.get(id = int(request.POST['acc_set']))
                 account_set = pri.set_acc(old_account,request.POST['newacctag'],request.POST['newaccuser'],request.POST['newaccpawd'],request.POST.getlist('accdb_set'),request.POST.getlist('accuser_set'),request.POST['acc_role'])
                 return render(request, 'previliges/set_dbname.html', locals())
@@ -775,7 +771,7 @@ def set_dbname(request):
 
         elif request.POST.has_key('delete_acc'):
             try:
-                dbtagname = request.POST['dbtag_set']
+                # dbtagname = request.POST['dbtag_set']
                 account_set = Db_account.objects.get(id=int(request.POST['acc_set']))
                 info = "DELETE db_account OK!"
                 account_set.delete()
