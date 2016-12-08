@@ -222,7 +222,7 @@ def check_task_status(id):
     except Exception,e:
         return False,"ID NOT EXISTS , PLEASE CHECK !"
     status = task.status
-    if status =='NULL' or status=='executed failed' or status=='check not passed':
+    if status =='NULL' or status=='executed failed' or status=='check not passed' or status=='check passed':
         return True,"CAN BE UPDATED"
     else:
         return False,"TASK IN THIS STATUS CAN'T BE UPDATED,PLEASE CHECK!"
@@ -232,14 +232,18 @@ def get_task_forupdate(id):
     task_data = Task.objects.get(id=id)
     return task_data
 
-def update_task(id,sqltext,specify):
+def update_task(id,sqltext,specify,status):
     task_data = Task.objects.get(id=id)
     old_sqltext = task_data.sqltext
+    old_status = task_data.status
     task_data.sqltext = sqltext
     task_data.specification = specify
+    list = ['executed','executed failed','check not passed','check passed','running','appointed','NULL']
+    if status in list:
+        task_data.status=status
     task_data.update_time = datetime.datetime.now()
-    #if old_sqltext != sqltext ,then update the status
-    if  cmp(old_sqltext,sqltext):
+    #if old_sqltext != sqltext ,then update the status to NULL
+    if cmp(old_sqltext,sqltext) and (not cmp(status,old_status)):
         task_data.status='NULL'
     task_data.save()
 

@@ -40,7 +40,15 @@
                 </tr>
                 <tr>
                     <td>任务状态</td>
-                    <td>{{ data.status }}</td>
+                    {% if perms.myapp.can_admin_task %}
+                        <td>
+                            <input  type=="text" maxlength="15" value="{{ data.status }}" placeholder="input status here" name="status"> ('executed','executed failed','check not passed','check passed','running','appointed','NULL')
+                        </td>
+                    {% else %}
+                        <td>{{ data.status }}</td>
+                    {% endif %}
+
+
                 </tr>
                 {% if perms.myapp.can_update_task or perms.myapp.can_admin_task %}
 
