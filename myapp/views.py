@@ -40,7 +40,14 @@ def index(request):
 @login_required
 def logout(request):
     auth.logout(request)
-    return HttpResponseRedirect("/accounts/login/")
+    response = HttpResponseRedirect("/accounts/login/")
+    try:
+        response.delete_cookie('myfavword')
+        print "ok"
+    except Exception,e:
+        print "failed"
+        pass
+    return response
 
 @login_required(login_url='/accounts/login/')
 @permission_required('myapp.can_log_query', login_url='/')
@@ -73,9 +80,18 @@ def log_query(request):
 def mysql_query(request):
     #print request.user.username
     # print request.user.has_perm('myapp.can_mysql_query')
+    try:
+        tmp_favword = request.COOKIES['myfavword']
+        favword = tmp_favword.replace('^','\n')
+    except Exception,e:
+        pass
     objlist = func.get_mysql_hostlist(request.user.username)
     if request.method == 'POST':
         form = AddForm(request.POST)
+        #
+        # request.session['myfavword'] = request.POST['favword']
+
+
         if form.is_valid():
             a = form.cleaned_data['a']
             choosed_host = request.POST['cx']
@@ -112,26 +128,94 @@ def mysql_query(request):
                 elif request.POST.has_key('query'):
                 #get nomal query
                     a,numlimit = func.check_mysql_query(a,request.user.username)
-                    # print type(a)
-                    # print a
                     (data_list,collist,dbname) = func.get_mysql_data(choosed_host,a,request.user.username,request,numlimit)
                     return render(request, 'mysql_query.html', locals())
-
                     # return render(request,'mysql_query.html',{'form': form,'objlist':objlist,'data_list':data_list,'collist':collist,'choosed_host':choosed_host,'dbname':dbname})
             except Exception,e:
                 print e
                 return render(request, 'mysql_query.html', locals())
-
                 # return render(request, 'mysql_query.html', {'form': form, 'objlist': objlist})
         else:
             return render(request, 'mysql_query.html', locals())
-
             # return render(request, 'mysql_query.html', {'form': form,'objlist':objlist})
     else:
         form = AddForm()
-        return render(request, 'mysql_query.html', locals())
+        #
+        # try:
+        #     favword = request.session['myfavword']
+        # except Exception,e:
+        #     pass
 
+        return render(request, 'mysql_query.html', locals())
         # return render(request, 'mysql_query.html', {'form': form,'objlist':objlist})
+
+
+
+# def mysql_query(request):
+#     #print request.user.username
+#     # print request.user.has_perm('myapp.can_mysql_query')
+#     objlist = func.get_mysql_hostlist(request.user.username)
+#     if request.method == 'POST':
+#         form = AddForm(request.POST)
+#         if form.is_valid():
+#             a = form.cleaned_data['a']
+#             choosed_host = request.POST['cx']
+#             try:
+#                 #show explain
+#                 if request.POST.has_key('explain'):
+#                     a = func.check_explain (a)
+#                     (data_list,collist,dbname) = func.get_mysql_data(choosed_host,a,request.user.username,request,100)
+#                     return render(request, 'mysql_query.html', locals())
+#                     # return render(request,'mysql_query.html',{'form': form,'objlist':objlist,'data_list':data_list,'collist':collist,'choosed_host':choosed_host,'dbname':dbname})
+#                     #export csv
+#                 elif request.POST.has_key('export'):
+#                     a,numlimit = func.check_mysql_query(a,request.user.username,'export')
+#                     (data_list,collist,dbname) = func.get_mysql_data(choosed_host,a,request.user.username,request,numlimit)
+#                     pseudo_buffer = Echo()
+#                     writer = csv.writer(pseudo_buffer)
+#                     #csvdata =  (collist,'')+data_mysql
+#                     i=0
+#                     results_long = len(data_list)
+#                     results_list = [None] * results_long
+#                     for i in range(results_long):
+#                         results_list[i] = list(data_list[i])
+#                     results_list.insert(0,collist)
+#                     a = u'zhongwen'
+#                     for result in results_list:
+#                         i=0
+#                         for item in result:
+#                             if type(item) == type(a):
+#                                 result[i] = item.encode('gb2312')
+#                             i = i + 1
+#                     response = StreamingHttpResponse((writer.writerow(row) for row in results_list),content_type="text/csv")
+#                     response['Content-Disposition'] = 'attachment; filename="export.csv"'
+#                     return response
+#                 elif request.POST.has_key('query'):
+#                 #get nomal query
+#                     a,numlimit = func.check_mysql_query(a,request.user.username)
+#                     # print type(a)
+#                     # print a
+#                     (data_list,collist,dbname) = func.get_mysql_data(choosed_host,a,request.user.username,request,numlimit)
+#                     return render(request, 'mysql_query.html', locals())
+#
+#                     # return render(request,'mysql_query.html',{'form': form,'objlist':objlist,'data_list':data_list,'collist':collist,'choosed_host':choosed_host,'dbname':dbname})
+#             except Exception,e:
+#                 print e
+#                 return render(request, 'mysql_query.html', locals())
+#
+#                 # return render(request, 'mysql_query.html', {'form': form, 'objlist': objlist})
+#         else:
+#             return render(request, 'mysql_query.html', locals())
+#
+#             # return render(request, 'mysql_query.html', {'form': form,'objlist':objlist})
+#     else:
+#         form = AddForm()
+#         return render(request, 'mysql_query.html', locals())
+#
+#         # return render(request, 'mysql_query.html', {'form': form,'objlist':objlist})
+
+
+
 
 class Echo(object):
     """An object that implements just the write method of the file-like interface.
@@ -377,11 +461,13 @@ def task_manager(request):
             return render(request, 'task_manager.html',{'form': form,'form2':form2, 'objlist': obj_list, 'datalist': data, 'choosed_host': hosttag})
         elif request.POST.has_key('update'):
             id = int(request.POST['update'])
-            #request.session['update_taskid']=id
-            response = HttpResponseRedirect("/update_task/")
-            response.set_cookie('update_taskid',id)
-            return response
-            # return HttpResponseRedirect("/update_task/")
+
+            # response = HttpResponseRedirect("/update_task/")
+            # response.set_cookie('update_taskid',id)
+            # return response
+
+            request.session['update_taskid']=id
+            return HttpResponseRedirect("/update_task/")
     else:
         data = incept.get_task_list('all',request,datetime.datetime.now())
         form = Taskquery()
@@ -393,9 +479,9 @@ def task_manager(request):
 @login_required(login_url='/accounts/login/')
 def update_task(request):
     try:
-        id = int(request.COOKIES["update_taskid"])
+        # id = int(request.COOKIES["update_taskid"])
 
-        #id = request.session['update_taskid']
+        id = request.session['update_taskid']
     except Exception,e:
         str = "ERROR"
         return render(request, 'update_task.html', {'str': str})
@@ -838,4 +924,5 @@ def fast_dbset(request):
 def test(request):
     # was_limited = getattr(request, 'limited', False)
     # print  was_limited
+    print request.get_full_path()
     return render(request, 'test.html')

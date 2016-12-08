@@ -7,15 +7,17 @@
 {% endblock %}
 {%block content%}
     <div id="wrapper">
-         {% include "include/sidebar.html" %}
-        <div id="page-content-wrapper">
-            <table >
+        <form role="form" method='post'>
 
-                <tr>
-                    <td>
-                        </br>
-                        </br>
-                        <form role="form" method='post'>
+            {% include "include/sidebar.html" %}
+            <div id="page-content-wrapper">
+                <table >
+
+                    <tr>
+                        <td>
+                            </br>
+                            </br>
+                            {#                        <form role="form" method='post'>#}
                             {% csrf_token %}
                             CHOOSE :
                             {%  if choosed_host %}
@@ -38,62 +40,75 @@
                             {% if perms.myapp.can_export %}
                                 <button type="submit" name='export' class="btn btn-warning" value="1">导出CSV</button>
                             {% endif %}
-                        </form >
-                    </td>
-                    <td>
-                        <div class="col-md-12">
-                            <h3>查询注意事项:</h3>
-                            <p class="bg-danger"> 1. 支持单条语句查询，勿在框中重复输入多条sql语句</p>
-                            <p> 2. 平台默认查询和导出限制都是200行
-                            <p> 3. 增加查询或导出数据行数限制，需提需求给DBA开通权限</p>
-                            <p> 4. 查看表结构语句如:show create table (dbname.)tablename</p>
-                            <p> 5. 查看表结构语句如:desc (dbname.)tablename或者show fields in (dbname.)tablename</p>
-                            <p> 6. 查看执行计划可以直接点击按钮或者输入"explain (extended) select..."然后点击提交</p>
-                            <p> 7. 查看库中的表名如: show tables (in dbname)</p>
-                            <p> 8. 查看所有的库名如: show databases</p>
-                            <p class="bg-danger"> 9. 导出CSV文件为GBK编码格式</p>
+
+                        </td>
+                        <td>
+                            <div class="col-md-12">
+                                <h3>查询注意事项:</h3>
+                                <p class="bg-danger"> 1. 支持单条语句查询，勿在框中重复输入多条sql语句</p>
+                                <p> 2. 平台默认查询和导出限制都是200行
+                                <p> 3. 增加查询或导出数据行数限制，需提需求给DBA开通权限</p>
+                                <p> 4. 查看表结构语句如:show create table (dbname.)tablename</p>
+                                <p> 5. 查看表结构语句如:desc (dbname.)tablename或者show fields in (dbname.)tablename</p>
+                                <p> 6. 查看执行计划可以直接点击按钮或者输入"explain (extended) select..."然后点击提交</p>
+                                <p> 7. 查看库中的表名如: show tables (in dbname)</p>
+                                <p> 8. 查看所有的库名如: show databases</p>
+                                <p class="bg-danger"> 9. 导出CSV文件为GBK编码格式</p>
 
 
-                        </div>
-                    </td>
-                </tr>
-            </table>
-
-
-
-            {% if collist %}
-                <table  class="table table-condensed" border="1">
-                    <tr class="danger">
-                        QUERY IN:{{ dbname }}
+                            </div>
+                        </td>
                     </tr>
                 </table>
-                {% include "include/pagejump/pagebutton.html" %}
-            {% endif %}
-            <table id="mytable" class="table table-condensed" border="1">
-                <thead>
-                <tr class="danger">
-                    {% for colname in collist %}
-                        <th>{{ colname }}</th>
-                    {% endfor %}
-                </tr>
-                </thead>
-                <tbody  >
-                {% for item in data_list %}
-                    <tr>
-                        {% for item_detail in item %}
-                            <td> {{ item_detail }}</td>
+
+
+
+                {% if collist %}
+                    <table  class="table table-condensed" border="1">
+                        <tr class="danger">
+                            QUERY IN:{{ dbname }}
+                        </tr>
+                    </table>
+                    {% include "include/pagejump/pagebutton.html" %}
+                {% endif %}
+                <table id="mytable" class="table table-condensed" border="1">
+                    <thead>
+                    <tr class="danger">
+                        {% for colname in collist %}
+                            <th>{{ colname }}</th>
                         {% endfor %}
                     </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                    </thead>
+                    <tbody  >
+                    {% for item in data_list %}
+                        <tr>
+                            {% for item_detail in item %}
+                                <td> {{ item_detail }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </form >
     </div>
     <script>
         $("#menu-toggle").click(function(e) {
             e.preventDefault();
             $("#wrapper").toggleClass("toggled");
         });
+        function record_cookie() {
+            var fav = document.getElementById("id_favword");
+            myfav = fav.value.replace(/\n/g,"^")
+            var expires = new Date();
+            expires.setTime(expires.getTime() + 3500000);
+            pathstr = ';path=/'
+            {#            cookieString=document.cookie;#}
+            {#            cookieString=cookieString+";myfavword"+"="+fav.value;#}
+            document.cookie = "myfavword"+"="+myfav+pathstr+';expires='+expires.toGMTString();
+        }
+
     </script>
 {% endblock %}
 {% block script %}
