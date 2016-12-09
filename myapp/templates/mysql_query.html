@@ -8,6 +8,7 @@
 {%block content%}
     <div id="wrapper">
         <form role="form" method='post'>
+            {% csrf_token %}
 
             {% include "include/sidebar.html" %}
             <div id="page-content-wrapper">
@@ -18,7 +19,6 @@
                             </br>
                             </br>
                             {#                        <form role="form" method='post'>#}
-                            {% csrf_token %}
                             CHOOSE :
                             {%  if choosed_host %}
                                 <select class="form-control col-md-1" name = "cx">
@@ -93,26 +93,32 @@
 
         </form >
     </div>
+
+{% endblock %}
+{% block script %}
+    {% include "include/pagejump/pagejump.html" %}
+
     <script>
+
         $("#menu-toggle").click(function(e) {
             e.preventDefault();
             $("#wrapper").toggleClass("toggled");
         });
         function record_cookie() {
             var fav = document.getElementById("id_favword");
-            myfav = fav.value.replace(/\n/g,"^")
+            myfav =escape(fav.value);
+{#            myfav = fav.value.replace(/\n/g,"^");#}
             var expires = new Date();
             expires.setTime(expires.getTime() + 3500000);
-            pathstr = ';path=/'
-            {#            cookieString=document.cookie;#}
-            {#            cookieString=cookieString+";myfavword"+"="+fav.value;#}
+            pathstr = ';path=/';
+{#            alert(myfav);#}
             document.cookie = "myfavword"+"="+myfav+pathstr+';expires='+expires.toGMTString();
         }
 
+         function showfav() {
+            var fav = document.getElementById("id_favword");
+            myfav =unescape(fav.value);
+            fav.value = myfav;
+         }
     </script>
-{% endblock %}
-{% block script %}
-    {% include "include/pagejump/pagejump.html" %}
-
-
 {% endblock %}

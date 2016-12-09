@@ -81,17 +81,13 @@ def mysql_query(request):
     #print request.user.username
     # print request.user.has_perm('myapp.can_mysql_query')
     try:
-        tmp_favword = request.COOKIES['myfavword']
-        favword = tmp_favword.replace('^','\n')
+        favword = request.COOKIES['myfavword']
     except Exception,e:
         pass
     objlist = func.get_mysql_hostlist(request.user.username)
     if request.method == 'POST':
         form = AddForm(request.POST)
-        #
         # request.session['myfavword'] = request.POST['favword']
-
-
         if form.is_valid():
             a = form.cleaned_data['a']
             choosed_host = request.POST['cx']
@@ -243,36 +239,63 @@ def some_streaming_csv_view(request):
 @login_required(login_url='/accounts/login/')
 @permission_required('myapp.can_see_execview', login_url='/')
 def mysql_exec(request):
+    try:
+        favword = request.COOKIES['myfavword']
+    except Exception,e:
+        pass
     #print request.user.username
-    obj_list = func.get_mysql_hostlist(request.user.username,'exec')
+    objlist = func.get_mysql_hostlist(request.user.username,'exec')
     if request.method == 'POST':
         form = AddForm(request.POST)
         if form.is_valid():
             a = form.cleaned_data['a']
-            c = request.POST['cx']
+            choosed_host = request.POST['cx']
             a = func.check_mysql_exec(a,request)
             #print request.POST
             if request.POST.has_key('commit'):
-                (data_mysql,collist,dbname) = func.run_mysql_exec(c,a,request.user.username,request)
+                (data_mysql,collist,dbname) = func.run_mysql_exec(choosed_host,a,request.user.username,request)
             elif request.POST.has_key('check'):
-                data_mysql,collist,dbname = incept.inception_check(c,a)
-            return render(request,'mysql_exec.html',{'form': form,'objlist':obj_list,'data_list':data_mysql,'col':collist,'choosed_host':c,'dbname':dbname})
-
+                data_mysql,collist,dbname = incept.inception_check(choosed_host,a)
+            # return render(request,'mysql_exec.html',{'form': form,'objlist':objlist,'data_mysql':data_mysql,'collist':collist,'choosed_host':choosed_host,'dbname':dbname})
+            return render(request, 'mysql_exec.html', locals())
         else:
-            return render(request, 'mysql_exec.html', {'form': form,'objlist':obj_list})
+            return render(request, 'mysql_exec.html', locals())
+
+            # return render(request, 'mysql_exec.html', {'form': form,'objlist':objlist})
     else:
         form = AddForm()
-        return render(request, 'mysql_exec.html', {'form': form,'objlist':obj_list})
+        return render(request, 'mysql_exec.html', locals())
 
-        '''
-            upform = Uploadform(request.POST,request.FILES)
-            c = request.POST['cx']
-            form = AddForm()
-            sqltext=''
-            for chunk in request.FILES['filename'].chunks():
-                sqltext = sqltext + chunk
-            print sqltext
-        '''
+        # return render(request, 'mysql_exec.html', {'form': form,'objlist':objlist})
+
+
+
+#
+# def mysql_exec(request):
+#     #print request.user.username
+#     obj_list = func.get_mysql_hostlist(request.user.username,'exec')
+#     if request.method == 'POST':
+#         form = AddForm(request.POST)
+#         if form.is_valid():
+#             a = form.cleaned_data['a']
+#             c = request.POST['cx']
+#             a = func.check_mysql_exec(a,request)
+#             #print request.POST
+#             if request.POST.has_key('commit'):
+#                 (data_mysql,collist,dbname) = func.run_mysql_exec(c,a,request.user.username,request)
+#             elif request.POST.has_key('check'):
+#                 data_mysql,collist,dbname = incept.inception_check(c,a)
+#             return render(request,'mysql_exec.html',{'form': form,'objlist':obj_list,'data_list':data_mysql,'col':collist,'choosed_host':c,'dbname':dbname})
+#
+#         else:
+#             return render(request, 'mysql_exec.html', {'form': form,'objlist':obj_list})
+#     else:
+#         form = AddForm()
+#         return render(request, 'mysql_exec.html', {'form': form,'objlist':obj_list})
+
+
+
+
 @login_required(login_url='/accounts/login/')
 @permission_required('myapp.can_see_inception', login_url='/')
 def inception(request):
