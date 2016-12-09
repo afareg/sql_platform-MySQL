@@ -9,11 +9,9 @@
     <div id="wrapper">
         <form role="form" method='post'>
             {% csrf_token %}
-
             {% include "include/sidebar.html" %}
             <div id="page-content-wrapper">
                 <table >
-
                     <tr>
                         <td>
                             </br>
@@ -40,7 +38,6 @@
                             {% if perms.myapp.can_export %}
                                 <button type="submit" name='export' class="btn btn-warning" value="1">导出CSV</button>
                             {% endif %}
-
                         </td>
                         <td>
                             <div class="col-md-12">
@@ -54,14 +51,10 @@
                                 <p> 7. 查看库中的表名如: show tables (in dbname)</p>
                                 <p> 8. 查看所有的库名如: show databases</p>
                                 <p class="bg-danger"> 9. 导出CSV文件为GBK编码格式</p>
-
-
                             </div>
                         </td>
                     </tr>
                 </table>
-
-
 
                 {% if collist %}
                     <table  class="table table-condensed" border="1">
@@ -89,10 +82,13 @@
                     {% endfor %}
                     </tbody>
                 </table>
+
             </div>
 
         </form >
     </div>
+
+
 
 {% endblock %}
 {% block script %}
@@ -107,18 +103,18 @@
         function record_cookie() {
             var fav = document.getElementById("id_favword");
             myfav =escape(fav.value);
-{#            myfav = fav.value.replace(/\n/g,"^");#}
+            {#            myfav = fav.value.replace(/\n/g,"^");#}
             var expires = new Date();
             expires.setTime(expires.getTime() + 3500000);
             pathstr = ';path=/';
-{#            alert(myfav);#}
+            {#            alert(myfav);#}
             document.cookie = "myfavword"+"="+myfav+pathstr+';expires='+expires.toGMTString();
         }
 
-         function showfav() {
+        function showfav() {
             var fav = document.getElementById("id_favword");
             myfav =unescape(fav.value);
             fav.value = myfav;
-         }
+        }
     </script>
 {% endblock %}
