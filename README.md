@@ -2,23 +2,37 @@
 ##基于django，带权限控制的mysql语句运行系统
 ##主页
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/main.jpg)
-##登录页面
+##登录界面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/login.jpg)
-##查询页面
+##查询界面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/mysql_query.jpg)
-##执行页面
+##执行界面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/mysql_exec.jpg)
-##任务提交页面
+##任务提交界面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/task_upload.jpg)
-##任务管理页面
+##任务管理界面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/task_manage.jpg)
 ##任务执行结果示例
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/resul_of_task.jpg)
-##任务编辑页面
+##任务编辑界面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/task_edit.jpg)
+##日志查询界面
+![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/oper_log.jpg)
+##权限查询页面示例
+![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/pre_query_db.jpg)
+![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/pre_query_dbgroup.jpg)
+![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/pre_query_user.jpg)
+![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/pre_query_ins.jpg)
 
-![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/main.jpg)
+##用户账户设置界面
+![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/user_set.jpg)
 
-![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/main.jpg)
+##DB快速创建界面
+![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/fast_dbset.jpg)
 
-![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/main.jpg)
+##DB详细设置界面
+![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/db_detailset.jpg)
+##用户页面权限设置界面
+![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/group_set.jpg.jpg)
+##DB组设置界面
+![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/dbgroup_set.jpg)
