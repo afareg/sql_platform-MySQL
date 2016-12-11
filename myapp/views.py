@@ -497,7 +497,7 @@ def task_manager(request):
         form2 = Taskscheduler()
         return render(request, 'task_manager.html', {'form':form,'form2':form2,'objlist':obj_list,'datalist':data})
 
-
+#test
 
 @login_required(login_url='/accounts/login/')
 def update_task(request):
