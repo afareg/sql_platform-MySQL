@@ -36,6 +36,20 @@ incp_user = get_config('settings','incp_user')
 incp_passwd = get_config('settings','incp_passwd')
 public_user = get_config('settings','public_user')
 
+#
+# host = incept.host
+# port = incept.port
+# user = incept.user
+# passwd = incept.passwd
+# dbname = incept.dbname
+# select_limit = incept.select_limit
+# export_limit = incept.export_limit
+# wrong_msg = incept.wrong_msg
+# incp_host = incept.incp_host
+# incp_port = incept.incp_port
+# incp_user = incept.incp_user
+# incp_passwd = incept.incp_passwd
+# public_user = incept.public_user
 
 def task_sche_run():
     try:
