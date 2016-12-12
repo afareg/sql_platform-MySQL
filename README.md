@@ -13,48 +13,45 @@
 ### 启动：
 #### python manage.py runsslserver 0.0.0.0:8000
 
-## 登录界面
+## 1.登录界面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/login.jpg)
-## 主页
+## 2.主页
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/main.jpg)
-## 表结构查询界面
-### 表查询:
+## 3.表结构查询界面
+### 3.1表查询:
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/meta_query.jpg)
-### 查询结果:
+### 3.2查询结果:
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/meta_info.jpg)
-## 查询界面
+## 4.查询界面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/mysql_query.jpg)
-## 执行界面
+## 5.执行界面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/mysql_exec.jpg)
-## 任务提交界面
+## 6.任务提交界面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/task_upload.jpg)
-## 任务管理界面
+## 7.任务管理界面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/task_manage.jpg)
-## 任务执行结果示例
+### 7.1任务执行结果示例
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/resul_of_task.jpg)
-## 任务编辑界面
+### 7.2任务编辑界面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/task_edit.jpg)
-## 日志查询界面
+## 8.日志查询界面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/oper_log.jpg)
-## 权限查询页面示例
-### 按db查询
+## 9.权限查询页面示例
+### 9.1按db查询
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/pre_query_db.jpg)
-### 按db组查询
+### 9.2按db组查询
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/pre_query_dbgroup.jpg)
-### 按用户账号查询
+### 9.3按用户账号查询
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/pre_query_user.jpg)
-### 按实例查询
+### 9.4按实例查询
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/pre_query_ins.jpg)
-
-## 用户账户设置界面
+## 10.用户账户设置界面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/user_set.jpg)
-
-## DB快速创建界面
+## 11.DB快速创建界面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/fast_dbset.jpg)
-
-## DB详细设置界面
+## 12.DB详细设置界面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/db_detailset.jpg)
-## 用户页面权限设置界面
+## 13.用户页面权限设置界面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/group_set.jpg)
-## DB组设置界面
+## 14.DB组设置界面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/dbgroup_set.jpg)
