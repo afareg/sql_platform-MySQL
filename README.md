@@ -10,6 +10,31 @@
 #### django-ratelimit
 #### MySQL-python
 
+### 启动配置
+#### config.ini配置文件如下：
+[settings]
+host="127.0.0.1" 
+port=3306
+user="xx"
+passwd="xxx"
+dbname="xxx"
+wrong_msg="select '请检查输入语句'"
+select_limit=200
+export_limit=200
+incp_host="x.x.x.x"
+incp_port=6669
+incp_user=""
+incp_passwd=""
+public_user="public"
+##### 说明:
+host-dbname为django库的连接配置，和settings.py中的一致即可
+select_limit 和 export_limit为系统默认查询和导出条数限制
+incp_XX系列配置文件为inception的连接配置
+#### 定时任务配置
+修改seheduled.py中第18行路径地址为正确地址
+config.readfp(open('/root/PycharmProjects/mypro/myapp/etc/config.ini','r'))
+然后运行 python manage.py crontab add 添加 crontab任务
+
 ### 启动：
 #### python manage.py runsslserver 0.0.0.0:8000
 
