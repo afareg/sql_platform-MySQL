@@ -86,11 +86,17 @@ config.readfp(open('/root/PycharmProjects/mypro/myapp/etc/config.ini','r'))
 ## 6.任务提交界面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/task_upload.jpg)
 ## 7.任务管理界面
-可以审核、查看、修改、执行、预约任务执行时间，通过调用inception接口来实现，通过inception调用pt-osc执行的任务可以被终止，停止后需要到库中人工清理触发器
+可以审核、查看、修改、执行、预约任务执行时间，通过调用inception接口来实现
+
+不同用户能够看到的页面按钮可以通过权限控制
+
+通过inception调用pt-osc执行的任务可以被终止，停止后需要到库中人工清理触发器
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/task_manage.jpg)
 ### 7.1任务执行结果示例
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/resul_of_task.jpg)
 ### 7.2任务编辑界面
+可以通过权限设置来限制用户是否能够编辑此页面的内容
+
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/task_edit.jpg)
 ## 8.日志查询界面
 本平台记录所有用户在mysql_query,mysql_exec以及任务管理页面中执行的语句
