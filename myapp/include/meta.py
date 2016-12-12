@@ -52,6 +52,10 @@ def get_metadata(hosttag,flag,tbname=''):
         sql = "select * from information_schema.tables where TABLE_SCHEMA='"+dbname+"'"+" and TABLE_NAME='"+tbname+"'"
         results, col, tar_dbname = get_data(hosttag, sql)
         return results, col, tar_dbname
+    elif flag == 5:
+        sql = "show create table " + tbname
+        results, col, tar_dbname = get_data(hosttag, sql)
+        return results, col, tar_dbname
 
 def get_data(hosttag,sql):
     a = Db_name.objects.filter(dbtag=hosttag)[0]

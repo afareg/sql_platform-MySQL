@@ -962,6 +962,8 @@ def meta_data(request):
                 (field, col, dbname) = meta.get_metadata(choosed_host,2,tbname)
                 (ind_data, ind_col, dbname) = meta.get_metadata(choosed_host, 3, tbname)
                 (tbst, tbst_col, dbname) = meta.get_metadata(choosed_host, 4, tbname)
+                (sh_cre, sh_cre_col, dbname) = meta.get_metadata(choosed_host, 5, tbname)
+
                 return render(request, 'meta_data.html', locals())
             elif request.POST.has_key('search'):
                 print table_se

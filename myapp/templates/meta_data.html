@@ -48,54 +48,28 @@
                         </td>
                     </tr>
                 </table>
-                {% if field %}
-                    <strong> <span style="color:red">COLUMNS IN {{ dbname }}.{{ tbname }}:</span></strong>
+                {% if sh_cre %}
+                    <strong> <span style="color:red">{{ dbname }}.{{ tbname }} definition:</span></strong>
                     <table id="tb" class="table table-condensed" border="1">
                         <thead>
                         <tr class="danger">
-                            {% for colname in col %}
+                            {% for colname in sh_cre_col %}
                                 <th>{{ colname }}</th>
                             {% endfor %}
 
                         </tr>
                         </thead>
                         <tbody  >
-                        {% for item in field %}
+                        {% for item in sh_cre %}
                             <tr>
                                 {% for item_detail in item %}
-                                    <td> {{ item_detail }}</td>
+                                    <td> {{ item_detail|linebreaks  }}</td>
                                 {% endfor %}
                             </tr>
                         {% endfor %}
                         </tbody>
                     </table>
                 {% endif %}
-
-
-
-                {% if ind_data %}
-                    <strong> <span style="color:red">INDEXES IN {{ dbname }}.{{ tbname }}:</span></strong>
-                    <table id="tb" class="table table-condensed" border="1">
-                        <thead>
-                        <tr class="danger">
-                            {% for colname in ind_col %}
-                                <th>{{ colname }}</th>
-                            {% endfor %}
-
-                        </tr>
-                        </thead>
-                        <tbody  >
-                        {% for item in ind_data %}
-                            <tr>
-                                {% for item_detail in item %}
-                                    <td> {{ item_detail }}</td>
-                                {% endfor %}
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                {% endif %}
-
 
 
                 {% if tbst %}
@@ -183,6 +157,63 @@
                         </tbody>
                     </table>
                 {% endif %}
+
+                {% if field %}
+                    <strong> <span style="color:red">COLUMNS IN {{ dbname }}.{{ tbname }}:</span></strong>
+                    <table id="tb" class="table table-condensed" border="1">
+                        <thead>
+                        <tr class="danger">
+                            {% for colname in col %}
+                                <th>{{ colname }}</th>
+                            {% endfor %}
+
+                        </tr>
+                        </thead>
+                        <tbody  >
+                        {% for item in field %}
+                            <tr>
+                                {% for item_detail in item %}
+                                    <td> {{ item_detail }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+
+
+
+                {% if ind_data %}
+                    <strong> <span style="color:red">INDEXES IN {{ dbname }}.{{ tbname }}:</span></strong>
+                    <table id="tb" class="table table-condensed" border="1">
+                        <thead>
+                        <tr class="danger">
+                            {% for colname in ind_col %}
+                                <th>{{ colname }}</th>
+                            {% endfor %}
+
+                        </tr>
+                        </thead>
+                        <tbody  >
+                        {% for item in ind_data %}
+                            <tr>
+                                {% for item_detail in item %}
+                                    <td> {{ item_detail }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+
+
+
+
+
+
+
+
+
 
 
 
