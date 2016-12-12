@@ -944,6 +944,10 @@ def fast_dbset(request):
 @login_required(login_url='/accounts/login/')
 @permission_required('myapp.can_see_metadata', login_url='/')
 def meta_data(request):
+    try:
+        favword = request.COOKIES['myfavword']
+    except Exception,e:
+        pass
     objlist = func.get_mysql_hostlist(request.user.username, 'meta')
     if request.method == 'POST':
         try:
