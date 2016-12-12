@@ -941,6 +941,7 @@ def fast_dbset(request):
         return render(request, 'previliges/fast_dbset.html', locals())
 
 
+#table structure
 @login_required(login_url='/accounts/login/')
 @permission_required('myapp.can_see_metadata', login_url='/')
 def meta_data(request):
