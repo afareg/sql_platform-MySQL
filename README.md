@@ -55,6 +55,7 @@ config.readfp(open('/root/PycharmProjects/mypro/myapp/etc/config.ini','r'))
 ### 启动：
 #### python manage.py runsslserver 0.0.0.0:8000
 
+# 页面展示如下:
 ## 1.登录界面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/login.jpg)
 ## 2.主页
