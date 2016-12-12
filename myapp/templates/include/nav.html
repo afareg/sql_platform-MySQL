@@ -17,6 +17,7 @@
                         <b class="caret"></b>
                     </a>
                     <ul class="dropdown-menu">
+                        <li><a href="{% url 'meta_data' %}">表结构查询</a></li>
                         <li><a href="{% url 'mysql_query' %}">MySQL_QUERY</a></li>
                         <li><a href="{% url 'mysql_exec' %}">MySQL_EXEC</a></li>
                         <li><a href="{% url 'inception' %}">DML&DDL语句审核</a></li>
@@ -57,7 +58,7 @@
                 <ul  class="nav navbar-nav navbar-right">
                     <li><a href="#">WELCOME: {{ request.user.username }} </a></li>
                     <li><a href="{% url 'logout' %}">LOGOUT</a></li>
-                    {% if request.get_full_path == '/mysql_query/' or request.get_full_path == '/mysql_exec/' %}
+                    {% if request.get_full_path == '/mysql_query/' or request.get_full_path == '/mysql_exec/' or request.get_full_path == '/meta_data/' %}
                         <li>  <a href="#menu-toggle" id="menu-toggle">显示NOTE栏</a></li>
                     {% endif %}
                 </ul>

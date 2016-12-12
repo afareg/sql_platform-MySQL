@@ -409,16 +409,18 @@ def init_ugroup():
                 gp.permissions.add(i)
             dmlli = ['can_insert_mysql','can_update_mysql','can_delete_mysql','can_see_execview']
             ddlli = ['can_truncate_mysql','can_drop_mysql','can_alter_mysql','can_create_mysql','can_see_execview']
-            expli = ['can_query_pri','can_export']
-            queryli = ['can_query_pri']
+            expli = ['can_mysql_query','can_export','can_see_metadata']
+            queryli = ['can_mysql_query','can_see_metadata']
             logli =  ['can_log_query']
             incli = ['can_see_inception']
+            metali = ['can_see_metadata']
             delete_task = ['can_see_taskview','can_delete_task','can_see_inception']
             admin_task = ['can_see_taskview','can_admin_task','can_see_inception']
             edit_task = ['can_see_taskview','can_update_task','can_see_inception']
             setpri = ['can_set_pri']
             querypri = ['can_query_pri']
             set_group('mysql-exec-dml',dmlli)
+            set_group('mysql-see-meta', metali)
             set_group('mysql-exec-ddl', ddlli)
             set_group('mysql-query', queryli)
             set_group('mysql-query-export', expli)

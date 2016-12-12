@@ -10,7 +10,7 @@ from captcha.helpers import captcha_image_url
 from django.http import HttpResponse,HttpResponseRedirect,StreamingHttpResponse
 from django.contrib.auth.decorators import login_required,permission_required
 from django.contrib.auth.models import User,Permission,ContentType,Group
-from myapp.include import function as func,inception as incept,chart,pri
+from myapp.include import function as func,inception as incept,chart,pri,meta
 from myapp.models import Db_group,Db_name,Db_account,Db_instance,Oper_log,Upload,Task
 from django.core.files import File
 #path='./myapp/include'
@@ -912,7 +912,6 @@ def set_dbname(request):
 @login_required(login_url='/accounts/login/')
 @permission_required('myapp.can_set_pri', login_url='/')
 def fast_dbset(request):
-
     inslist = Db_instance.objects.all()
     if request.method == 'POST':
         try:
@@ -941,6 +940,32 @@ def fast_dbset(request):
         pri.check_pubuser()
         return render(request, 'previliges/fast_dbset.html', locals())
 
+
+@login_required(login_url='/accounts/login/')
+@permission_required('myapp.can_see_metadata', login_url='/')
+def meta_data(request):
+    objlist = func.get_mysql_hostlist(request.user.username, 'meta')
+    if request.method == 'POST':
+        try:
+            choosed_host = request.POST['cx']
+            table_se = request.POST['searchname']
+            if request.POST.has_key('query'):
+                (data_list, collist, dbname) = meta.get_metadata(choosed_host,1)
+                return render(request, 'meta_data.html', locals())
+            elif request.POST.has_key('structure'):
+                tbname = request.POST['structure']
+                (field, col, dbname) = meta.get_metadata(choosed_host,2,tbname)
+                (ind_data, ind_col, dbname) = meta.get_metadata(choosed_host, 3, tbname)
+                (tbst, tbst_col, dbname) = meta.get_metadata(choosed_host, 4, tbname)
+                return render(request, 'meta_data.html', locals())
+            elif request.POST.has_key('search'):
+                print table_se
+                (data_list, collist, dbname) = meta.get_metadata(choosed_host, 1,table_se)
+                return render(request, 'meta_data.html', locals())
+        except Exception,e:
+            return render(request, 'meta_data.html', locals())
+    else:
+        return render(request, 'meta_data.html', locals())
 
 
 # @ratelimit(key=func.my_key, rate='5/h')

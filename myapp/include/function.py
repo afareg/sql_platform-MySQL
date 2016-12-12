@@ -90,6 +90,12 @@ def get_mysql_hostlist(username,tag='tag'):
             if row.db_account_set.all().filter(role='admin'):
                 if row.instance.all().exclude(role='read'):
                     host_list.append(row.dbtag)
+    elif (tag == 'meta'):
+        for row in Db_name.objects.all().order_by("dbtag"):
+            #find the account which is admin
+            if row.db_account_set.all().filter(role='admin'):
+                if row.instance.all():
+                    host_list.append(row.dbtag)
     return host_list
 
 def get_op_type(methods='get'):
