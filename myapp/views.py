@@ -125,6 +125,7 @@ def mysql_query(request):
                 #get nomal query
                     a,numlimit = func.check_mysql_query(a,request.user.username)
                     (data_list,collist,dbname) = func.get_mysql_data(choosed_host,a,request.user.username,request,numlimit)
+                    print data_list
                     return render(request, 'mysql_query.html', locals())
                     # return render(request,'mysql_query.html',{'form': form,'objlist':objlist,'data_list':data_list,'collist':collist,'choosed_host':choosed_host,'dbname':dbname})
             except Exception,e:

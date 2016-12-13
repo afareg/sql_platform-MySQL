@@ -63,7 +63,7 @@
                         {% for item in sh_cre %}
                             <tr>
                                 {% for item_detail in item %}
-                                    <td> {{ item_detail|linebreaks  }}</td>
+                                    <td> {{ item_detail|linebreaks |date }}</td>
                                 {% endfor %}
                             </tr>
                         {% endfor %}
