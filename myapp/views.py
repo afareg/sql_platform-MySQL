@@ -300,7 +300,7 @@ def mysql_exec(request):
 @login_required(login_url='/accounts/login/')
 @permission_required('myapp.can_see_inception', login_url='/')
 def inception(request):
-    obj_list = func.get_mysql_hostlist(request.user.username,'incept')
+    objlist = func.get_mysql_hostlist(request.user.username,'incept')
     if request.method == 'POST':
         specification = request.POST['specification'][0:30]
         if request.POST.has_key('check'):
@@ -308,17 +308,22 @@ def inception(request):
             upform = Uploadform()
             if form.is_valid():
                 a = form.cleaned_data['a']
-                c = request.POST['cx']
-                data_mysql,collist,dbname = incept.inception_check(c,a)
-                return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':obj_list,'data_list':data_mysql,'col':collist,'choosed_host':c})
+                choosed_host = request.POST['cx']
+                data_mysql, collist, dbname = incept.inception_check(choosed_host,a,2)
+                if len(data_mysql)>1:
+                    split = 1
+                    return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':objlist,'data_list':data_mysql,'collist':collist,'choosed_host':choosed_host,'split':split})
+                else:
+                    data_mysql,collist,dbname = incept.inception_check(choosed_host,a)
+                    return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':objlist,'data_list':data_mysql,'collist':collist,'choosed_host':choosed_host})
             else:
-                print "not valid"
-                return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':obj_list})
+                # print "not valid"
+                return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':objlist})
         elif request.POST.has_key('upload'):
             upform = Uploadform(request.POST,request.FILES)
             #c = request.POST['cx']
             if upform.is_valid():
-                c = request.POST['cx']
+                choosed_host = request.POST['cx']
                 sqltext=''
                 for chunk in request.FILES['filename'].chunks():
                     #print chunk
@@ -328,27 +333,32 @@ def inception(request):
                         chunk = chunk.decode('gbk')
                     sqltext = sqltext + chunk
                 form = AddForm(initial={'a': sqltext})
-                return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':obj_list,'choosed_host':c})
+                return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':objlist,'choosed_host':choosed_host})
             else:
                 form = AddForm()
                 upform = Uploadform()
-                return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':obj_list})
+                return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':objlist})
         elif request.POST.has_key('addtask'):
             form = AddForm(request.POST)
             upform = Uploadform()
             if form.is_valid():
                 sqltext = form.cleaned_data['a']
-                c = request.POST['cx']
-                incept.record_task(request,sqltext,c,specification)
+                choosed_host = request.POST['cx']
+                data_mysql, collist, dbname = incept.inception_check(choosed_host, sqltext, 2)
+                if len(data_mysql)>1:
+                    split = 1
+                    status = 'UPLOAD TASK FAIL'
+                    return render(request, 'inception.html',{'form': form, 'upform': upform, 'objlist': objlist, 'status': status,'split':split,'choosed_host':choosed_host})
+                incept.record_task(request,sqltext,choosed_host,specification)
                 status='UPLOAD TASK OK'
-                return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':obj_list,'status':status})
+                return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':objlist,'status':status})
             else:
                 status='UPLOAD TASK FAIL'
-                return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':obj_list,'status':status})
+                return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':objlist,'status':status})
     else:
         form = AddForm()
         upform = Uploadform()
-        return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':obj_list})
+        return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':objlist})
 
 
 # @ratelimit(key=func.my_key,method='POST', rate='5/15m')

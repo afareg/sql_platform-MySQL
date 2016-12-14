@@ -69,6 +69,8 @@ def incep_exec(sqltext,myuser,mypasswd,myhost,myport,mydbname,flag=0):
         flagcheck='--enable-check'
     elif(int(flag)==1):
         flagcheck='--enable-execute'
+    elif(int(flag)==2):
+        flagcheck = '--enable-split'
     myuser=myuser.encode('utf8')
     mypasswd = mypasswd.encode('utf8')
     myhost=myhost.encode('utf8')
@@ -80,7 +82,6 @@ def incep_exec(sqltext,myuser,mypasswd,myhost,myport,mydbname,flag=0):
     sql2='inception_magic_commit;'
     sql = sql1 + sqltext + sql2
     logging.info(sql)
-
     try:
         conn=MySQLdb.connect(host=incp_host,user=incp_user,passwd=incp_passwd,db='',port=incp_port,use_unicode=True, charset="utf8")
         cur=conn.cursor()
@@ -173,7 +174,6 @@ def task_run(idnum,request):
         except:
             continue
         break
-
     if task.status!='executed' and task.status!='running' and task.status!='NULL':
         hosttag = task.dbtag
         sql = task.sqltext
@@ -198,16 +198,20 @@ def task_check(idnum,request):
     if task.status!='executed' and  task.status!='running' and task.status!='executed failed':
         hosttag = task.dbtag
         sql = task.sqltext
-        results,col,dbname = inception_check(hosttag,sql)
-        status='check passed'
-        str=''
-        for row in results:
-            if (int(row[2])!=0):
-                status='check not passed'
-            #record all sqlsha and sqltext of the task into task.sqlsha
-            if row[10]!='':
-                str = str+row[5]+row[10]+'^^'
-        task.sqlsha = str
+        results, col, dbname = inception_check(hosttag, sql,2)
+        if len(results)>1:
+            status = 'check not passed'
+        else:
+            results,col,dbname = inception_check(hosttag,sql)
+            status='check passed'
+            str=''
+            for row in results:
+                if (int(row[2])!=0):
+                    status='check not passed'
+                #record all sqlsha and sqltext of the task into task.sqlsha
+                if row[10]!='':
+                    str = str+row[5]+row[10]+'^^'
+            task.sqlsha = str
         task.status = status
         task.update_time = datetime.datetime.now()
         task.save()
