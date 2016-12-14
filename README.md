@@ -68,8 +68,10 @@ config.readfp(open('/root/PycharmProjects/mypro/myapp/etc/config.ini','r'))
 然后运行 python manage.py crontab add 添加 crontab任务
 
 ### 启动：
-#### python manage.py runsslserver 0.0.0.0:8000
-
+#### 初始化表结构： python manage.py migrate
+#### 创建一个超级用户： python manage.py createsuperuser
+#### 启动server： python manage.py runsslserver 0.0.0.0:8000 
+#### 网站地址为 https://yourip:8000 然后以刚刚注册的超级用户登陆网站进行建立普通用户、建库等配置工作
 # 页面展示如下:
 ## 1.登录界面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/login.jpg)
