@@ -310,6 +310,7 @@ def inception(request):
                 a = form.cleaned_data['a']
                 choosed_host = request.POST['cx']
                 data_mysql, collist, dbname = incept.inception_check(choosed_host,a,2)
+                #check the nedd to split sqltext first
                 if len(data_mysql)>1:
                     split = 1
                     return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':objlist,'data_list':data_mysql,'collist':collist,'choosed_host':choosed_host,'split':split})
@@ -344,11 +345,19 @@ def inception(request):
             if form.is_valid():
                 sqltext = form.cleaned_data['a']
                 choosed_host = request.POST['cx']
-                data_mysql, collist, dbname = incept.inception_check(choosed_host, sqltext, 2)
+                data_mysql, tmp_col, dbname = incept.inception_check(choosed_host, sqltext, 2)
+                # check if the sqltext need to be splited before uploaded
                 if len(data_mysql)>1:
                     split = 1
                     status = 'UPLOAD TASK FAIL'
                     return render(request, 'inception.html',{'form': form, 'upform': upform, 'objlist': objlist, 'status': status,'split':split,'choosed_host':choosed_host})
+                #check sqltext before uploaded
+                else:
+                    tmp_data, tmp_col, dbname = incept.inception_check(choosed_host, sqltext)
+                    for i in tmp_data:
+                        if int(i[2]) !=0:
+                            status = 'UPLOAD TASK FAIL,CHECK NOT PASSED'
+                            return render(request, 'inception.html',locals())
                 incept.record_task(request,sqltext,choosed_host,specification)
                 status='UPLOAD TASK OK'
                 return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':objlist,'status':status})
