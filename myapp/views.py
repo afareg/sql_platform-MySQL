@@ -486,6 +486,7 @@ def task_manager(request):
             return render(request,'task_manager.html',{'form':form,'form2':form2,'objlist':obj_list,'datalist':data,'choosed_host':hosttag,'result':results,'col':col})
         elif request.POST.has_key('see_running'):
             id = int(request.POST['see_running'])
+            request.session['recent_taskid'] = id
             results,cols = incept.task_running_status(id)
             return render(request,'task_manager.html',{'form':form,'form2':form2,'objlist':obj_list,'datalist':data,'choosed_host':hosttag,'result_status':results,'cols':cols})
         elif request.POST.has_key('exec'):
@@ -495,8 +496,8 @@ def task_manager(request):
             return render(request,'task_manager.html',{'form':form,'form2':form2,'objlist':obj_list,'datalist':data,'choosed_host':hosttag,'nllflag':nllflag})
         elif request.POST.has_key('stop'):
             sqlsha = request.POST['stop']
-            incept.incep_stop(sqlsha)
-            results,cols  = incept.incep_stop(sqlsha)
+            # incept.incep_stop(sqlsha,request)
+            results,cols  = incept.incep_stop(sqlsha,request)
             return render(request,'task_manager.html',{'form':form,'form2':form2,'objlist':obj_list,'datalist':data,'choosed_host':hosttag,'result_status':results,'cols':cols})
         elif request.POST.has_key('appoint'):
             id = int(request.POST['appoint'])
@@ -683,6 +684,7 @@ def pre_set(request):
         pri.init_ugroup
         return render(request, 'previliges/pre_set.html', {'dblist':dblist, 'userlist':userlist, 'grouplist':grouplist, 'usergroup':usergroup})
 
+
 @login_required(login_url='/accounts/login/')
 @permission_required('myapp.can_set_pri', login_url='/')
 def set_dbgroup(request):
@@ -691,7 +693,6 @@ def set_dbgroup(request):
     if request.method == 'POST':
         if request.POST.has_key('query'):
             try:
-
                 groupname = request.POST['dbgroup_set']
                 s_dbnamelist,s_userlist = pri.get_group_detail(groupname)
                 return render(request, 'previliges/db_group.html', locals())
@@ -795,6 +796,7 @@ def set_ugroup(request):
     else:
         pri.init_ugroup()
         return render(request, 'previliges/u_group.html', locals())
+
 
 @login_required(login_url='/accounts/login/')
 @permission_required('myapp.can_set_pri', login_url='/')

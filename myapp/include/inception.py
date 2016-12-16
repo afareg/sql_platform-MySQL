@@ -1,6 +1,6 @@
 import MySQLdb,sys,string,time,datetime
 from django.contrib.auth.models import User
-from myapp.include import function as func
+from myapp.include import function as func ,meta
 from multiprocessing import Process
 from myapp.models import Db_name,Db_account,Db_instance,Oper_log,Task,Incep_error_log
 reload(sys)
@@ -296,6 +296,57 @@ def log_incep_op(sqltext,dbtag,request,mycreatetime):
     return 1
 
 #see task running status
+# def task_running_status(idnum):
+#     task = Task.objects.get(id=idnum)
+#     if task.status=='executed failed'or task.status=='executed':
+#         data = Incep_error_log.objects.filter(create_time=task.create_time).filter(finish_time=task.update_time).order_by("-myid")
+#         col =[f.name for f in Incep_error_log._meta.get_fields()]
+#         #delete first element "ID"
+#         del col[0]
+#         return data,col
+#     else:
+#         text = task.sqlsha
+#         if text=='':
+#             return(['no use of pt-online-schema-change'],''),['info']
+#         else:
+#             data = (['not running'],'')
+#             cols = ['info']
+#             for i in text.split('^^'):
+#                 x = i.split('*')
+#                 if  len(x)>=2:
+#                     sqlsha = '*'+ x[1]
+#                     datalist,collist,mynum = incep_getstatus(sqlsha)
+#                     #add sqltext to the end of the tuple
+#                     if mynum >0:
+#                         for d in datalist:
+#                             data=d+(x[0],)
+#                         collist.append('SQLTEXT')
+#                         cols = collist
+#                         data = (data,)
+#                         break
+#             return data,cols
+
+#'executed','executed failed','check not passed','check passed','running','appointed','NULL'
+def get_db_info(hosttag):
+    a = Db_name.objects.get(dbtag=hosttag)
+    tar_dbname = a.dbname
+    try:
+        if a.instance.all().filter(role='write')[0]:
+            tar_host = a.instance.all().filter(role='write')[0].ip
+            tar_port = a.instance.all().filter(role='write')[0].port
+    except Exception, e:
+        try:
+            tar_host = a.instance.all().filter(role='all')[0].ip
+            tar_port = a.instance.all().filter(role='all')[0].port
+        except Exception, e:
+            pass
+    for i in a.db_account_set.all():
+        if i.role == 'admin':
+            tar_username = i.user
+            tar_passwd = i.passwd
+            break
+    return tar_username, tar_passwd, tar_host,  tar_port,tar_dbname
+
 def task_running_status(idnum):
     task = Task.objects.get(id=idnum)
     if task.status=='executed failed'or task.status=='executed':
@@ -304,13 +355,16 @@ def task_running_status(idnum):
         #delete first element "ID"
         del col[0]
         return data,col
-    else:
+    elif task.status == 'running':
         text = task.sqlsha
         if text=='':
-            return(['no use of pt-online-schema-change'],''),['info']
+            try:
+                tar_username, tar_passwd, tar_host,  tar_port,tar_dbname = get_db_info(task.dbtag)
+                sql = "select * from information_schema.processlist where Db='" + tar_dbname + "'" + " and USER='" + tar_username + "' order by TIME desc"
+                return func.mysql_query(sql, tar_username, tar_passwd, tar_host, int(tar_port), 'information_schema')
+            except Exception,e:
+                return(['get info wrong'],''),['info']
         else:
-            data = (['not running'],'')
-            cols = ['info']
             for i in text.split('^^'):
                 x = i.split('*')
                 if  len(x)>=2:
@@ -325,6 +379,18 @@ def task_running_status(idnum):
                         data = (data,)
                         break
             return data,cols
+    elif task.status == 'check passed':
+        if task.sqlsha=='':
+            data = (['not running and not use pt-online-schema-change'], '')
+        else :
+            data = (['not running and will use pt-online-schema-change'], '')
+        cols = ['info']
+        return data, cols
+    else :
+        return (['not running'],''),['info']
+
+
+
 
 def incep_getstatus(sqlsha):
     text = sqlsha
@@ -349,21 +415,41 @@ def set_schetime(idnum,schetime):
         task.sche_time=schetime
         task.save()
 
-def incep_stop(sqlsha):
+def incep_stop(sqlsha,request):
     text = sqlsha
-    sql='inception stop alter \'%s\'' %(text)
-    try:
-        conn=MySQLdb.connect(host=incp_host,user=incp_user,passwd=incp_passwd,db='',port=incp_port,use_unicode=True, charset="utf8")
-        cur=conn.cursor()
-        ret=cur.execute(sql)
-        # result=cur.fetchall()
-        field_names = ['success']
-        cur.close()
-        conn.close()
-        result = ([sqlsha+' is stopped'],)
-        return result,field_names
-    except Exception,e:
-        return([str(e)],''),['error']
+    if text[0] == '*':
+        sql='inception stop alter \'%s\'' %(text)
+    #use inception to kill sqlsha
+        try:
+            conn=MySQLdb.connect(host=incp_host,user=incp_user,passwd=incp_passwd,db='',port=incp_port,use_unicode=True, charset="utf8")
+            cur=conn.cursor()
+            ret=cur.execute(sql)
+            # result=cur.fetchall()
+            field_names = ['success']
+            cur.close()
+            conn.close()
+            result = ([sqlsha+' is stopped'],)
+            return result,field_names
+        except Exception,e:
+            return([str(e)],''),['error']
+    #kill id
+    else:
+        try:
+            id = request.session['recent_taskid']
+            task = Task.objects.get(id=id)
+            tar_username, tar_passwd, tar_host, tar_port, tar_dbname = get_db_info(task.dbtag)
+            sql = "kill "+sqlsha
+            conn = MySQLdb.connect(host=tar_host, user=tar_username, passwd=tar_passwd, port=int(tar_port), connect_timeout=5,charset='utf8')
+            conn.select_db(tar_dbname)
+            curs = conn.cursor()
+            result = curs.execute(sql)
+            conn.commit()
+            curs.close()
+            conn.close()
+            return ([sqlsha +' killed '], ''), ['success']
+        except Exception, e:
+            return ([str(e)], ''), ['error']
+
 
 def main():
     x,y,z= incep_exec("insert into t2 values(2);",'test','test','10.1.70.220',3306,'test')

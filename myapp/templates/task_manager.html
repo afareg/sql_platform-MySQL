@@ -132,6 +132,8 @@
                                     {% if '*' in item.2 %}
                                         <td><button type="submit" name='stop' class="btn btn-danger" value={{ item.2 }}>停止</button></td>
                                     {% endif %}
+                                {% elif 'TIME' in cols and 'STATE' in cols %}
+                                    <td><button type="submit" name='stop' class="btn btn-danger" value={{ item.0 }}>停止</button></td>
                                 {% endif %}
                             {% endif %}
                         {% endif %}
