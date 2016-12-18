@@ -419,6 +419,8 @@ def init_ugroup():
             edit_task = ['can_see_taskview','can_update_task','can_see_inception']
             setpri = ['can_set_pri']
             querypri = ['can_query_pri']
+            mysql_adminli = ['can_see_mysqladmin']
+            set_group('mysql-manage', mysql_adminli)
             set_group('mysql-exec-dml',dmlli)
             set_group('mysql-see-meta', metali)
             set_group('mysql-exec-ddl', ddlli)
