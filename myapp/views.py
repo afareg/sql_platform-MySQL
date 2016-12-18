@@ -37,15 +37,13 @@ def index(request):
     return render(request, 'include/base.html',{'bingtu':json.dumps(bingtu),'data':json.dumps(data),'col':json.dumps(col),'taskdata':json.dumps(taskdata),'taskcol':json.dumps(taskcol)})
 
 
-@login_required
+@login_required(login_url='/accounts/login/')
 def logout(request):
     auth.logout(request)
     response = HttpResponseRedirect("/accounts/login/")
     try:
         response.delete_cookie('myfavword')
-        print "ok"
     except Exception,e:
-        print "failed"
         pass
     return response
 
@@ -996,6 +994,99 @@ def meta_data(request):
     else:
         return render(request, 'meta_data.html', locals())
 
+
+@login_required(login_url='/accounts/login/')
+@permission_required('myapp.can_see_mysqladmin', login_url='/')
+def mysql_admin(request):
+    inslist = Db_instance.objects.all()
+    if request.method == 'POST':
+        try:
+            selfsql = request.POST['selfsql'].strip()
+            insname = Db_instance.objects.get(id=int(request.POST['ins_set']))
+            tmpli = []
+            for i in insname.db_name_set.all():
+                for x in i.instance.all():
+                    tmpli.append(int(x.id))
+            tmpli = list(set(tmpli))
+            bro = Db_instance.objects.filter(id__in=tmpli)
+
+            if request.POST.has_key('fullpro'):
+                data_list, collist = meta.process(insname)
+                return render(request, 'admin/mysql_admin.html', locals())
+
+            elif  request.POST.has_key('showactive'):
+                data_list, collist = meta.process(insname,2)
+                return render(request, 'admin/mysql_admin.html', locals())
+
+            elif request.POST.has_key('showengine'):
+                datalist, col = meta.process(insname, 3)
+                return render(request, 'admin/mysql_admin.html', locals())
+
+            elif request.POST.has_key('kill_list'):
+                idlist = request.POST.getlist('choosedlist')
+                tmpstr=''
+                for i in idlist:
+                    tmpstr= tmpstr + 'kill ' + i +';'
+                datalist, col = meta.process(insname, 4,tmpstr)
+                return render(request, 'admin/mysql_admin.html', locals())
+
+            elif request.POST.has_key('showmutex'):
+                datalist, col = meta.process(insname, 5)
+                return render(request, 'admin/mysql_admin.html', locals())
+            elif request.POST.has_key('showbigtb'):
+                datalist, col = meta.process(insname, 6)
+                return render(request, 'admin/mysql_admin.html', locals())
+
+            elif request.POST.has_key('showstatus'):
+                vir = request.POST['variables'].strip()
+                sql = "show global status like '%" + vir +"%'"
+                datalist, col = meta.process(insname, 7,sql)
+                return render(request, 'admin/mysql_admin.html', locals())
+
+            elif request.POST.has_key('showvari'):
+                vir = request.POST['variables'].strip()
+                sql = "show global variables like '%" + vir + "%'"
+                datalist, col = meta.process(insname, 7,sql)
+                return render(request, 'admin/mysql_admin.html', locals())
+            elif request.POST.has_key('slavestatus'):
+                sql = "show slave status"
+                datalist, col = meta.process(insname, 7,sql)
+                return render(request, 'admin/mysql_admin.html', locals())
+            elif request.POST.has_key('search'):
+                vir = request.POST['variables'].strip()
+                a = Db_instance.objects.filter(ip__icontains=vir)
+                bro =''
+                if a:
+                    inslist = a
+                else:
+                    info = "IP NOT FOUND"
+                return render(request, 'admin/mysql_admin.html', locals())
+            elif request.POST.has_key('execute'):
+                bro = ''
+                datalist, col = meta.process(insname, 7, meta.check_selfsql(selfsql))
+                return render(request, 'admin/mysql_admin.html', locals())
+        except Exception,e:
+
+            return render(request, 'admin/mysql_admin.html', locals())
+    else:
+        return render(request, 'admin/mysql_admin.html', locals())
+
+@login_required(login_url='/accounts/login/')
+def pass_reset(request):
+    if request.method == 'POST':
+        try:
+        # newpasswd = request.POST['passwd'].strip()
+            tmp = User.objects.get(username=request.user.username)
+            tmp.set_password(request.POST['passwd'].strip())
+            tmp.save()
+            info = "reset passwd ok"
+            return render(request, 'previliges/pass_reset.html', locals())
+        except:
+            info = "reset passwd failed"
+            return render(request, 'previliges/pass_reset.html', locals())
+
+    else:
+        return render(request, 'previliges/pass_reset.html', locals())
 
 # @ratelimit(key=func.my_key, rate='5/h')
 def test(request):

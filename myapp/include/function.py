@@ -294,13 +294,13 @@ def check_mysql_exec(sqltext,request,type='dml'):
     # request.user.has_perm('myapp.')
     sqltext = sqltext.strip()
     sqltype = sqltext.split()[0].lower()
-    list_type = ['insert','update','delete','create','alter','drop','truncate']
+    list_type = ['insert','update','delete','create','alter','drop','truncate','replace']
     if (sqltype=='insert'):
         if request.user.has_perm('myapp.can_insert_mysql'):
             return sqltext
         else:
             return "select 'Don\\'t have permission to \"insert\"'"
-    elif(sqltype=='update'):
+    elif(sqltype=='update' or sqltype == 'replace'):
         if request.user.has_perm('myapp.can_update_mysql'):
             return sqltext
         else:

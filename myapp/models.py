@@ -95,6 +95,7 @@ class User_profile(models.Model):
                       ('can_see_execview','can see mysql exec view'),
                       ('can_see_inception', 'can see inception view'),
                       ('can_see_metadata', 'can see meta_data view'),
+                      ('can_see_mysqladmin', 'can see mysql_admin view'),
                       ('can_export','can export csv'),
                       ('can_insert_mysql','can insert mysql'),
                       ('can_update_mysql','can update mysql'),

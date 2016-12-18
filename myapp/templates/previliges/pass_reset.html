@@ -1,0 +1,62 @@
+{% extends "include/base.html" %}
+{% block title %}
+    <title>密码重置</title>
+{% endblock %}
+{% block name %}
+    欢迎使用密码重置功能
+{% endblock %}
+{%block content%}
+    <hr />
+    <span id="errorpwd" style="color: #eea236" >{{ info }}</span>
+
+    <form role="form" method='post'>
+        {% csrf_token %}
+
+
+        <div class="col-md-2 main ">
+            <input id="id_passwd" type="password" class="form-control" maxlength="25" placeholder="type new password here" name="passwd" onkeydown="clearstage()">
+
+            <input id="id_repasswd" type="password" class="form-control" maxlength="25" placeholder="retype password here" name="repasswd" onkeydown="clearstage()" >
+
+            <button id="id_button" type="submit" name='set' onclick="return checkPass();"  class="btn btn-danger" >重置</button>
+        </div>
+    </form>
+
+
+
+
+    <script>
+        function clearstage () {
+            document.getElementById("errorpwd").innerText = "";
+
+        }
+        function checkPass() {
+            var pwd1 = document.getElementById("id_passwd").value;
+            var pwd2 = document.getElementById("id_repasswd").value;
+            if (pwd1.length < 8){
+                document.getElementById("errorpwd").innerText = "密码长度至少8位";
+                return false;
+            }
+            if (pwd1 != pwd2) {
+                document.getElementById("errorpwd").innerText = "两次密码输入不一致";
+                return false;
+            }
+            return true;
+        }
+        {#        function checksame() {#}
+        {#            var pwd1 = document.getElementById("id_passwd").value;#}
+        {#            var pwd2 = document.getElementById("id_repasswd").value;#}
+        {##}
+        {#            if (pwd1 != pwd2 && pwd1.length != 0) {#}
+        {#                document.getElementById("errorpwd").innerText = "两次输入密码不一致";#}
+        {#            }#}
+        {#            else#}
+        {#            {#}
+        {#                document.getElementById("errorpwd").innerText = "";#}
+        {#            }#}
+        {#        }#}
+
+
+    </script>
+{% endblock %}
+
