@@ -1084,7 +1084,6 @@ def pass_reset(request):
         except:
             info = "reset passwd failed"
             return render(request, 'previliges/pass_reset.html', locals())
-
     else:
         return render(request, 'previliges/pass_reset.html', locals())
 
