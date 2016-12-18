@@ -1088,8 +1088,8 @@ def pass_reset(request):
         return render(request, 'previliges/pass_reset.html', locals())
 
 # @ratelimit(key=func.my_key, rate='5/h')
-def test(request):
-    # was_limited = getattr(request, 'limited', False)
-    # print  was_limited
-    print request.get_full_path()
-    return render(request, 'test.html')
+# def test(request):
+#     # was_limited = getattr(request, 'limited', False)
+#     # print  was_limited
+#     print request.get_full_path()
+#     return render(request, 'test.html')
