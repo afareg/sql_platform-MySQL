@@ -24,7 +24,9 @@
 
 对于数据库账户，一个DB可以配置多个，并分配给不同的用户，用以实现不同用户在同一db下区分权限的功能。（也可以保持默认设置，即分配给public用户，不进行区分）
 
-如果要使用任务管理功能，需要为DB添加一个role为admin的数据库账号。。未完待续
+如果要使用任务管理功能，需要为DB添加一个role为admin的数据库账号
+。。。待续
+
 ### 启动配置
 #### config.ini配置文件如下：
 [settings]
@@ -70,9 +72,9 @@ config.readfp(open('/root/PycharmProjects/mypro/myapp/etc/config.ini','r'))
 ### 启动：
 #### 初始化表结构： python manage.py migrate
 #### 创建一个超级用户： python manage.py createsuperuser
-#### 启动server： python manage.py runsslserver 0.0.0.0:8000 
+#### 启动server： python manage.py runsslserver 0.0.0.0:8000（启动前建议把settings.py中的debug设置为false） 
 #### 网站地址为 https://yourip:8000 然后以刚刚注册的超级用户登陆网站进行建立普通用户、建库等配置工作
-# 页面展示如下:
+# 页面展示大致如下:
 ## 1.登录界面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/login.jpg)
 ## 2.主页
@@ -100,7 +102,13 @@ config.readfp(open('/root/PycharmProjects/mypro/myapp/etc/config.ini','r'))
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/task_manage.jpg)
 ### 7.1任务执行结果示例
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/resul_of_task.jpg)
-### 7.2任务编辑界面
+### 7.2 任务终止
+通过pt-osc执行的任务
+![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/task_stop_ptosc.jpg)
+未通过pt-osc执行的任务
+![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/task_stop.jpg)
+
+### 7.3 任务编辑界面
 可以通过权限设置来限制用户是否能够编辑此页面的内容
 
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/task_edit.jpg)
@@ -110,22 +118,29 @@ config.readfp(open('/root/PycharmProjects/mypro/myapp/etc/config.ini','r'))
 这些语句可以通过日志查询页面进行搜索
 
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/oper_log.jpg)
-## 9.权限查询页面示例
-### 9.1按db查询
+## 9. 数据库管理界面
+![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/mysql_admin.jpg)
+
+## 10.权限查询页面示例
+### 10.1按db查询
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/pre_query_db.jpg)
-### 9.2按db组查询
+### 10.2按db组查询
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/pre_query_dbgroup.jpg)
-### 9.3按用户账号查询
+### 10.3按用户账号查询
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/pre_query_user.jpg)
-### 9.4按实例查询
+### 10.4按实例查询
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/pre_query_ins.jpg)
-## 10.用户账户设置界面
+## 11.用户账户设置界面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/user_set.jpg)
-## 11.DB快速创建界面
+## 12.DB快速创建界面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/fast_dbset.jpg)
-## 12.DB详细设置界面
+## 13.DB详细设置界面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/db_detailset.jpg)
-## 13.用户页面权限设置界面
+## 14.用户页面权限设置界面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/group_set.jpg)
-## 14.DB组设置界面
+## 15.DB组设置界面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/dbgroup_set.jpg)
+## 16.用户密码自助重置页面
+![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/pass_reset.jpg)
+
+### 个人编写，精力和水平有限。。有任何疑问和建议联系 changjingxiu1@163.com
