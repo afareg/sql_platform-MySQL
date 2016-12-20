@@ -122,6 +122,7 @@ config.readfp(open('/root/PycharmProjects/mypro/myapp/etc/config.ini','r'))
 #### 此页功能需要配置role为admin的数据库账号
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/mysql_admin.jpg)
 
+![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/mysql_admin1.jpg)
 ## 10.权限查询页面示例
 ### 10.1按db查询
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/pre_query_db.jpg)
