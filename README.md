@@ -1,5 +1,5 @@
 # sql_manage_platform-MySQL
-## 基于django和inception，带权限控制的mysql语句运行系统
+## 基于django和inception，带权限控制的mysql语句运行平台
 ### 另外还带有一些简单的监控功能
 ### 开发环境：
 #### django:1.8.14
