@@ -119,6 +119,7 @@ config.readfp(open('/root/PycharmProjects/mypro/myapp/etc/config.ini','r'))
 
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/oper_log.jpg)
 ## 9. 数据库管理界面
+#### 此页功能需要配置role为admin的数据库账号
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/mysql_admin.jpg)
 
 ## 10.权限查询页面示例
