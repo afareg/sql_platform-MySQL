@@ -133,10 +133,11 @@ def process(insname,flag=1,sql=''):
 	    SEQ_IN_INDEX\
 	    FROM INFORMATION_SCHEMA.COLUMNS INNER JOIN INFORMATION_SCHEMA.TABLES USING (TABLE_SCHEMA, TABLE_NAME) INNER JOIN INFORMATION_SCHEMA.STATISTICS USING (TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)\
 		WHERE TABLE_SCHEMA not IN ('INFORMATION_SCHEMA','mysql','performance_schema') \
-		AND SEQ_IN_INDEX=1 AND COLUMN_KEY='PRI' AND EXTRA='auto_increment' \
+		AND SEQ_IN_INDEX=1 AND EXTRA='auto_increment' \
 		GROUP BY TABLE_SCHEMA,TABLE_NAME,COLUMN_NAME order by AUTO_INCREMENT/MAX_VALUE desc limit 100;"
         return get_process_data(insname, sql)
 
+#COLUMN_KEY='PRI' AND
 
 def run_process(insname,sql):
     flag = True
