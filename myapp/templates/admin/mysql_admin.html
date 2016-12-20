@@ -1,9 +1,9 @@
 {% extends "include/base.html" %}
 {% block title %}
-    <title>META_DATA</title>
+    <title>INS STATUS</title>
 {% endblock %}
 {% block name %}
-    欢迎使用MySQL数据库<span style="color:red">管理</span>功能
+    欢迎使用MySQL<span style="color:red">实例状态查询</span>功能
 {% endblock %}
 {%block content%}
     <div id="wrapper">
@@ -41,12 +41,21 @@
                         <td>
                             <button type="submit" name='showmutex' class="btn btn-success" value="1">SHOW ENGINE INNODB MUTEX</button >
                         </td>
+                    </tr>
+                </table>
+                </br>
+                <table>
+                    <tr>
+                        <td>
+                            <button type="submit" name='slavestatus' class="btn btn-primary" value="1">SHOW SLAVE STATUS</button >
+                        </td>
                         <td>
                             <button type="submit" name='showbigtb' class="btn btn-default" value="1">SHOW TOP 20 BIGTABLES</button >
                         </td>
                         <td>
-                            <button type="submit" name='slavestatus' class="btn btn-primary" value="1">SHOW SLAVE STATUS</button >
+                            <button type="submit" name='showinc' class="btn btn-danger" value="1">SHOW TOP 100 AUTO_INCREMENT USED</button >
                         </td>
+
                     </tr>
 
                 </table>

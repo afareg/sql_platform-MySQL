@@ -1,0 +1,86 @@
+{% extends "include/base.html" %}
+{% block title %}
+    <title>META DATA</title>
+{% endblock %}
+{% block name %}
+    META DATA
+{% endblock %}
+{%block content%}
+    <strong> <span style="color:red">本页展示数据非实时，由定时任务收集所得</span></strong>
+    <form role="form" method='post'>
+        {% csrf_token %}
+        <table>
+            <tr>
+                <td>
+                    <select class="form-control col-md-1" name = "choosed">
+                        <option value ="all">all</option>
+                        {% for obj in objlist %}
+                            {% if obj == choosed_host %}
+                                <option selected="selected" value ="{{ obj }}">{{ obj }}</option>
+                            {% else %}
+                                <option value ="{{ obj }}">{{ obj }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </td>
+            </tr>
+        </table>
+        <table>
+            <tr>
+                <td>
+                    <button type="submit" name='bigtb' class="btn btn-primary" value="1">SHOW TOP 50 BIGTABLE</button >
+                </td>
+                <td>
+                    <button type="submit" name='auto_occ' class="btn btn-danger" value="1">SHOW TOP 20 AUTO_INCREMENT USED</button >
+                </td>
+                <td>
+                    <button type="submit" name='tb_incre' class="btn btn-success" value="1">SHOW TOP 20 INCREASED TABLE</button >
+                </td>
+                <td>
+                    <button type="submit" name='db_sz' class="btn btn-info" value="1">SHOW TOP 10 DB SIZE</button >
+                </td>
+                <td>
+                    <button type="submit" name='db_inc' class="btn btn-default" value="1">SHOW TOP 10 DB INCREASED</button >
+                </td>
+            </tr>
+        </table>
+
+        <table id="mytable" class="table table-condensed" border="1">
+            <thead>
+            <tr class="danger">
+                {% for colname in collist %}
+                    {% if colname == 'id' %}
+                    {% else %}
+                        <th>{{ colname }}</th>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+            </thead>
+            <tbody  >
+            {% for item in data_list %}
+                {% if 'id' in collist %}
+                    <tr>
+                        {% for item_detail in item %}
+                            {% if forloop.counter == 1  %}
+                            {% else %}
+                                <td> <pre>{{ item_detail }}</pre></td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                {% else %}
+                    <tr>
+                        {% for item_detail in item %}
+                            <td> <pre>{{ item_detail }}</pre></td>
+                        {% endfor %}
+                    </tr>
+                {% endif %}
+
+            {% endfor %}
+            </tbody>
+        </table>
+
+
+    </form>
+
+{% endblock %}
+

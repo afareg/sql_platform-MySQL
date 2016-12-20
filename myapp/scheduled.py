@@ -108,9 +108,6 @@ def incep_exec(sqltext,myuser,mypasswd,myhost,myport,mydbname,flag=0):
         field_names = [i[0] for i in cur.description]
         logging.info("resulting in incept exec!!")
         logging.info(result)
-        #print field_names
-        #for row in result:
-        #    print row[0], "|",row[1],"|",row[2],"|",row[3],"|",row[4],"|",row[5],"|",row[6],"|",row[7],"|",row[8],"|",row[9],"|",row[10]
         cur.close()
         conn.close()
     except MySQLdb.Error,e:
@@ -195,7 +192,7 @@ def make_sure_mysql_usable():
         del connections._connections.default
 
 
-def mysql_query(sql,user=user,passwd=passwd,host=host,port=int(port),dbname=dbname,limitnum=select_limit):
+def mysql_query(sql,user=user,passwd=passwd,host=host,port=int(port),dbname=dbname):
     try:
         conn=MySQLdb.connect(host=host,user=user,passwd=passwd,port=int(port),connect_timeout=5,charset='utf8')
         conn.select_db(dbname)
@@ -206,10 +203,138 @@ def mysql_query(sql,user=user,passwd=passwd,host=host,port=int(port),dbname=dbna
         #get column name
         for i in index:
             col.append(i[0])
-        #result=cursor.fetchall()
-        result=cursor.fetchmany(size=int(limitnum))
+        result=cursor.fetchall()
         cursor.close()
         conn.close()
         return (result,col)
     except Exception,e:
+        print e
         return([str(e)],''),['error']
+
+
+def table_check():
+    #archive history data
+    sql = "insert into mon_autoinc_status_his (TABLE_SCHEMA ,TABLE_NAME,COLUMN_NAME,DATA_TYPE,\
+            COLUMN_TYPE,IS_UNSIGNED,IS_INT,MAX_VALUE,AUTO_INCREMENT,INDEX_NAME,\
+            SEQ_IN_INDEX,DBTAG,update_time) select TABLE_SCHEMA ,TABLE_NAME,COLUMN_NAME,DATA_TYPE,\
+            COLUMN_TYPE,IS_UNSIGNED,IS_INT,MAX_VALUE,AUTO_INCREMENT,INDEX_NAME,\
+            SEQ_IN_INDEX,DBTAG,update_time from mon_autoinc_status"
+    mysql_exec(sql)
+    sql = "insert into mon_tbsize_his (TABLE_SCHEMA,TABLE_NAME,`DATA(M)`,\
+            `INDEX(M)`,`TOTAL(M)`,DBTAG,update_time) select TABLE_SCHEMA,TABLE_NAME,`DATA(M)`,\
+            `INDEX(M)`,`TOTAL(M)`,DBTAG,update_time from mon_tbsize"
+    mysql_exec(sql)
+    #clear tmp table
+    mysql_exec("truncate table mon_autoinc_status_tmp")
+    mysql_exec("truncate table mon_tbsize_tmp")
+    print datetime.datetime.now()
+    for i in Db_name.objects.all():
+        try:
+            print i.dbtag
+            print "start collect auto_increment status"
+            sql = "SELECT\
+            TABLE_SCHEMA,\
+            TABLE_NAME,\
+            COLUMNS.COLUMN_NAME,\
+            COLUMNS.DATA_TYPE,\
+            COLUMNS.COLUMN_TYPE,\
+            IF(LOCATE('unsigned', COLUMN_TYPE) > 0,\
+            1,\
+            0\
+            ) AS IS_UNSIGNED,\
+            IF(LOCATE('int', DATA_TYPE) > 0,\
+            1,\
+            0\
+            ) AS IS_INT,\
+            (CASE DATA_TYPE\
+            WHEN 'tinyint' THEN 255\
+            WHEN 'smallint' THEN 65535\
+            WHEN 'mediumint' THEN 16777215\
+            WHEN 'int' THEN 4294967295\
+            WHEN 'bigint' THEN 18446744073709551615\
+            END >> IF(LOCATE('unsigned', COLUMN_TYPE) > 0, 0, 1)\
+            ) AS MAX_VALUE,\
+            AUTO_INCREMENT,\
+            INDEX_NAME,\
+            SEQ_IN_INDEX,'" + i.dbtag + "'\
+            FROM INFORMATION_SCHEMA.COLUMNS INNER JOIN INFORMATION_SCHEMA.TABLES USING (TABLE_SCHEMA, TABLE_NAME) INNER JOIN INFORMATION_SCHEMA.STATISTICS USING (TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)\
+            WHERE SEQ_IN_INDEX=1 AND COLUMN_KEY='PRI' AND \
+            EXTRA='auto_increment' AND TABLE_SCHEMA='" + i.dbname + "' GROUP BY TABLE_SCHEMA,\
+            TABLE_NAME,COLUMN_NAME HAVING AUTO_INCREMENT/MAX_VALUE>=0;"
+            param, col = get_data(i, sql)
+
+            insertsql = "insert into mon_autoinc_status_tmp (TABLE_SCHEMA ,TABLE_NAME,COLUMN_NAME,DATA_TYPE,\
+            COLUMN_TYPE,IS_UNSIGNED,IS_INT,MAX_VALUE,AUTO_INCREMENT,INDEX_NAME,\
+            SEQ_IN_INDEX,DBTAG) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+
+            exec_many(insertsql, list(param))
+            print "start connect tbsize info"
+            sql = "SELECT TABLE_SCHEMA,TABLE_NAME,\
+            ROUND(DATA_LENGTH/(1024*1024),2) 'DATA(M)',\
+            ROUND(INDEX_LENGTH/(1024*1024),2) 'INDEX(M)',\
+            ROUND(( DATA_LENGTH + INDEX_LENGTH )/( 1024 * 1024 ), 2) 'TOTAL(M)' \
+            ,'" + i.dbtag + "' FROM  INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='"+ i.dbname +"' "
+            param, col = get_data(i, sql)
+            # print param
+            insertsql = "insert into mon_tbsize_tmp (TABLE_SCHEMA,TABLE_NAME,`DATA(M)`,\
+            `INDEX(M)`,`TOTAL(M)`,DBTAG) values (%s,%s,%s,%s,%s,%s)"
+            exec_many(insertsql, list(param))
+
+        except Exception, e:
+            print e
+            pass
+    mysql_exec("rename table mon_autoinc_status to mon_autoinc_status_tmp1,mon_autoinc_status_tmp to mon_autoinc_status")
+    mysql_exec("rename table mon_autoinc_status_tmp1 to mon_autoinc_status_tmp")
+    mysql_exec("rename table mon_tbsize_last to mon_tbsize_last1")
+    mysql_exec("rename table mon_tbsize to mon_tbsize_last,mon_tbsize_tmp to mon_tbsize,mon_tbsize_last1 to mon_tbsize_tmp")
+
+
+def get_data(a,sql):
+    #a = Db_name.objects.get(dbtag=hosttag)
+    tar_dbname = a.dbname
+    try:
+        if a.instance.all().filter(role='read')[0]:
+            tar_host = a.instance.all().filter(role='read')[0].ip
+            tar_port = a.instance.all().filter(role='read')[0].port
+    except Exception,e:
+        tar_host = a.instance.filter(role__in=['write','all'])[0].ip
+        tar_port = a.instance.filter(role__in=['write','all'])[0].port
+    for i in a.db_account_set.all():
+        if i.role == 'admin':
+            tar_username = i.user
+            tar_passwd = i.passwd
+            break
+    #print tar_port+tar_passwd+tar_username+tar_host
+    try:
+        results,col = mysql_query(sql,tar_username,tar_passwd,tar_host,tar_port,tar_dbname)
+    except Exception, e:
+        #wrong_message
+        results,col = ([str(e)],''),['error']
+        #results,col = mysql_query(wrong_msg,user,passwd,host,int(port),dbname)
+    return results,col
+
+def exec_many(insertsql,param):
+    try:
+        conn = MySQLdb.connect(host=host, user=user, passwd=passwd, port=int(port), connect_timeout=5, charset='utf8')
+        conn.select_db(dbname)
+        cursor = conn.cursor()
+        # cursor.execute("truncate table mon_autoinc_status")
+        cursor.executemany(insertsql,param)
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except Exception,e:
+        print e
+
+def mysql_exec(sql):
+    try:
+        conn = MySQLdb.connect(host=host, user=user, passwd=passwd, port=int(port), connect_timeout=5, charset='utf8')
+        conn.select_db(dbname)
+        cursor = conn.cursor()
+        # cursor.execute("truncate table mon_autoinc_status")
+        cursor.execute(sql)
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except Exception,e:
+        print e

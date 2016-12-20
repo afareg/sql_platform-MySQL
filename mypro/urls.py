@@ -26,6 +26,7 @@ urlpatterns = (
     url(r'^log_query/$', myapp_view.log_query,name='log_query'),
     url(r'^mysql_query/$', myapp_view.mysql_query,name='mysql_query'),
     url(r'^mysql_admin/$', myapp_view.mysql_admin, name='mysql_admin'),
+    url(r'^tb_check/$', myapp_view.tb_check, name='tb_check'),
     url(r'^meta_data/$', myapp_view.meta_data,name='meta_data'),
     url(r'^mysql_exec/$', myapp_view.mysql_exec,name='mysql_exec'),
     url(r'^captcha/',include('captcha.urls')),

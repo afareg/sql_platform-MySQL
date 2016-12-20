@@ -210,6 +210,9 @@ def get_dbtag_detail(dbtagname):
 
 def del_dbtag(dbtagname):
     dbtag = Db_name.objects.get(dbtag=dbtagname)
+    for i in dbtag.db_account_set.all():
+        if i.dbname.count()==1:
+            i.delete()
     dbtag.delete()
 
 
@@ -355,19 +358,23 @@ def createdb_fast(ins_set, newinsip, newinsport, newdbtag, newdbname, newname_al
         if flag == 1:
             insname.delete()
         return info
-    try:
-        tags = newdbtag+'+p'
-        all_account = Db_account(tags=tags, user=newname_all, passwd=newpass_all, role='all')
-        all_account.save()
-        all_account.account.add(user)
-        all_account.dbname.add(dbname)
-    # for rollback
-    except Exception, e:
-        info = "CREATE Failed!"
-        dbname.delete()
-        if flag == 1 :
-            insname.delete()
-        return info
+    tags = newdbtag + '+p'
+    if len(newname_all) >0 and len(newpass_all)>0:
+        try:
+            all_account = Db_account(tags=tags, user=newname_all, passwd=newpass_all, role='all')
+            all_account.save()
+            all_account.account.add(user)
+            all_account.dbname.add(dbname)
+        # for rollback
+        except Exception, e:
+            info = "CREATE Failed!"
+            dbname.delete()
+            if flag == 1 :
+                insname.delete()
+            return info
+    else :
+        flag = 3
+
     if len(newname_admin)>0 and len(newpass_admin)>0:
         try:
             info = "CREATED OK!"
@@ -375,13 +382,13 @@ def createdb_fast(ins_set, newinsip, newinsport, newdbtag, newdbname, newname_al
             admin_account.save()
             admin_account.account.add(user)
             admin_account.dbname.add(dbname)
-            return  info
         except Exception,e:
-            info = "CREATED with admin account set failed!"
-            return info
+            info = e+"CREATED with admin account set failed!"
     else:
         info = "CREATE OK! with admin account not set!"
-        return info
+    if flag ==3 :
+        info = info + " NORMAL USER not set"
+    return info
 
 
 

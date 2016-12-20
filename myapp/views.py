@@ -33,8 +33,10 @@ def index(request):
     data,col = chart.get_main_chart()
     taskdata,taskcol = chart.get_task_chart()
     bingtu = chart.get_task_bingtu()
+    inc_data,inc_col = chart.get_inc_usedrate()
+
     # print json.dumps(bingtu)
-    return render(request, 'include/base.html',{'bingtu':json.dumps(bingtu),'data':json.dumps(data),'col':json.dumps(col),'taskdata':json.dumps(taskdata),'taskcol':json.dumps(taskcol)})
+    return render(request, 'include/base.html',{'inc_data':json.dumps(inc_data),'inc_col':json.dumps(inc_col),'bingtu':json.dumps(bingtu),'data':json.dumps(data),'col':json.dumps(col),'taskdata':json.dumps(taskdata),'taskcol':json.dumps(taskcol)})
 
 
 @login_required(login_url='/accounts/login/')
@@ -551,7 +553,7 @@ def pre_query(request):
     if request.user.has_perm('myapp.can_query_pri') or request.user.has_perm('myapp.can_set_pri') :
         objlist = func.get_mysql_hostlist(request.user.username,'log')
         usergroup = Db_group.objects.all().order_by('groupname')
-        inslist = Db_instance.objects.all().order_by('ip')
+        inslist = Db_instance.objects.filter(role__in=['read','write','all']).order_by('ip')
         if request.method == 'POST':
             if request.POST.has_key('queryuser'):
             # if request.POST.has_key('accountname') and request.POST['accountname']!='':
@@ -950,6 +952,8 @@ def fast_dbset(request):
             newname_admin = request.POST['newname_admin']
             newpass_admin = request.POST['newpass_admin']
 
+            print newname_all
+            print "what the fuck"
             info = pri.createdb_fast(ins_set,newinsip,newinsport,newdbtag,newdbname,newname_all,newpass_all,newname_admin,newpass_admin)
 
             return render(request, 'previliges/fast_dbset.html', locals())
@@ -1042,7 +1046,9 @@ def mysql_admin(request):
                 sql = "show global status like '%" + vir +"%'"
                 datalist, col = meta.process(insname, 7,sql)
                 return render(request, 'admin/mysql_admin.html', locals())
-
+            elif request.POST.has_key('showinc'):
+                datalist, col = meta.process(insname, 8)
+                return render(request, 'admin/mysql_admin.html', locals())
             elif request.POST.has_key('showvari'):
                 vir = request.POST['variables'].strip()
                 sql = "show global variables like '%" + vir + "%'"
@@ -1071,6 +1077,30 @@ def mysql_admin(request):
     else:
         return render(request, 'admin/mysql_admin.html', locals())
 
+
+@login_required(login_url='/accounts/login/')
+@permission_required('myapp.can_see_mysqladmin', login_url='/')
+def tb_check(request):
+    objlist = func.get_mysql_hostlist(request.user.username, 'meta')
+    if request.method == 'POST':
+        choosed_host = request.POST['choosed']
+        if request.POST.has_key('bigtb'):
+            data_list,collist = meta.get_his_meta(choosed_host,1)
+        elif request.POST.has_key('auto_occ'):
+            data_list, collist = meta.get_his_meta(choosed_host,2)
+        elif request.POST.has_key('tb_incre'):
+            data_list, collist = meta.get_his_meta(choosed_host,3)
+        elif request.POST.has_key('db_sz'):
+            data_list, collist = meta.get_his_meta(choosed_host, 4)
+        elif request.POST.has_key('db_inc'):
+            data_list, collist = meta.get_his_meta(choosed_host, 5)
+        return render(request, 'admin/tb_check.html', locals())
+
+    else:
+        return render(request, 'admin/tb_check.html', locals())
+
+
+
 @login_required(login_url='/accounts/login/')
 def pass_reset(request):
     if request.method == 'POST':
@@ -1086,6 +1116,7 @@ def pass_reset(request):
             return render(request, 'previliges/pass_reset.html', locals())
     else:
         return render(request, 'previliges/pass_reset.html', locals())
+
 
 # @ratelimit(key=func.my_key, rate='5/h')
 # def test(request):

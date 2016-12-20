@@ -68,8 +68,8 @@ def get_data(hosttag,sql):
             tar_port = a.instance.all().filter(role='read')[0].port
     #如果没有设置或没有role=read，则选择第一个读到的实例读取
     except Exception,e:
-        tar_host = a.instance.all()[0].ip
-        tar_port = a.instance.all()[0].port
+        tar_host = a.instance.filter(role__in=['write','all'])[0].ip
+        tar_port = a.instance.filter(role__in=['write','all'])[0].port
 
     for i in a.db_account_set.all():
         if i.role == 'admin':
@@ -105,6 +105,38 @@ def process(insname,flag=1,sql=''):
         return get_process_data(insname, sql)
     elif flag==7 :
         return get_process_data(insname, sql)
+    elif flag == 8:
+        sql ="SELECT\
+        TABLE_SCHEMA,\
+        TABLE_NAME,\
+        COLUMNS.COLUMN_NAME,\
+        COLUMNS.DATA_TYPE,\
+        COLUMNS.COLUMN_TYPE,\
+        IF(LOCATE('unsigned', COLUMN_TYPE) > 0,\
+        1,\
+        0\
+        ) AS IS_UNSIGNED,\
+        IF(LOCATE('int', DATA_TYPE) > 0,\
+        1,\
+        0\
+        ) AS IS_INT,\
+        (CASE DATA_TYPE\
+        WHEN 'tinyint' THEN 255\
+	    WHEN 'smallint' THEN 65535\
+	    WHEN 'mediumint' THEN 16777215\
+	    WHEN 'int' THEN 4294967295\
+	    WHEN 'bigint' THEN 18446744073709551615\
+	    END >> IF(LOCATE('unsigned', COLUMN_TYPE) > 0, 0, 1)\
+	    ) AS MAX_VALUE,\
+	    AUTO_INCREMENT,\
+	    INDEX_NAME,\
+	    SEQ_IN_INDEX\
+	    FROM INFORMATION_SCHEMA.COLUMNS INNER JOIN INFORMATION_SCHEMA.TABLES USING (TABLE_SCHEMA, TABLE_NAME) INNER JOIN INFORMATION_SCHEMA.STATISTICS USING (TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)\
+		WHERE TABLE_SCHEMA not IN ('INFORMATION_SCHEMA','mysql','performance_schema') \
+		AND SEQ_IN_INDEX=1 AND COLUMN_KEY='PRI' AND EXTRA='auto_increment' \
+		GROUP BY TABLE_SCHEMA,TABLE_NAME,COLUMN_NAME order by AUTO_INCREMENT/MAX_VALUE desc limit 100;"
+        return get_process_data(insname, sql)
+
 
 def run_process(insname,sql):
     flag = True
@@ -177,3 +209,48 @@ def check_selfsql(selfsql):
     return  selfsql
 
 
+
+def get_his_meta(dbtag,flag):
+    if flag ==1 :
+        if dbtag=='all':
+            sql = "select * from mon_tbsize order by `TOTAL(M)` desc limit 50"
+        else:
+            sql = "select * from mon_tbsize where DBTAG='" + dbtag + "' order by `TOTAL(M)` desc "
+    elif flag ==2:
+        if dbtag=='all':
+            sql = "select * from mon_autoinc_status order by AUTO_INCREMENT/MAX_VALUE desc limit 20"
+        else:
+            sql = "select * from mon_autoinc_status where DBTAG='" + dbtag + "' order by AUTO_INCREMENT/MAX_VALUE desc limit 20"
+
+    elif flag == 3:
+        if dbtag == 'all':
+            sql = "SELECT * FROM (select a.DBTAG,a.TABLE_SCHEMA,\
+            a.TABLE_NAME, a.`TOTAL(M)` - b.`TOTAL(M)` AS 'inc_size(M)',\
+             (UNIX_TIMESTAMP(a.update_time) - UNIX_TIMESTAMP(b.update_time))/3600 as 'DIF(h)',\
+             a.update_time as 'LAST_CHECKTIME' from\
+            mon_tbsize a join mon_tbsize_last b using (DBTAG,TABLE_NAME)) B order by 4 desc limit 20; "
+        else:
+            sql = "SELECT * FROM (select a.DBTAG,a.TABLE_SCHEMA,\
+            a.TABLE_NAME, a.`TOTAL(M)` - b.`TOTAL(M)` AS 'inc_size(M)' ,\
+            (UNIX_TIMESTAMP(a.update_time) - UNIX_TIMESTAMP(b.update_time))/3600 as 'DIF(h)',\
+             a.update_time as 'LAST_CHECKTIME' from\
+            mon_tbsize a join mon_tbsize_last b using (DBTAG,TABLE_NAME) where a.DBTAG='"+ dbtag +"') B  order by 4 desc limit 20; "
+    elif flag == 4:
+        #top 10 DBsize
+        sql = "select DBTAG,sum(`TOTAL(M)`) as 'TOTAL(M)',sum(`DATA(M)`) as 'DATA(M)'\
+        ,sum(`INDEX(M)`) as 'INDEX(M)' from mon_tbsize group by DBTAG order by 2 desc limit 10 ;"
+    elif flag == 5:
+        #top 10 DB increase
+        sql ="select * from (select a.DBTAG,a.TOTAL AS 'TOTAL(Mb)',\
+        a.DATA AS 'DATA(Mb)',a.INDEX AS 'INDEX(Mb)',a.TOTAL-b.TOTAL as 'TOTAL INC(Mb)',\
+        ROUND((UNIX_TIMESTAMP(a.update_time) - UNIX_TIMESTAMP(b.update_time))/3600,2) as 'DIF(h)' \
+        from (select DBTAG,sum(`TOTAL(M)`) as 'TOTAL',sum(`DATA(M)`) as 'DATA',sum(`INDEX(M)`) as \
+        'INDEX',avg(update_time) as `update_time` from mon_tbsize_last group by DBTAG) b ,\
+        (select DBTAG,sum(`TOTAL(M)`) as 'TOTAL',sum(`DATA(M)`) as 'DATA',sum(`INDEX(M)`) as \
+        'INDEX' ,avg(update_time) as `update_time` from mon_tbsize group by DBTAG) a WHERE \
+        a.DBTAG=b.DBTAG ) c order by 5 desc ,2 desc limit 10"
+
+    elif flag ==6:
+        sql = "select TABLE_NAME ,ROUND(AUTO_INCREMENT/MAX_VALUE*100,1),DBTAG as 'used_percent' from mon_autoinc_status order by AUTO_INCREMENT/MAX_VALUE desc limit 10"
+
+    return mysql_query(sql, func.user, func.passwd, func.host, int(func.port), func.dbname)

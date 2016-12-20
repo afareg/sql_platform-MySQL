@@ -70,7 +70,7 @@ def get_mysql_hostlist(username,tag='tag'):
         #如果没有对应role='read'或者role='all'的account账号，则不显示在下拉菜单中
         for row in a.db_name_set.all().order_by("dbtag"):
             if row.db_account_set.all().filter(role__in=['read','all']):
-                if row.instance.all():
+                if row.instance.all().filter(role__in=['read','all']):
                     host_list.append(row.dbtag)
     elif (tag=='log'):
         for row in Db_name.objects.values('dbtag').distinct().order_by("dbtag"):
@@ -81,20 +81,21 @@ def get_mysql_hostlist(username,tag='tag'):
         for row in a.db_name_set.all().order_by("dbtag"):
             if row.db_account_set.all().filter(role__in=['write','all']):
         #排除只读实例
-                if row.instance.all().exclude(role='read'):
+                if row.instance.all().filter(role__in=['write','all']):
                     host_list.append(row.dbtag)
     elif (tag == 'incept'):
         a = User.objects.get(username=username)
         for row in a.db_name_set.all().order_by("dbtag"):
             #find the account which is admin
             if row.db_account_set.all().filter(role='admin'):
-                if row.instance.all().exclude(role='read'):
+                if row.instance.all().filter(role__in=['write','all']):
+                #if row.instance.all().exclude(role='read'):
                     host_list.append(row.dbtag)
     elif (tag == 'meta'):
         for row in Db_name.objects.all().order_by("dbtag"):
             #find the account which is admin
             if row.db_account_set.all().filter(role='admin'):
-                if row.instance.all():
+                if row.instance.filter(role__in=['write','all','read']):
                     host_list.append(row.dbtag)
     return host_list
 
@@ -114,10 +115,12 @@ def get_mysql_data(hosttag,sql,useraccount,request,limitnum):
         if a.instance.all().filter(role='read')[0]:
             tar_host = a.instance.all().filter(role='read')[0].ip
             tar_port = a.instance.all().filter(role='read')[0].port
-    #如果没有设置或没有role=read，则选择第一个读到的实例读取
+    #如果没有设置或没有role=read，则选择第一个读到的all实例读取
     except Exception,e:
-        tar_host = a.instance.all()[0].ip
-        tar_port = a.instance.all()[0].port
+        tar_host = a.instance.filter(role='all')[0].ip
+        tar_port = a.instance.filter(role='all')[0].port
+        # tar_host = a.instance.all()[0].ip
+        # tar_port = a.instance.all()[0].port
     for i in a.db_account_set.all():
         if i.role!='write' and i.role!='admin':
             # find the specified account for the user
@@ -384,6 +387,8 @@ def run_mysql_exec(hosttag,sql,useraccount,request):
         #防止库连不上,返回一个wrong_message
         results,col = ([str(e)],''),['error']
     return results,col,tar_dbname
+
+
 
 def mysql_exec(sql,user=user,passwd=passwd,host=host,port=int(port),dbname=dbname):
     try:

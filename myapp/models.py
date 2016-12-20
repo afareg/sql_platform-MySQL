@@ -6,6 +6,7 @@ read_write = (
     ('read', 'read'),
     ('write', 'write'),
     ('all','all'),
+    ('idle','idle'),
 )
 read_write_account = (
     ('read', 'read'),
@@ -75,12 +76,6 @@ class Login_log(models.Model):
 #     appoint_time = models.DateTimeField(db_index=True)
 #     def __unicode__(self):
 #         return  self.task.id
-
-
-
-
-
-
 
 
 class User_profile(models.Model):

@@ -191,6 +191,11 @@
                     {% else %}
                         <option value="write" >write</option>
                     {% endif %}
+                    {% if insname.role == "idle" %}
+                        <option value="idle" selected="selected">idle</option>
+                    {% else %}
+                        <option value="idle" >idle</option>
+                    {% endif %}
                 </select>
             </div>
 
