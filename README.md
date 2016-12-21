@@ -1,5 +1,6 @@
 # sql_manage_platform-MySQL
-## 基于django和inception，带权限控制的mysql语句运行系统
+## 基于django和inception，带权限控制的mysql语句运行平台
+### 另外还带有一些简单的监控功能
 ### 开发环境：
 #### django:1.8.14
 #### python:2.7.12
@@ -67,6 +68,8 @@ incp_XX系列配置文件为inception的连接配置
 
 config.readfp(open('/root/PycharmProjects/mypro/myapp/etc/config.ini','r'))
 
+#### 在django库中导入mon_tb.sql
+
 然后运行 python manage.py crontab add 添加 crontab任务
 
 ### 启动：
@@ -119,8 +122,11 @@ config.readfp(open('/root/PycharmProjects/mypro/myapp/etc/config.ini','r'))
 
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/oper_log.jpg)
 ## 9. 数据库管理界面
-#### 此页功能需要配置role为admin的数据库账号
+#### 使用页面功能需要配置role为admin的数据库账号
+
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/mysql_admin.jpg)
+#### 此页面数据由crontab任务收集信息得到
+![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/mysql_admin1.jpg)
 
 ## 10.权限查询页面示例
 ### 10.1按db查询
