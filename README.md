@@ -68,7 +68,7 @@ incp_XX系列配置文件为inception的连接配置
 
 config.readfp(open('/root/PycharmProjects/mypro/myapp/etc/config.ini','r'))
 
-在django库中导入mon_tb.sql
+#### 在django库中导入mon_tb.sql
 
 然后运行 python manage.py crontab add 添加 crontab任务
 
