@@ -341,10 +341,10 @@ def inception(request):
                 return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':objlist})
         elif request.POST.has_key('addtask'):
             form = AddForm(request.POST)
+            choosed_host = request.POST['cx']
             upform = Uploadform()
             if form.is_valid():
                 sqltext = form.cleaned_data['a']
-                choosed_host = request.POST['cx']
                 data_mysql, tmp_col, dbname = incept.inception_check(choosed_host, sqltext, 2)
                 # check if the sqltext need to be splited before uploaded
                 if len(data_mysql)>1:
@@ -360,10 +360,10 @@ def inception(request):
                             return render(request, 'inception.html',locals())
                 incept.record_task(request,sqltext,choosed_host,specification)
                 status='UPLOAD TASK OK'
-                return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':objlist,'status':status})
+                return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':objlist,'status':status,'choosed_host':choosed_host})
             else:
                 status='UPLOAD TASK FAIL'
-                return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':objlist,'status':status})
+                return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':objlist,'status':status,'choosed_host':choosed_host})
     else:
         form = AddForm()
         upform = Uploadform()
@@ -474,7 +474,7 @@ def task_manager(request):
         hosttag = request.POST['hosttag']
         data = incept.get_task_list(hosttag, request, endtime)
         if request.POST.has_key('commit'):
-            data = incept.get_task_list(hosttag,request,endtime)
+            # data = incept.get_task_list(hosttag,request,endtime)
             return render(request,'task_manager.html',{'form':form,'form2':form2,'objlist':obj_list,'datalist':data,'choosed_host':hosttag})
         elif request.POST.has_key('delete'):
             id = int(request.POST['delete'])
