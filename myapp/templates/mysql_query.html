@@ -61,6 +61,12 @@
                         <tr class="danger">
                             QUERY IN:{{ dbname }}
                         </tr>
+                    <tr>
+                        {% if a %}
+                            {{ a|linebreaks }}
+{#                            {{ a|truncatechars:100|linebreaks }}#}
+                        {% endif %}
+                    </tr>
                     </table>
                     {% include "include/pagejump/pagebutton.html" %}
                 {% endif %}

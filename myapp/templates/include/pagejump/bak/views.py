@@ -91,12 +91,6 @@ def mysql_query(request):
         if form.is_valid():
             a = form.cleaned_data['a']
             choosed_host = request.POST['cx']
-            # get first valid statement
-            try:
-                print func.sql_init_filter(a)
-                a = func.get_sql_detail(func.sql_init_filter(a), 1)[0]
-            except Exception, e:
-                pass
             try:
                 #show explain
                 if request.POST.has_key('explain'):
@@ -131,9 +125,7 @@ def mysql_query(request):
                 #get nomal query
                     a,numlimit = func.check_mysql_query(a,request.user.username)
                     (data_list,collist,dbname) = func.get_mysql_data(choosed_host,a,request.user.username,request,numlimit)
-                    # donot show wrong message sql
-                    if a == func.wrong_msg:
-                        del a
+                    print data_list
                     return render(request, 'mysql_query.html', locals())
                     # return render(request,'mysql_query.html',{'form': form,'objlist':objlist,'data_list':data_list,'collist':collist,'choosed_host':choosed_host,'dbname':dbname})
             except Exception,e:
@@ -316,18 +308,7 @@ def inception(request):
             upform = Uploadform()
             if form.is_valid():
                 a = form.cleaned_data['a']
-
                 choosed_host = request.POST['cx']
-                # get valid statement
-                try:
-                    tmpsqltext = ''
-                    for i in func.get_sql_detail(func.sql_init_filter(a), 2):
-                        tmpsqltext = tmpsqltext + i
-                    a = tmpsqltext
-                    form = AddForm(initial={'a': a})
-                except Exception, e:
-                    pass
-
                 data_mysql, collist, dbname = incept.inception_check(choosed_host,a,2)
                 #check the nedd to split sqltext first
                 if len(data_mysql)>1:
@@ -352,14 +333,6 @@ def inception(request):
                     except Exception,e:
                         chunk = chunk.decode('gbk')
                     sqltext = sqltext + chunk
-                # get valid statement
-                try:
-                    tmpsqltext=''
-                    for i in  func.get_sql_detail(func.sql_init_filter(sqltext), 2):
-                        tmpsqltext=tmpsqltext + i
-                    sqltext = tmpsqltext
-                except Exception, e:
-                    pass
                 form = AddForm(initial={'a': sqltext})
                 return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':objlist,'choosed_host':choosed_host})
             else:
@@ -372,15 +345,6 @@ def inception(request):
             upform = Uploadform()
             if form.is_valid():
                 sqltext = form.cleaned_data['a']
-                # get valid statement
-                try:
-                    tmpsqltext = ''
-                    for i in func.get_sql_detail(func.sql_init_filter(sqltext), 2):
-                        tmpsqltext = tmpsqltext + i
-                    sqltext = tmpsqltext
-                    form = AddForm(initial={'a': sqltext})
-                except Exception, e:
-                    pass
                 data_mysql, tmp_col, dbname = incept.inception_check(choosed_host, sqltext, 2)
                 # check if the sqltext need to be splited before uploaded
                 if len(data_mysql)>1:
