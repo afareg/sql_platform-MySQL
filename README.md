@@ -81,8 +81,9 @@ incp_XX系列配置文件为inception的连接配置
 #### 启动celery:  python manage.py celery worker -E --loglevel=info &
 #### 开启快照监控后，在admin中能看到任务，默认一秒一个快照: python manage.py celerycam &
 #### 在/admin/中设置定时任务
+##### 设置定时扫描task
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/crontab_sche.jpg)
-
+##### 设置元数据收集任务
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/crontab_tbcheck.jpg)
 
 # 页面展示大致如下:
