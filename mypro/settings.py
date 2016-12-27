@@ -10,6 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 import os
+import djcelery
+djcelery.setup_loader()
+BROKER_URL = 'redis://127.0.0.1:6379/0'
+CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
+CELERY_IMPORTS = ("myapp.tasks","myapp.include.scheduled" )
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -35,17 +40,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_crontab',
+    # 'django_crontab',
     'captcha',
     'sslserver',
+    'djcelery',
     'myapp',
 ]
 
-CRONJOBS = [
-    ('*/1 * * * *', 'myapp.scheduled.task_sche_run','>> /tmp/last_scheduled_job.log'),
-    ('30 0 * * *', 'myapp.scheduled.table_check','>> /tmp/scheduled_check_job.log'),
-
-]
+# CRONJOBS = [
+#     ('*/1 * * * *', 'myapp.scheduled.task_sche_run','>> /tmp/last_scheduled_job.log'),
+#     ('30 0 * * *', 'myapp.scheduled.table_check','>> /tmp/scheduled_check_job.log'),
+#
+# ]
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',

@@ -12,6 +12,8 @@ from django.contrib.auth.decorators import login_required,permission_required
 from django.contrib.auth.models import User,Permission,ContentType,Group
 from myapp.include import function as func,inception as incept,chart,pri,meta
 from myapp.models import Db_group,Db_name,Db_account,Db_instance,Oper_log,Upload,Task
+from myapp.tasks import task_run
+
 from django.core.files import File
 #path='./myapp/include'
 #sys.path.insert(0,path)
@@ -527,7 +529,8 @@ def task_manager(request):
             return render(request,'task_manager.html',{'form':form,'form2':form2,'objlist':obj_list,'datalist':data,'choosed_host':hosttag,'result_status':results,'cols':cols})
         elif request.POST.has_key('exec'):
             id = int(request.POST['exec'])
-            nllflag = incept.task_run(id,request)
+            nllflag = task_run(id,request)
+            #nllflag = task_run.delay(id)
             # print nllflag
             return render(request,'task_manager.html',{'form':form,'form2':form2,'objlist':obj_list,'datalist':data,'choosed_host':hosttag,'nllflag':nllflag})
         elif request.POST.has_key('stop'):
