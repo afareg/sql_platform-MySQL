@@ -5,7 +5,10 @@
 #### django:1.8.14
 #### python:2.7.12
 ### python依赖组件：
-#### django-crontab
+#### django-celery 3.1.17
+#### celery 3.1.25
+#### kombu 3.0.37
+#### celery-with-redis 3.0
 #### django-simple-captcha
 #### django-sslserver
 #### django-ratelimit
@@ -63,20 +66,26 @@ host-dbname为django库的连接配置，和settings.py中的一致即可
 select_limit 和 export_limit为系统默认查询和导出条数限制
 
 incp_XX系列配置文件为inception的连接配置
-#### 定时任务配置
-修改seheduled.py中第18行路径地址为正确地址
-
-config.readfp(open('/root/PycharmProjects/mypro/myapp/etc/config.ini','r'))
-
-#### 在django库中导入mon_tb.sql
-
-然后运行 python manage.py crontab add 添加 crontab任务
 
 ### 启动：
 #### 初始化表结构： python manage.py migrate
 #### 创建一个超级用户： python manage.py createsuperuser
+#### 修改settings.py中的mysql以及redis地址
 #### 启动server： python manage.py runsslserver 0.0.0.0:8000（启动前建议把settings.py中的debug设置为false） 
 #### 网站地址为 https://yourip:8000 然后以刚刚注册的超级用户登陆网站进行建立普通用户、建库等配置工作
+
+### 定时任务配置
+#### 在/admin/中设置定时任务
+![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/crontab_sche.jpg)
+
+![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/crontab_tbcheck.jpg)
+
+#### 在django库中导入mon_tb.sql
+#### celery 启用 crontab: python manage.py celery beat &
+#### 启动celery:  python manage.py celery worker -E --loglevel=info &
+#### 开启快照监控后，在admin中能看到任务，默认一秒一个快照: python manage.py celerycam &
+
+
 # 页面展示大致如下:
 ## 1.登录界面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/login.jpg)
