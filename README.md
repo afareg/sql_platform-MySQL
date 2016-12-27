@@ -4,6 +4,7 @@
 ### 开发环境：
 #### django:1.8.14
 #### python:2.7.12
+#### MySQL和redis实例各一个
 ### python依赖组件：
 #### django-celery 3.1.17
 #### celery 3.1.25
