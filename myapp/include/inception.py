@@ -18,8 +18,6 @@ logging.basicConfig(level=logging.INFO,
                     datefmt='%a, %d %b %Y %H:%M:%S',
                     filename='/tmp/logger.log',
                     filemode='w')
-
-
 #'executed','executed failed','check not passed','check passed','running','appointed','NULL'
 
 def make_sure_mysql_usable():
