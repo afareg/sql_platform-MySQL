@@ -75,16 +75,14 @@ incp_XX系列配置文件为inception的连接配置
 #### 网站地址为 https://yourip:8000 然后以刚刚注册的超级用户登陆网站进行建立普通用户、建库等配置工作
 
 ### 定时任务配置
-#### 在/admin/中设置定时任务
-![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/crontab_sche.jpg)
-
-![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/crontab_tbcheck.jpg)
-
 #### 在django库中导入mon_tb.sql
 #### celery 启用 crontab: python manage.py celery beat &
 #### 启动celery:  python manage.py celery worker -E --loglevel=info &
 #### 开启快照监控后，在admin中能看到任务，默认一秒一个快照: python manage.py celerycam &
+#### 在/admin/中设置定时任务
+![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/crontab_sche.jpg)
 
+![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/crontab_tbcheck.jpg)
 
 # 页面展示大致如下:
 ## 1.登录界面
