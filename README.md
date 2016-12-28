@@ -123,7 +123,8 @@ incp_XX系列配置文件为inception的连接配置
 ### 7.3 任务编辑界面
 可以通过权限设置来限制用户是否能够编辑此页面的内容
 
-![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/task_edit.jpg)
+可以单独变更执行的数据源，以实现同一语句在不同环境执行的需求
+![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/task_edit_1.jpg)
 ## 8.日志查询界面
 本平台记录所有用户在mysql_query,mysql_exec以及任务管理页面中执行的语句
 
