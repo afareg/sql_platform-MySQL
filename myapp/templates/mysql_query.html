@@ -19,10 +19,19 @@
                             {#                        <form role="form" method='post'>#}
                             CHOOSE :
                             {%  if choosed_host %}
+{#                                <select class="form-control col-md-1" name = "cx">#}
+{#                                    <option value ="{{ choosed_host }}">{{ choosed_host }}</option>#}
+{#                                </select></br>#}
                                 <select class="form-control col-md-1" name = "cx">
-                                    <option value ="{{ choosed_host }}">{{ choosed_host }}</option>
+                                    {% for obj in objlist %}
+                                        {% if obj == choosed_host %}
+                                            <option selected="selected" value ="{{ obj }}">{{ obj }}</option>
+                                        {% else %}
+                                            <option value ="{{ obj }}">{{ obj }}</option>
+                                        {% endif %}
+                                    {% endfor %}
                                 </select></br>
-                                <a href="/mysql_query/"><input type="button" value="重选数据源" class="btn btn-danger"></a>
+                                <a href="/mysql_query/"><input type="button" value="刷新数据源" class="btn btn-danger"></a>
                             {% else %}
                                 <select class="form-control col-md-1" name = "cx">
                                     {% for obj in objlist %}
@@ -30,6 +39,21 @@
                                     {% endfor %}
                                 </select>
                             {% endif %}
+
+                            <div class="row">
+                                <div class="col-md-5">
+                                    {% if db_se %}
+                                        <input type=="text" class="form-control" maxlength="30" placeholder="input dbname for search" value="{{ db_se }}" name="searchdbname">
+                                    {% else %}
+                                        <input type=="text" class="form-control" maxlength="30" placeholder="input dbname for search" name="searchdbname">
+                                    {% endif %}
+
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" name='searchdb' class="btn btn-info" value="1">搜索库</button >
+                                </div>
+                            </div>
+
                             </br> </br>
                             请在下面输入查询语句:</br>
                             {{ form.a }} </br> </br>
@@ -40,17 +64,20 @@
                             {% endif %}
                         </td>
                         <td>
-                            <div class="col-md-12">
-                                <h3>查询注意事项:</h3>
-                                <p class="bg-danger"> 1. 支持单条语句查询，勿在框中重复输入多条sql语句</p>
-                                <p> 2. 平台默认查询和导出限制都是200行
-                                <p> 3. 增加查询或导出数据行数限制，需提需求给DBA开通权限</p>
-                                <p> 4. 查看表结构语句如:show create table (dbname.)tablename</p>
-                                <p> 5. 查看表结构语句如:desc (dbname.)tablename或者show fields in (dbname.)tablename</p>
-                                <p> 6. 查看执行计划可以直接点击按钮或者输入"explain (extended) select..."然后点击提交</p>
-                                <p> 7. 查看库中的表名如: show tables (in dbname)</p>
-                                <p> 8. 查看所有的库名如: show databases</p>
-                                <p class="bg-danger"> 9. 导出CSV文件为GBK编码格式</p>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h3>查询注意事项:</h3>
+                                    <p class="bg-danger"> 1. 支持单条语句查询，勿在框中重复输入多条sql语句</p>
+                                    <p> 2. 平台默认查询和导出限制都是200行
+                                    <p> 3. 增加查询或导出数据行数限制，需提需求给DBA开通权限</p>
+                                    <p> 4. 查看表结构语句如:show create table (dbname.)tablename</p>
+                                    <p> 5. 查看表结构语句如:desc (dbname.)tablename或者show fields in (dbname.)tablename</p>
+                                    <p> 6. 查看执行计划可以直接点击按钮或者输入"explain (extended) select..."然后点击提交</p>
+                                    <p> 7. 查看库中的表名如: show tables (in dbname)</p>
+                                    <p> 8. 查看所有的库名如: show databases</p>
+                                    <p class="bg-danger"> 9. 导出CSV文件为GBK编码格式</p>
+                                </div>
                             </div>
                         </td>
                     </tr>
@@ -61,12 +88,12 @@
                         <tr class="danger">
                             QUERY IN:{{ dbname }}
                         </tr>
-                    <tr>
-                        {% if a %}
-                            {{ a|linebreaks }}
-{#                            {{ a|truncatechars:100|linebreaks }}#}
-                        {% endif %}
-                    </tr>
+                        <tr>
+                            {% if a %}
+                                {{ a|linebreaks }}
+                                {#                            {{ a|truncatechars:100|linebreaks }}#}
+                            {% endif %}
+                        </tr>
                     </table>
                     {% include "include/pagejump/pagebutton.html" %}
                 {% endif %}

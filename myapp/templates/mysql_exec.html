@@ -21,10 +21,20 @@
                             </br>
                             CHOOSE :
                             {%  if choosed_host %}
+                                {#                                <select class="form-control col-md-1" name = "cx">#}
+                                {#                                    <option value ="{{ choosed_host }}">{{ choosed_host }}</option>#}
+                                {#                                </select></br>#}
+                                {#                                #}
                                 <select class="form-control col-md-1" name = "cx">
-                                    <option value ="{{ choosed_host }}">{{ choosed_host }}</option>
+                                    {% for obj in objlist %}
+                                        {% if obj == choosed_host %}
+                                            <option selected="selected" value ="{{ obj }}">{{ obj }}</option>
+                                        {% else %}
+                                            <option value ="{{ obj }}">{{ obj }}</option>
+                                        {% endif %}
+                                    {% endfor %}
                                 </select></br>
-                                <a href="/mysql_exec/"><input type="button" value="重选数据源" class="btn btn-danger"></a>
+                                <a href="/mysql_exec/"><input type="button" value="刷新数据源" class="btn btn-danger"></a>
                             {% else %}
                                 <select class="form-control col-md-1" name = "cx">
                                     {% for obj in objlist %}
@@ -32,6 +42,19 @@
                                     {% endfor %}
                                 </select>
                             {% endif %}
+                            <div class="row">
+                                <div class="col-md-5">
+                                    {% if db_se %}
+                                        <input type=="text" class="form-control" maxlength="30" placeholder="input dbname for search" value="{{ db_se }}" name="searchdbname">
+                                    {% else %}
+                                        <input type=="text" class="form-control" maxlength="30" placeholder="input dbname for search" name="searchdbname">
+                                    {% endif %}
+
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" name='searchdb' class="btn btn-info" value="1">搜索库</button >
+                                </div>
+                            </div>
                             </br> </br>
                             请在下面输入单条语句:</br>
                             {{ form.a }} </br> </br>

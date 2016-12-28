@@ -90,9 +90,16 @@ def mysql_query(request):
     if request.method == 'POST':
         form = AddForm(request.POST)
         # request.session['myfavword'] = request.POST['favword']
+        choosed_host = request.POST['cx']
+        if request.POST.has_key('searchdb'):
+            db_se = request.POST['searchdbname']
+            objlist_tmp = func.get_mysql_hostlist(request.user.username, 'tag', db_se)
+            # incase not found any db
+            if len(objlist_tmp) > 0:
+                objlist = objlist_tmp
+
         if form.is_valid():
             a = form.cleaned_data['a']
-            choosed_host = request.POST['cx']
             # get first valid statement
             try:
                 print func.sql_init_filter(a)
@@ -136,8 +143,10 @@ def mysql_query(request):
                     # donot show wrong message sql
                     if a == func.wrong_msg:
                         del a
+                    print choosed_host
                     return render(request, 'mysql_query.html', locals())
-                    # return render(request,'mysql_query.html',{'form': form,'objlist':objlist,'data_list':data_list,'collist':collist,'choosed_host':choosed_host,'dbname':dbname})
+                return render(request, 'mysql_query.html', locals())
+
             except Exception,e:
                 print e
                 return render(request, 'mysql_query.html', locals())
@@ -258,9 +267,17 @@ def mysql_exec(request):
     objlist = func.get_mysql_hostlist(request.user.username,'exec')
     if request.method == 'POST':
         form = AddForm(request.POST)
+        choosed_host = request.POST['cx']
+        if request.POST.has_key('searchdb'):
+            db_se = request.POST['searchdbname']
+            objlist_tmp = func.get_mysql_hostlist(request.user.username, 'exec', db_se)
+            # incase not found any db
+            if len(objlist_tmp) > 0:
+                objlist = objlist_tmp
+
         if form.is_valid():
             a = form.cleaned_data['a']
-            choosed_host = request.POST['cx']
+
             a = func.check_mysql_exec(a,request)
             #print request.POST
             if request.POST.has_key('commit'):
@@ -312,6 +329,13 @@ def mysql_exec(request):
 def inception(request):
     objlist = func.get_mysql_hostlist(request.user.username,'incept')
     if request.method == 'POST':
+        if request.POST.has_key('searchdb'):
+            db_se = request.POST['searchdbname']
+            objlist_tmp = func.get_mysql_hostlist(request.user.username, 'incept', db_se)
+            # incase not found any db
+            if len(objlist_tmp) > 0:
+                objlist = objlist_tmp
+        choosed_host = request.POST['cx']
         specification = request.POST['specification'][0:30]
         if request.POST.has_key('check'):
             form = AddForm(request.POST)
@@ -319,7 +343,7 @@ def inception(request):
             if form.is_valid():
                 a = form.cleaned_data['a']
 
-                choosed_host = request.POST['cx']
+                # choosed_host = request.POST['cx']
                 # get valid statement
                 try:
                     tmpsqltext = ''
@@ -331,7 +355,7 @@ def inception(request):
                     pass
 
                 data_mysql, collist, dbname = incept.inception_check(choosed_host,a,2)
-                #check the nedd to split sqltext first
+                #check the nee to split sqltext first
                 if len(data_mysql)>1:
                     split = 1
                     return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':objlist,'data_list':data_mysql,'collist':collist,'choosed_host':choosed_host,'split':split})
@@ -345,7 +369,7 @@ def inception(request):
             upform = Uploadform(request.POST,request.FILES)
             #c = request.POST['cx']
             if upform.is_valid():
-                choosed_host = request.POST['cx']
+                # choosed_host = request.POST['cx']
                 sqltext=''
                 for chunk in request.FILES['filename'].chunks():
                     #print chunk
@@ -370,7 +394,7 @@ def inception(request):
                 return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':objlist})
         elif request.POST.has_key('addtask'):
             form = AddForm(request.POST)
-            choosed_host = request.POST['cx']
+            # choosed_host = request.POST['cx']
             upform = Uploadform()
             if form.is_valid():
                 sqltext = form.cleaned_data['a']
@@ -402,6 +426,9 @@ def inception(request):
             else:
                 status='UPLOAD TASK FAIL'
                 return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':objlist,'status':status,'choosed_host':choosed_host})
+        form = AddForm()
+        upform = Uploadform()
+        return render(request, 'inception.html', {'form': form, 'upform': upform, 'objlist': objlist,'choosed_host':choosed_host})
     else:
         form = AddForm()
         upform = Uploadform()
@@ -560,31 +587,100 @@ def task_manager(request):
 #test
 
 @login_required(login_url='/accounts/login/')
+@permission_required('myapp.can_see_taskview', login_url='/')
 def update_task(request):
     try:
         # id = int(request.COOKIES["update_taskid"])
-
         id = request.session['update_taskid']
+        data = incept.get_task_forupdate(id)
     except Exception,e:
-        str = "ERROR"
-        return render(request, 'update_task.html', {'str': str})
+        str = "ERROR! ID NOT EXISTS , PLEASE CHECK !"
+        #return render(request, 'update_task.html', {'str': str})
+        return render(request, 'update_task.html', locals())
+    objlist = func.get_mysql_hostlist(request.user.username, 'incept')
     if request.method == 'POST':
-        flag,str = incept.check_task_status(id)
-        if flag:
-            sqltext = request.POST['sqltext']
-            specify = request.POST['specify'][0:30]
-            mystatus = request.POST['status']
-            incept.update_task(id, sqltext, specify,mystatus)
+        if request.POST.has_key('update'):
+            #update task function can't change db
+            flag,str = incept.check_task_status(id)
+            if flag:
+                sqltext = request.POST['sqltext']
+                specify = request.POST['specify'][0:30]
+                try:
+                    mystatus = request.POST['status']
+                except Exception,e:
+                    mystatus = data.status
+
+                incept.update_task(id, sqltext, specify,mystatus)
+                return HttpResponseRedirect("/task/")
+            else:
+                # return render(request, 'update_task.html', {'str': str})
+                return render(request, 'update_task.html', {'str': str})
+        elif request.POST.has_key('new_task'):
+            #new_task can only change the dbtag
+            choosed_host = request.POST['hosttag']
+
+            if data.dbtag == choosed_host:
+                str = 'DB HASN\'T CHANGED! CAN\'T CREATE NEW!'
+                return render(request, 'update_task.html', {'str': str})
+            data_mysql, tmp_col, dbname = incept.inception_check(choosed_host, data.sqltext, 2)
+
+            # check if the sqltext need to be splited before uploaded
+            if len(data_mysql) > 1:
+                str = 'SPLICT THE SQL FIRST'
+                return render(request, 'update_task.html', {'str': str})
+            # check sqltext before uploaded
+            else:
+                tmp_data, tmp_col, dbname = incept.inception_check(choosed_host, data.sqltext)
+                for i in tmp_data:
+                    if int(i[2]) != 0:
+                        str = 'CREATE NEW TASK FAIL,CHECK NOT PASSED'
+                        return render(request, 'update_task.html', {'str': str})
+            incept.record_task(request, data.sqltext, choosed_host, data.specification)
             return HttpResponseRedirect("/task/")
-        else:
-            return render(request, 'update_task.html', {'str': str})
+
+        elif request.POST.has_key('searchdb'):
+            db_se = request.POST['searchname']
+            objlist = func.get_mysql_hostlist(request.user.username, 'incept',db_se)
+            if len(objlist) == 0 :
+                objlist = [data.dbtag,]
+            return render(request, 'update_task.html', locals())
     else:
-        try:
-            data = incept.get_task_forupdate(id)
-            return render(request, 'update_task.html', {'data': data})
-        except Exception,e:
-            str = "ID NOT EXISTS , PLEASE CHECK !"
-            return render(request, 'update_task.html', {'str': str})
+        return render(request, 'update_task.html', locals())
+
+
+
+# def update_task(request):
+#     try:
+#         # id = int(request.COOKIES["update_taskid"])
+#         id = request.session['update_taskid']
+#     except Exception,e:
+#         str = "ERROR"
+#         #return render(request, 'update_task.html', {'str': str})
+#         return render(request, 'update_task.html', locals())
+#     if request.method == 'POST':
+#         if request.POST.has_key('update'):
+#             flag,str = incept.check_task_status(id)
+#             if flag:
+#                 sqltext = request.POST['sqltext']
+#                 specify = request.POST['specify'][0:30]
+#                 mystatus = request.POST['status']
+#                 incept.update_task(id, sqltext, specify,mystatus)
+#                 return HttpResponseRedirect("/task/")
+#             else:
+#                 # return render(request, 'update_task.html', {'str': str})
+#                 return render(request, 'update_task.html', locals())
+#         elif request.POST.has_key('new_task'):
+#             pass
+#     else:
+#         try:
+#             data = incept.get_task_forupdate(id)
+#             # return render(request, 'update_task.html', {'data': data})
+#             return render(request, 'update_task.html', locals())
+#         except Exception,e:
+#             str = "ID NOT EXISTS , PLEASE CHECK !"
+#             # return render(request, 'update_task.html', {'str': str})
+#             return render(request, 'update_task.html', locals())
+
 
 
 @login_required(login_url='/accounts/login/')

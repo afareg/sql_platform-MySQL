@@ -149,41 +149,77 @@ def mysql_query(sql,user=user,passwd=passwd,host=host,port=int(port),dbname=dbna
         return([str(e)],''),['error']
 
 #获取下拉菜单列表
-def get_mysql_hostlist(username,tag='tag'):
-    host_list=[]
-    if (tag=='tag'):
-        a = User.objects.get(username=username)
-        #如果没有对应role='read'或者role='all'的account账号，则不显示在下拉菜单中
-        for row in a.db_name_set.all().order_by("dbtag"):
-            if row.db_account_set.all().filter(role__in=['read','all']):
-                if row.instance.all().filter(role__in=['read','all']):
-                    host_list.append(row.dbtag)
-    elif (tag=='log'):
-        for row in Db_name.objects.values('dbtag').distinct().order_by("dbtag"):
-            host_list.append(row['dbtag'])
-    elif (tag=='exec'):
-        a = User.objects.get(username=username)
-        #如果没有对应role='write'或者role='all'的account账号，则不显示在下拉菜单中
-        for row in a.db_name_set.all().order_by("dbtag"):
-            if row.db_account_set.all().filter(role__in=['write','all']):
-        #排除只读实例
-                if row.instance.all().filter(role__in=['write','all']):
-                    host_list.append(row.dbtag)
-    elif (tag == 'incept'):
-        a = User.objects.get(username=username)
-        for row in a.db_name_set.all().order_by("dbtag"):
-            #find the account which is admin
-            if row.db_account_set.all().filter(role='admin'):
-                if row.instance.all().filter(role__in=['write','all']):
-                #if row.instance.all().exclude(role='read'):
-                    host_list.append(row.dbtag)
-    elif (tag == 'meta'):
-        for row in Db_name.objects.all().order_by("dbtag"):
-            #find the account which is admin
-            if row.db_account_set.all().filter(role='admin'):
-                if row.instance.filter(role__in=['write','all','read']):
-                    host_list.append(row.dbtag)
+def get_mysql_hostlist(username,tag='tag',search=''):
+    host_list = []
+    if len(search) ==0:
+        if (tag=='tag'):
+            a = User.objects.get(username=username)
+            #如果没有对应role='read'或者role='all'的account账号，则不显示在下拉菜单中
+            for row in a.db_name_set.all().order_by("dbtag"):
+                if row.db_account_set.all().filter(role__in=['read','all']):
+                    if row.instance.all().filter(role__in=['read','all']):
+                        host_list.append(row.dbtag)
+        elif (tag=='log'):
+            for row in Db_name.objects.values('dbtag').distinct().order_by("dbtag"):
+                host_list.append(row['dbtag'])
+        elif (tag=='exec'):
+            a = User.objects.get(username=username)
+            #如果没有对应role='write'或者role='all'的account账号，则不显示在下拉菜单中
+            for row in a.db_name_set.all().order_by("dbtag"):
+                if row.db_account_set.all().filter(role__in=['write','all']):
+            #排除只读实例
+                    if row.instance.all().filter(role__in=['write','all']):
+                        host_list.append(row.dbtag)
+        elif (tag == 'incept'):
+            a = User.objects.get(username=username)
+            for row in a.db_name_set.all().order_by("dbtag"):
+                #find the account which is admin
+                if row.db_account_set.all().filter(role='admin'):
+                    if row.instance.all().filter(role__in=['write','all']):
+                    #if row.instance.all().exclude(role='read'):
+                        host_list.append(row.dbtag)
+        elif (tag == 'meta'):
+            for row in Db_name.objects.all().order_by("dbtag"):
+                #find the account which is admin
+                if row.db_account_set.all().filter(role='admin'):
+                    if row.instance.filter(role__in=['write','all','read']):
+                        host_list.append(row.dbtag)
+    elif len(search) > 0:
+        if (tag=='tag'):
+            a = User.objects.get(username=username)
+            #如果没有对应role='read'或者role='all'的account账号，则不显示在下拉菜单中
+            for row in a.db_name_set.filter(dbname__contains=search).order_by("dbtag"):
+                if row.db_account_set.all().filter(role__in=['read','all']):
+                    if row.instance.all().filter(role__in=['read','all']):
+                        host_list.append(row.dbtag)
+        elif (tag=='log'):
+            for row in Db_name.objects.values('dbtag').distinct().order_by("dbtag"):
+                host_list.append(row['dbtag'])
+        elif (tag=='exec'):
+            a = User.objects.get(username=username)
+            #如果没有对应role='write'或者role='all'的account账号，则不显示在下拉菜单中
+            for row in a.db_name_set.filter(dbname__contains=search).order_by("dbtag"):
+                if row.db_account_set.all().filter(role__in=['write','all']):
+            #排除只读实例
+                    if row.instance.all().filter(role__in=['write','all']):
+                        host_list.append(row.dbtag)
+        elif (tag == 'incept'):
+            a = User.objects.get(username=username)
+            for row in a.db_name_set.filter(dbname__contains=search).order_by("dbtag"):
+                #find the account which is admin
+                if row.db_account_set.all().filter(role='admin'):
+                    if row.instance.all().filter(role__in=['write','all']):
+                    #if row.instance.all().exclude(role='read'):
+                        host_list.append(row.dbtag)
+        elif (tag == 'meta'):
+            for row in Db_name.filter(dbname__contains=search).order_by("dbtag"):
+                #find the account which is admin
+                if row.db_account_set.all().filter(role='admin'):
+                    if row.instance.filter(role__in=['write','all','read']):
+                        host_list.append(row.dbtag)
     return host_list
+
+
 
 def get_op_type(methods='get'):
     #all表示所有种类
