@@ -131,7 +131,7 @@ def mysql_query(request):
                         i=0
                         for item in result:
                             if type(item) == type(a):
-                                result[i] = item.encode('gb2312')
+                                result[i] = item.encode('gb18030')
                             i = i + 1
                     response = StreamingHttpResponse((writer.writerow(row) for row in results_list),content_type="text/csv")
                     response['Content-Disposition'] = 'attachment; filename="export.csv"'
@@ -578,6 +578,24 @@ def task_manager(request):
 
             request.session['update_taskid']=id
             return HttpResponseRedirect("/update_task/")
+        elif request.POST.has_key('export_task'):
+            task_id_list = request.POST.getlist('choosedlist')
+            charset = request.POST['charset']
+            data_list = Task.objects.filter(id__in= task_id_list)
+            pseudo_buffer = Echo()
+            writer = csv.writer(pseudo_buffer)
+            results_list = []
+            a = u'zhongwen'
+            for i in data_list:
+                if type(i.sqltext) == type(a):
+                    if charset =="GB18030":
+                        results_list.append([i.id,i.dbtag,i.sqltext.encode('gb18030')])
+                    elif charset=="UTF8":
+                        results_list.append([i.id, i.dbtag, i.sqltext.encode('utf8')])
+
+            response = StreamingHttpResponse((writer.writerow(row) for row in results_list), content_type="text/csv")
+            response['Content-Disposition'] = 'attachment; filename="task_export.csv"'
+            return response
     else:
         data = incept.get_task_list('all',request,datetime.datetime.now())
         form = Taskquery()

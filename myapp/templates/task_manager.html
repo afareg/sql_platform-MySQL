@@ -188,7 +188,9 @@
             <tbody  >
             {% for item in datalist %}
                 <tr>
-                    <td>{{ item.id }}</td>
+                    {#                    <td>{{ item.id }}  </td>#}
+
+                    <td>{{ item.id }} <input type="checkbox" size="100" name="choosedlist" value={{ item.id }}>  </td>
                     <td> {{ item.user }}</td>
                     <td> {{ item.dbtag }}</td>
                     <td> {{ item.sqltext|truncatechars:100|linebreaks }}</td>
@@ -210,6 +212,8 @@
                     <td><button type="submit" name='update' class="btn btn-warning" value={{ item.id }}>查询修改</button></td>
                 </tr>
             {% endfor %}
+
+
             <script>
                 jeDate({
                     dateCell:"#id_sche_time",
@@ -250,11 +254,36 @@
                         }
                     }
                 }
+                function checkbox () {
+                    var str=document.getElementsByName("choosedlist");
+                    var n = str.length;
+                    var k = 0;
+                    for (var i=0; i<n;i++){
+                        if(str[i].checked){
+                            k = 1;
+                        }
+                    }
+                    if(k==0){
+                        alert("请勾选TASK!");
+                        return false;
+                    }
+                }
 
             </script>
 
             </tbody>
         </table>
+        <div class="row">
+            <div class="col-md-1">
+                <select class="form-control" name = "charset">
+                    <option value ="GB18030">GB18030</option>
+                    <option value ="UTF8">UTF8</option>
+                </select>
+            </div>
+            <div  class="col-md-1">
+                <button type="submit" name='export_task' class="btn btn-warning"  onclick="return checkbox()"  >导出选中的任务</button>
+            </div>
+        </div>
         </body>
     </form>
     <script type="text/javascript">
