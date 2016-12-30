@@ -72,14 +72,19 @@ incp_XX系列配置文件为inception的连接配置
 #### 初始化表结构： python manage.py migrate
 #### 创建一个超级用户： python manage.py createsuperuser
 #### 修改settings.py中的mysql以及redis地址
-#### 启动server： python manage.py runsslserver 0.0.0.0:8000（启动前建议把settings.py中的debug设置为false） 
-#### 网站地址为 https://yourip:8000 然后以刚刚注册的超级用户登陆网站进行建立普通用户、建库等配置工作
+#### 启动server： 
+
+python manage.py runsslserver 0.0.0.0:8000（启动前建议把settings.py中的debug设置为false） 
+
+(上面的启动方式可以自己测试时使用，实际使用不要使用django自带的server启动，因为好像是单线程在处理request的。。用apache或别的方式启动)
+
+##### 然后以刚刚注册的超级用户登陆网站进行建立普通用户、建库等配置工作
 
 ### 定时任务配置
 #### 在django库中导入mon_tb.sql
-#### celery 启用 crontab: python manage.py celery beat &
-#### 启动celery:  python manage.py celery worker -E --loglevel=info &
-#### 开启快照监控后，在admin中能看到任务，默认一秒一个快照: python manage.py celerycam &
+#### celery 启用 crontab: python manage.py celery beat 
+#### 启动celery:  python manage.py celery worker -E -c ---loglevel=info 
+#### 开启快照监控后，在admin中能看到任务，默认一秒一个快照: python manage.py celerycam 
 #### 在/admin/中设置定时任务
 ##### 设置定时扫描task
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/crontab_sche.jpg)
