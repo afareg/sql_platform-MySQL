@@ -33,8 +33,7 @@
 。。。待续
 
 ### 启动配置
-#### config.ini配置文件如下：
-[settings]
+#### config.py配置文件如下：
 
 host="127.0.0.1" 
 
@@ -62,16 +61,16 @@ incp_passwd=""
 
 public_user="public"
 ##### 说明:
-host-dbname为django库的连接配置，和settings.py中的一致即可
+host至dbname为django库的连接配置，和settings.py中的一致即可
 
 select_limit 和 export_limit为系统默认查询和导出条数限制
 
 incp_XX系列配置文件为inception的连接配置
 
+#### setttings.py中的修改内容主要为mysql、redis地址，以及邮件服务器相关地址
 ### 启动：
 #### 初始化表结构： python manage.py migrate
 #### 创建一个超级用户： python manage.py createsuperuser
-#### 修改settings.py中的mysql以及redis地址
 #### 启动server： 
 
 python manage.py runsslserver 0.0.0.0:8000（启动前建议把settings.py中的debug设置为false） 
@@ -90,6 +89,7 @@ python manage.py runsslserver 0.0.0.0:8000（启动前建议把settings.py中的
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/crontab_sche.jpg)
 ##### 设置元数据收集任务
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/crontab_tbcheck.jpg)
+
 
 # 页面展示大致如下:
 ## 1.登录界面
@@ -115,12 +115,21 @@ python manage.py runsslserver 0.0.0.0:8000（启动前建议把settings.py中的
 
 不同用户能够看到的页面按钮可以通过权限控制
 
-通过inception调用pt-osc执行的任务可以被终止，停止后需要到库中人工清理触发器
-![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/task_manage.jpg)
+任务界面如下：
+
+点击执行后，任务会被发送给celery后台异步执行，通过点击状态按钮查看任务执行状态
+
+可以配置邮件在任务生成和任务结束时候发送邮件告知相关人员
+
+可以导出csv格式任务，支持utf8和gb18030两种导出格式
+
+![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/task_manage1.jpg)
 ### 7.1任务执行结果示例
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/resul_of_task.jpg)
 ### 7.2 任务终止
 通过pt-osc执行的任务
+
+通过inception调用pt-osc执行的任务可以被终止，但停止后需要到库中人工清理触发器
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/task_stop_ptosc.jpg)
 未通过pt-osc执行的任务
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/task_stop.jpg)
