@@ -3,21 +3,12 @@ from django.contrib.auth.models import User
 from myapp.include import function as func ,meta
 from multiprocessing import Process
 from myapp.models import Db_name,Db_account,Db_instance,Oper_log,Task,Incep_error_log
+from myapp.etc import config
 reload(sys)
 sys.setdefaultencoding('utf8')
 import ConfigParser
-import smtplib
-from email.mime.text import MIMEText
-from email.message import Message
 from django.db import connection, connections
-from email.header import Header
-import logging
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
-                    datefmt='%a, %d %b %Y %H:%M:%S',
-                    filename='/tmp/logger.log',
-                    filemode='w')
 #'executed','executed failed','check not passed','check passed','running','appointed','NULL'
 
 def make_sure_mysql_usable():
@@ -30,41 +21,56 @@ def make_sure_mysql_usable():
         # django will reconnect to the default mysql
         del connections._connections.default
 
+#
+# def get_item(data_dict,item):
+#     try:
+#        item_value = data_dict[item]
+#        return item_value
+#     except:
+#        return '-1'
+#
+# def get_config(group,config_name):
+#     config = ConfigParser.ConfigParser()
+#     config.readfp(open('./myapp/etc/config.ini','r'))
+#     config_value=config.get(group,config_name).strip(' ').strip('\'').strip('\"')
+#     return config_value
+#
+# def filters(data):
+#     return data.strip(' ').strip('\n').strip('\br')
+#
+# select_limit = int(get_config('settings','select_limit'))
+# export_limit = int(get_config('settings','export_limit'))
+# host = get_config('settings','host')
+# port = get_config('settings','port')
+# user = get_config('settings','user')
+# passwd = get_config('settings','passwd')
+# dbname = get_config('settings','dbname')
+# wrong_msg = get_config('settings','wrong_msg')
+# incp_host = get_config('settings','incp_host')
+# incp_port = int(get_config('settings','incp_port'))
+# incp_user = get_config('settings','incp_user')
+# incp_passwd = get_config('settings','incp_passwd')
+# public_user = get_config('settings','public_user')
 
-def get_item(data_dict,item):
-    try:
-       item_value = data_dict[item]
-       return item_value
-    except:
-       return '-1'
 
-def get_config(group,config_name):
-    config = ConfigParser.ConfigParser()
-    config.readfp(open('./myapp/etc/config.ini','r'))
-    #config.readfp(open('../etc/config.ini','r'))
-    config_value=config.get(group,config_name).strip(' ').strip('\'').strip('\"')
-    return config_value
+select_limit = int(config.select_limit)
+export_limit = int(config.export_limit)
+host = config.host
+port = config.port
+user = config.user
+passwd = config.passwd
+dbname = config.dbname
+wrong_msg = config.wrong_msg
+incp_host = config.incp_host
+incp_port = int(config.incp_port)
+incp_user = config.incp_user
+incp_passwd = config.incp_passwd
+public_user = config.public_user
 
-def filters(data):
-    return data.strip(' ').strip('\n').strip('\br')
 
-select_limit = int(get_config('settings','select_limit'))
-export_limit = int(get_config('settings','export_limit'))
-host = get_config('settings','host')
-port = get_config('settings','port')
-user = get_config('settings','user')
-passwd = get_config('settings','passwd')
-dbname = get_config('settings','dbname')
-wrong_msg = get_config('settings','wrong_msg')
-incp_host = get_config('settings','incp_host')
-incp_port = int(get_config('settings','incp_port'))
-incp_user = get_config('settings','incp_user')
-incp_passwd = get_config('settings','incp_passwd')
-public_user = get_config('settings','public_user')
 
 #0 for check and 1 for execute
 def incep_exec(sqltext,myuser,mypasswd,myhost,myport,mydbname,flag=0):
-    logging.info(sqltext)
     if (int(flag)==0):
         flagcheck='--enable-check'
     elif(int(flag)==1):
@@ -81,7 +87,6 @@ def incep_exec(sqltext,myuser,mypasswd,myhost,myport,mydbname,flag=0):
             use %s;"% (myuser,mypasswd,myhost,flagcheck,myport,mydbname)
     sql2='inception_magic_commit;'
     sql = sql1 + sqltext + sql2
-    logging.info(sql)
     try:
         conn=MySQLdb.connect(host=incp_host,user=incp_user,passwd=incp_passwd,db='',port=incp_port,use_unicode=True, charset="utf8")
         cur=conn.cursor()
@@ -89,8 +94,6 @@ def incep_exec(sqltext,myuser,mypasswd,myhost,myport,mydbname,flag=0):
         result=cur.fetchall()
         #num_fields = len(cur.description)
         field_names = [i[0] for i in cur.description]
-        logging.info("resulting in incept exec!!")
-        logging.info(result)
         #print field_names
         #for row in result:
         #    print row[0], "|",row[1],"|",row[2],"|",row[3],"|",row[4],"|",row[5],"|",row[6],"|",row[7],"|",row[8],"|",row[9],"|",row[10]
@@ -106,7 +109,6 @@ def inception_check(hosttag,sql,flag=0):
     make_sure_mysql_usable()
     a = Db_name.objects.get(dbtag=hosttag)
     #a = Db_name.objects.get(dbtag=hosttag)
-    logging.info(a)
     tar_dbname = a.dbname
     if (not cmp(sql,wrong_msg)):
         results,col = func.mysql_query(wrong_msg,user,passwd,host,int(port),dbname)

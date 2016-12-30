@@ -82,6 +82,7 @@ class User_profile(models.Model):
     user = models.OneToOneField(User)
     select_limit = models.IntegerField(default=200)
     export_limit = models.IntegerField(default=200)
+    task_email = models.IntegerField(db_index=True)
     def __unicode__(self):
         return  self.user.username
     class Meta:

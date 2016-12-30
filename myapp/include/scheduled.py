@@ -3,6 +3,8 @@ from myapp.models import Db_name, Db_account, Db_instance, Oper_log, Task, Incep
 from myapp.include import inception as incept
 from celery import task
 from myapp.tasks import process_runtask
+
+
 # reload(sys)
 # sys.setdefaultencoding('utf8')
 # import ConfigParser
@@ -336,3 +338,5 @@ def mysql_exec(sql):
         conn.close()
     except Exception,e:
         print e
+
+

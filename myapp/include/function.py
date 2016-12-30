@@ -4,44 +4,52 @@ import MySQLdb,sys,string,time,datetime,uuid
 from django.contrib.auth.models import User,Permission,ContentType,Group
 from myapp.models import Db_name,Db_account,Db_instance,Oper_log,Login_log,Db_group
 from myapp.form import LoginForm,Captcha
+from myapp.etc import config
 
 reload(sys)
 sys.setdefaultencoding('utf8')
 import ConfigParser
-import smtplib
-from email.mime.text import MIMEText
-from email.message import Message
-from email.header import Header
+#
+# def get_item(data_dict,item):
+#     try:
+#        item_value = data_dict[item]
+#        return item_value
+#     except:
+#        return '-1'
+#
+# def get_config(group,config_name):
+#     config = ConfigParser.ConfigParser()
+#     config.readfp(open('./myapp/etc/config.ini','r'))
+#     config_value=config.get(group,config_name).strip(' ').strip('\'').strip('\"')
+#     return config_value
+#
+# def filters(data):
+#     return data.strip(' ').strip('\n').strip('\br')
+#
+# host = get_config('settings','host')
+# port = get_config('settings','port')
+# user = get_config('settings','user')
+# passwd = get_config('settings','passwd')
+# dbname = get_config('settings','dbname')
+# select_limit = int(get_config('settings','select_limit'))
+# export_limit = int(get_config('settings','export_limit'))
+# wrong_msg = get_config('settings','wrong_msg')
+# public_user = get_config('settings','public_user')
 
 
 
 
-def get_item(data_dict,item):
-    try:
-       item_value = data_dict[item]
-       return item_value
-    except:
-       return '-1'
+host = config.host
+port = config.port
+user = config.user
+passwd = config.passwd
+dbname = config.dbname
+select_limit = int(config.select_limit)
+export_limit = int(config.export_limit)
+wrong_msg = config.wrong_msg
+public_user = config.public_user
 
-def get_config(group,config_name):
-    config = ConfigParser.ConfigParser()
-    config.readfp(open('./myapp/etc/config.ini','r'))
-    #config.readfp(open('../etc/config.ini','r'))
-    config_value=config.get(group,config_name).strip(' ').strip('\'').strip('\"')
-    return config_value
 
-def filters(data):
-    return data.strip(' ').strip('\n').strip('\br')
-
-host = get_config('settings','host')
-port = get_config('settings','port')
-user = get_config('settings','user')
-passwd = get_config('settings','passwd')
-dbname = get_config('settings','dbname')
-select_limit = int(get_config('settings','select_limit'))
-export_limit = int(get_config('settings','export_limit'))
-wrong_msg = get_config('settings','wrong_msg')
-public_user = get_config('settings','public_user')
 exceptlist = ["'","`","\""]
 
 def sql_init_filter(sqlfull):

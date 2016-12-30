@@ -1,4 +1,4 @@
-import sys,json,os,datetime,csv
+import sys,json,os,datetime,csv,time
 from django.contrib import admin
 from django.template.context import RequestContext
 from ratelimit.decorators import ratelimit,is_ratelimited
@@ -12,7 +12,8 @@ from django.contrib.auth.decorators import login_required,permission_required
 from django.contrib.auth.models import User,Permission,ContentType,Group
 from myapp.include import function as func,inception as incept,chart,pri,meta
 from myapp.models import Db_group,Db_name,Db_account,Db_instance,Oper_log,Upload,Task
-from myapp.tasks import task_run
+from myapp.tasks import task_run,sendmail_task
+
 
 from django.core.files import File
 #path='./myapp/include'
@@ -422,6 +423,7 @@ def inception(request):
                             return render(request, 'inception.html',locals())
                 incept.record_task(request,sqltext,choosed_host,specification)
                 status='UPLOAD TASK OK'
+                sendmail_task.delay(choosed_host+'\n'+sqltext)
                 return render(request, 'inception.html', {'form': form,'upform':upform,'objlist':objlist,'status':status,'choosed_host':choosed_host})
             else:
                 status='UPLOAD TASK FAIL'

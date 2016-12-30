@@ -1,7 +1,10 @@
 from celery import task
 import datetime
-from myapp.models import Db_name,Db_account,Db_instance,Oper_log,Task,Incep_error_log
+from django.contrib.auth.models import User
+from myapp.models import User_profile,Db_account,Db_instance,Oper_log,Task,Incep_error_log
 from myapp.include import inception as incept
+from django.core.mail import EmailMessage,send_mail,EmailMultiAlternatives
+from django.template import loader
 
 
 @task
@@ -28,6 +31,45 @@ def process_runtask(hosttag,sqltext,mytask):
             #record error message of incept exec
     mytask.status = status
     mytask.save()
+    sendmail_task.delay(mytask)
+
+@task
+def sendmail_task(task):
+    tmp=u'x'
+
+    try:
+
+        mailto = []
+        for i in User_profile.objects.filter(task_email__gt=0):
+            if len(i.user.email) > 0:
+                mailto.append(i.user.email)
+        if type(task) != type(tmp):
+            del tmp
+            mailto.append(User.objects.get(username=task.user).email)
+            print mailto
+            result_status = Incep_error_log.objects.filter(create_time=task.create_time).filter(finish_time=task.update_time).order_by("-myid")
+            title = 'Task ID:' + str(task.id) + '  has finished'
+        elif type(task) == type(tmp):
+            title = "You have received new task!"
+            tmp = task
+        html_content = loader.render_to_string('include/mail_template.html', locals())
+        sendmail(title, mailto, html_content)
+
+    except Exception ,e:
+        print e
+
+def sendmail (title,mailto,html_content):
+    try:
+        msg = EmailMultiAlternatives(title, html_content, 'fullway_b2b@wondersgroup.com', mailto)
+        msg.attach_alternative(html_content, "text/html")
+        msg.send()
+    except Exception,e:
+        print e
+
+
+
+
+
 
 
 def task_run(idnum,request):
