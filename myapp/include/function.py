@@ -611,9 +611,9 @@ def set_groupdb(username,li):
     return tag_list
 
 #create user in pre_set.html
-def create_user(username,passwd):
-    if len(username)>0 and len(passwd)>0:
-        user = User.objects.create_user(username=username,password=passwd)
+def create_user(username,passwd,mail):
+    if len(username)>0 and len(passwd)>0 and len(mail)>0:
+        user = User.objects.create_user(username=username,password=passwd,email=mail)
         user.save()
     return user
 #delete user in pre_set.html

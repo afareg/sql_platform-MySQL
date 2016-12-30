@@ -40,6 +40,18 @@
                 </td>
             </tr>
             <tr>
+
+                {% if mail %}
+                    <td>
+                        </br>
+                        <input type=="text" class="form-control" maxlength="60" value="{{ mail }}" placeholder="input email here" name="newmail">
+                    </td>
+                {% else %}
+                    <td>
+                        </br>
+                        <input type=="text" class="form-control" maxlength="60" placeholder="input email here" name="newmail">
+                    </td>
+                {% endif %}
                 {% if username %}
                     <td>
                         </br>
@@ -51,6 +63,8 @@
                         <input type=="text" class="form-control" maxlength="30" placeholder="input username here" name="newname">
                     </td>
                 {% endif %}
+
+
                 <td>
                     </br>
                     <input type=="text" class="form-control" maxlength="20" placeholder="input password here" name="newpasswd">

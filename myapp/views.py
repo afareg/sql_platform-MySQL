@@ -776,6 +776,7 @@ def pre_set(request):
                 #change username or password
                 new_username = request.POST['newname']
                 new_passwd = request.POST['newpasswd']
+                mail = request.POST['newmail']
                 if len(new_username)>0:
                     tmp = User.objects.get(username=username)
                     tmp.username = new_username
@@ -783,9 +784,14 @@ def pre_set(request):
                     username = new_username
                 if len(new_passwd)>0:
                     tmp = User.objects.get(username=username)
-                    print new_passwd
                     tmp.set_password(new_passwd)
                     tmp.save()
+                # if len(new_mail) > 0:
+                #update mail
+                tmp = User.objects.get(username=username)
+                tmp.email = mail
+                tmp.save()
+
                 func.clear_userpri(username)
                 func.set_groupdb(username,dbgplist)
                 user = User.objects.get(username=username)
@@ -793,7 +799,7 @@ def pre_set(request):
                 func.set_user_db(user, ch_db)
                 info = 'SET USER ' + username + '  OK!'
                 userlist = User.objects.exclude(username=public_user).order_by('username')
-                return render(request, 'previliges/pre_set.html', {'username':username,'info':info, 'dblist':dblist, 'userlist': userlist, 'grouplist': grouplist, 'usergroup':usergroup})
+                return render(request, 'previliges/pre_set.html', {'mail':mail,'username':username,'info':info, 'dblist':dblist, 'userlist': userlist, 'grouplist': grouplist, 'usergroup':usergroup})
             except Exception,e:
                 info = 'SET USER ' + username + '  FAILED!'
                 return render(request, 'previliges/pre_set.html', {'info':info, 'dblist':dblist, 'userlist': userlist, 'grouplist': grouplist, 'usergroup':usergroup})
@@ -805,7 +811,8 @@ def pre_set(request):
             try:
                 dbgp,usergp = func.get_user_grouppri(username)
                 userdblist,info = func.get_user_pre(username, request)
-                return render(request, 'previliges/pre_set.html', {'username':username, 'dbgp':dbgp, 'usergp':usergp, 'userdblist':userdblist, 'dblist':dblist, 'userlist': userlist, 'grouplist': grouplist, 'usergroup':usergroup})
+                mail = User.objects.get(username = username).email
+                return render(request, 'previliges/pre_set.html', {'mail':mail,'username':username, 'dbgp':dbgp, 'usergp':usergp, 'userdblist':userdblist, 'dblist':dblist, 'userlist': userlist, 'grouplist': grouplist, 'usergroup':usergroup})
             except Exception,e:
                 return render(request, 'previliges/pre_set.html',{'dblist': dblist, 'userlist': userlist, 'grouplist': grouplist, 'usergroup': usergroup})
 
@@ -822,10 +829,11 @@ def pre_set(request):
             try:
                 username = request.POST['newname']
                 passwd = request.POST['newpasswd']
+                mail = request.POST['newmail']
                 group = request.POST.getlist('user_group')
                 dbgplist = request.POST.getlist('choosedlist')
                 ch_db = request.POST.getlist('user_dblist')
-                user = func.create_user(username,passwd)
+                user = func.create_user(username,passwd,mail)
                 func.set_groupdb(username, dbgplist)
                 func.set_user_db(user, ch_db)
                 func.set_usergroup(user,group)
