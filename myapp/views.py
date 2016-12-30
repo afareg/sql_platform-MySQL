@@ -788,6 +788,7 @@ def pre_set(request):
                     tmp.save()
                 # if len(new_mail) > 0:
                 #update mail
+
                 tmp = User.objects.get(username=username)
                 tmp.email = mail
                 tmp.save()
