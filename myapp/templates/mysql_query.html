@@ -19,9 +19,9 @@
                             {#                        <form role="form" method='post'>#}
                             CHOOSE :
                             {%  if choosed_host %}
-{#                                <select class="form-control col-md-1" name = "cx">#}
-{#                                    <option value ="{{ choosed_host }}">{{ choosed_host }}</option>#}
-{#                                </select></br>#}
+                                {#                                <select class="form-control col-md-1" name = "cx">#}
+                                {#                                    <option value ="{{ choosed_host }}">{{ choosed_host }}</option>#}
+                                {#                                </select></br>#}
                                 <select class="form-control col-md-1" name = "cx">
                                     {% for obj in objlist %}
                                         {% if obj == choosed_host %}
@@ -68,7 +68,7 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <h3>查询注意事项:</h3>
-                                    <p class="bg-danger"> 1. 支持单条语句查询，勿在框中重复输入多条sql语句</p>
+                                    <p class="bg-danger"> 1. 支持单条语句查询，在框中输入多条sql语句默认只识别第一条</p>
                                     <p> 2. 平台默认查询和导出限制都是200行
                                     <p> 3. 增加查询或导出数据行数限制，需提需求给DBA开通权限</p>
                                     <p> 4. 查看表结构语句如:show create table (dbname.)tablename</p>
@@ -90,8 +90,8 @@
                         </tr>
                         <tr>
                             {% if a %}
-                                {{ a|linebreaks }}
-                                {#                            {{ a|truncatechars:100|linebreaks }}#}
+                                {#                                {{ a|linebreaks }}#}
+                                {{ a|truncatechars:100|linebreaks }}
                             {% endif %}
                         </tr>
                     </table>

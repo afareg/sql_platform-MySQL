@@ -65,7 +65,7 @@
                         <td>
                             <div class="col-md-12">
                                 <h1>注意事项:</h1>
-                                <p class="bg-danger"> 1. 只支持"单条语句"执行，勿在框中重复输入多条sql语句</p>
+                                <p class="bg-danger"> 1. 只支持"单条语句"执行，勿在框中重复输入多条sql语句(默认只识别第一条)</p>
                                 <p class="bg-info"> 2. 点击"检查语句"后，如果返回的结果中"errlevel"都为0,则语句没问题,不然请查看"errormessage"中的提示</p>
                                 <p class="bg-danger"> 3. 建议在所有的表名前加上库名限定，如dbname.tablename</p>
                                 <p> 4. 如果返回"Don't have permission to..."则说明你的账户没有执行相关命令的权限</p>
@@ -78,8 +78,19 @@
                 {% if collist %}
                     <table  class="table table-condensed" border="1">
                         <tr class="danger">
-                            {{ dbname }}
+                            <td>
+                                {{ dbname }}
+                            </td>
                         </tr>
+                        {% if sql %}
+                            <tr>
+                                <td>
+                                    {#                                {{ a|linebreaks }}#}
+                                    {{ sql|truncatechars:100|linebreaks }}
+
+                                </td>
+                            </tr>
+                        {% endif %}
                     </table>
                     {% include "include/pagejump/pagebutton.html" %}
                 {% endif %}

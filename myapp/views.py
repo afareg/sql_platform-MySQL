@@ -103,7 +103,7 @@ def mysql_query(request):
             a = form.cleaned_data['a']
             # get first valid statement
             try:
-                print func.sql_init_filter(a)
+                #print func.sql_init_filter(a)
                 a = func.get_sql_detail(func.sql_init_filter(a), 1)[0]
             except Exception, e:
                 pass
@@ -278,7 +278,13 @@ def mysql_exec(request):
 
         if form.is_valid():
             a = form.cleaned_data['a']
-
+            #try to get the first valid sql
+            try:
+                a = func.get_sql_detail(func.sql_init_filter(a), 2)[0]
+                # form = AddForm(initial={'a': a})
+            except Exception,e:
+                pass
+            sql = a
             a = func.check_mysql_exec(a,request)
             #print request.POST
             if request.POST.has_key('commit'):
@@ -286,6 +292,7 @@ def mysql_exec(request):
             elif request.POST.has_key('check'):
                 data_mysql,collist,dbname = incept.inception_check(choosed_host,a)
             # return render(request,'mysql_exec.html',{'form': form,'objlist':objlist,'data_mysql':data_mysql,'collist':collist,'choosed_host':choosed_host,'dbname':dbname})
+
             return render(request, 'mysql_exec.html', locals())
         else:
             return render(request, 'mysql_exec.html', locals())
@@ -656,6 +663,7 @@ def update_task(request):
                         str = 'CREATE NEW TASK FAIL,CHECK NOT PASSED'
                         return render(request, 'update_task.html', {'str': str})
             incept.record_task(request, data.sqltext, choosed_host, data.specification)
+            sendmail_task.delay(choosed_host + '\n' + data.sqltext)
             return HttpResponseRedirect("/task/")
 
         elif request.POST.has_key('searchdb'):

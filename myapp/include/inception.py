@@ -1,12 +1,11 @@
 import MySQLdb,sys,string,time,datetime
 from django.contrib.auth.models import User
-from myapp.include import function as func ,meta
-from multiprocessing import Process
+from myapp.include import function as func
 from myapp.models import Db_name,Db_account,Db_instance,Oper_log,Task,Incep_error_log
 from myapp.etc import config
+from mypro import settings
 reload(sys)
 sys.setdefaultencoding('utf8')
-import ConfigParser
 from django.db import connection, connections
 
 #'executed','executed failed','check not passed','check passed','running','appointed','NULL'
@@ -53,13 +52,14 @@ def make_sure_mysql_usable():
 # public_user = get_config('settings','public_user')
 
 
+
+host = settings.DATABASES['default']['HOST']
+port = settings.DATABASES['default']['PORT']
+user = settings.DATABASES['default']['USER']
+passwd = settings.DATABASES['default']['PASSWORD']
+dbname = settings.DATABASES['default']['NAME']
 select_limit = int(config.select_limit)
 export_limit = int(config.export_limit)
-host = config.host
-port = config.port
-user = config.user
-passwd = config.passwd
-dbname = config.dbname
 wrong_msg = config.wrong_msg
 incp_host = config.incp_host
 incp_port = int(config.incp_port)

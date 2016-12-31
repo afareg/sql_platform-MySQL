@@ -5,6 +5,8 @@ from django.contrib.auth.models import User,Permission,ContentType,Group
 from myapp.models import Db_name,Db_account,Db_instance,Oper_log,Login_log,Db_group
 from myapp.form import LoginForm,Captcha
 from myapp.etc import config
+from mypro import settings
+
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -39,11 +41,17 @@ import ConfigParser
 
 
 
-host = config.host
-port = config.port
-user = config.user
-passwd = config.passwd
-dbname = config.dbname
+# host = config.host
+# port = config.port
+# user = config.user
+# passwd = config.passwd
+# dbname = config.dbname
+
+host = settings.DATABASES['default']['HOST']
+port = settings.DATABASES['default']['PORT']
+user = settings.DATABASES['default']['USER']
+passwd = settings.DATABASES['default']['PASSWORD']
+dbname = settings.DATABASES['default']['NAME']
 select_limit = int(config.select_limit)
 export_limit = int(config.export_limit)
 wrong_msg = config.wrong_msg
@@ -112,7 +120,7 @@ def sql_init_filter(sqlfull):
 def get_sql_detail(sqllist,flag):
 
     query_type = ['desc','describe','show','select','explain']
-    dml_type = ['insert', 'update', 'delete', 'create', 'alter', 'drop', 'truncate', 'replace']
+    dml_type = ['insert', 'update', 'delete', 'create', 'alter','rename', 'drop', 'truncate', 'replace']
     if flag == 1:
         list_type = query_type
     elif flag ==2:
@@ -231,7 +239,7 @@ def get_mysql_hostlist(username,tag='tag',search=''):
 
 def get_op_type(methods='get'):
     #all表示所有种类
-    op_list=['all','incept','truncate','drop','create','delete','update','insert','select','explain','alter','show']
+    op_list=['all','incept','truncate','drop','create','delete','update','replace','insert','select','explain','alter','rename','show']
     if (methods=='get'):
         return op_list
 
@@ -427,7 +435,7 @@ def check_mysql_exec(sqltext,request,type='dml'):
     # request.user.has_perm('myapp.')
     sqltext = sqltext.strip()
     sqltype = sqltext.split()[0].lower()
-    list_type = ['insert','update','delete','create','alter','drop','truncate','replace']
+    list_type = ['insert','update','delete','create','alter','rename','drop','truncate','replace']
     if (sqltype=='insert'):
         if request.user.has_perm('myapp.can_insert_mysql'):
             return sqltext
@@ -458,7 +466,7 @@ def check_mysql_exec(sqltext,request,type='dml'):
             return sqltext
         else:
             return "select 'Don\\'t have permission to \"drop\"'"
-    elif (sqltype == 'alter'):
+    elif (sqltype == 'alter' or sqltype == 'rename'):
         if request.user.has_perm('myapp.can_alter_mysql'):
             return sqltext
         else:
