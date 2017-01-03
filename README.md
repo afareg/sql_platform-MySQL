@@ -12,7 +12,6 @@
 #### celery-with-redis 3.0
 #### django-simple-captcha
 #### django-sslserver
-#### django-ratelimit
 #### MySQL-python
 ### 权限功能简述：
 用户的系统使用权限大致可以分为可以看到的页面，以及能够看到的DB两个维度
