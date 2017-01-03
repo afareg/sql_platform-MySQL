@@ -1,7 +1,7 @@
 import sys,json,os,datetime,csv,time
 from django.contrib import admin
 from django.template.context import RequestContext
-from ratelimit.decorators import ratelimit,is_ratelimited
+# from ratelimit.decorators import ratelimit,is_ratelimited
 from django.shortcuts import render,render_to_response
 from django.contrib import auth
 from form import AddForm,LoginForm,Logquery,Uploadform,Captcha,Taskquery,Taskscheduler,Dbgroupform
@@ -10,7 +10,7 @@ from captcha.helpers import captcha_image_url
 from django.http import HttpResponse,HttpResponseRedirect,StreamingHttpResponse
 from django.contrib.auth.decorators import login_required,permission_required
 from django.contrib.auth.models import User,Permission,ContentType,Group
-from myapp.include import function as func,inception as incept,chart,pri,meta
+from myapp.include import function as func,inception as incept,chart,pri,meta,sqlfilter
 from myapp.models import Db_group,Db_name,Db_account,Db_instance,Oper_log,Upload,Task
 from myapp.tasks import task_run,sendmail_task
 
@@ -104,8 +104,9 @@ def mysql_query(request):
             # get first valid statement
             try:
                 #print func.sql_init_filter(a)
-                a = func.get_sql_detail(func.sql_init_filter(a), 1)[0]
+                a = sqlfilter.get_sql_detail(sqlfilter.sql_init_filter(a), 1)[0]
             except Exception, e:
+                a='wrong'
                 pass
             try:
                 #show explain
@@ -280,10 +281,10 @@ def mysql_exec(request):
             a = form.cleaned_data['a']
             #try to get the first valid sql
             try:
-                a = func.get_sql_detail(func.sql_init_filter(a), 2)[0]
+                a = sqlfilter.get_sql_detail(sqlfilter.sql_init_filter(a), 2)[0]
                 # form = AddForm(initial={'a': a})
             except Exception,e:
-                pass
+                a='wrong'
             sql = a
             a = func.check_mysql_exec(a,request)
             #print request.POST
@@ -355,7 +356,7 @@ def inception(request):
                 # get valid statement
                 try:
                     tmpsqltext = ''
-                    for i in func.get_sql_detail(func.sql_init_filter(a), 2):
+                    for i in sqlfilter.get_sql_detail(sqlfilter.sql_init_filter(a), 2):
                         tmpsqltext = tmpsqltext + i
                     a = tmpsqltext
                     form = AddForm(initial={'a': a})
@@ -389,7 +390,7 @@ def inception(request):
                 # get valid statement
                 try:
                     tmpsqltext=''
-                    for i in  func.get_sql_detail(func.sql_init_filter(sqltext), 2):
+                    for i in  sqlfilter.get_sql_detail(sqlfilter.sql_init_filter(sqltext), 2):
                         tmpsqltext=tmpsqltext + i
                     sqltext = tmpsqltext
                 except Exception, e:
@@ -409,7 +410,7 @@ def inception(request):
                 # get valid statement
                 try:
                     tmpsqltext = ''
-                    for i in func.get_sql_detail(func.sql_init_filter(sqltext), 2):
+                    for i in sqlfilter.get_sql_detail(sqlfilter.sql_init_filter(sqltext), 2):
                         tmpsqltext = tmpsqltext + i
                     sqltext = tmpsqltext
                     form = AddForm(initial={'a': sqltext})
@@ -636,7 +637,20 @@ def update_task(request):
                     mystatus = request.POST['status']
                 except Exception,e:
                     mystatus = data.status
-
+                # choosed_host = data.dbtag
+                # data_mysql, tmp_col, dbname = incept.inception_check(choosed_host, sqltext, 2)
+                #
+                # # check if the sqltext need to be splited before uploaded
+                # if len(data_mysql) > 1:
+                #     str = 'SPLICT THE SQL FIRST'
+                #     return render(request, 'update_task.html', {'str': str})
+                # # check sqltext before uploaded
+                # else:
+                #     tmp_data, tmp_col, dbname = incept.inception_check(choosed_host, sqltext)
+                #     for i in tmp_data:
+                #         if int(i[2]) != 0:
+                #             str = 'UPDATE TASK FAIL,CHECK NOT PASSED'
+                #             return render(request, 'update_task.html', {'str': str})
                 incept.update_task(id, sqltext, specify,mystatus)
                 return HttpResponseRedirect("/task/")
             else:

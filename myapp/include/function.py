@@ -57,92 +57,97 @@ export_limit = int(config.export_limit)
 wrong_msg = config.wrong_msg
 public_user = config.public_user
 
-
-exceptlist = ["'","`","\""]
-
-def sql_init_filter(sqlfull):
-    tmp = oldp = sql = ''
-    sqllist = []
-    flag = 0
-    sqlfull = sqlfull.replace('\r','\n').strip()
-    try:
-        if sqlfull[-1]!=";":
-            sqlfull = sqlfull + ";"
-    except Exception,e:
-        pass
-    for i in sqlfull.split('\n'):
-        if len(i)>=2:
-            if i[0] == '-' and i[1] == '-' :
-                continue
-        if len(i)>=1:
-            if i[0] == '#' :
-                continue
-        if len(i)!=0:
-            tmp = tmp + i + '\n'
-
-    sqlfull = tmp
-    tmp = ''
-    i=0
-    while i<= (0 if len(sqlfull)==0 else len(sqlfull)-1):
-        if sqlfull[i] =='*' and oldp == '/'and flag == 0 :
-            flag = 2
-            sql = sql + sqlfull[i]
-        elif sqlfull[i] == '/' and oldp == '*' and flag == 2:
-            flag = 0
-            sql = sql + sqlfull[i]
-        elif sqlfull[i] == tmp and flag == 1:
-            flag = 0
-            sql = sql + sqlfull[i]
-            tmp=''
-        elif sqlfull[i] in exceptlist and flag == 0 and oldp != "\\":
-            tmp = sqlfull[i]
-            flag = 1
-            sql = sql + sqlfull[i]
-        elif sqlfull[i] == ';' and flag == 0:
-            sql = sql + sqlfull[i]
-            if len(sql) > 1:
-                sqllist.append(sql)
-            sql = ''
-        # eliminate '#' among the line
-        elif sqlfull[i] == '#' and flag == 0:
-            flag =3
-        elif flag==3:
-            if sqlfull[i] == '\n':
-                flag=0
-                sql = sql + sqlfull[i]
-        else:
-            sql = sql + sqlfull[i]
-        oldp = sqlfull[i]
-        i=i+1
-    return sqllist
-
-
-def get_sql_detail(sqllist,flag):
-
-    query_type = ['desc','describe','show','select','explain']
-    dml_type = ['insert', 'update', 'delete', 'create', 'alter','rename', 'drop', 'truncate', 'replace']
-    if flag == 1:
-        list_type = query_type
-    elif flag ==2:
-        list_type = dml_type
-    typelist = []
-    i = 0
-    while i <= (0 if len(sqllist) == 0 else len(sqllist) - 1):
-        try:
-            type = sqllist[i].split()[0].lower()
-            if len(type)> 1:
-                if type in list_type:
-                    typelist.append(type)
-                    i = i + 1
-                else:
-                    sqllist.pop(i)
-            else:
-                sqllist.pop(i)
-        except:
-            pass
-            i = i + 1
-
-    return sqllist
+#
+# exceptlist = ["'","`","\""]
+#
+# def sql_init_filter(sqlfull):
+#     tmp = oldp = sql = ''
+#     sqllist = []
+#     flag = 0
+#     sqlfull = sqlfull.replace('\r','\n').strip()
+#     try:
+#         if sqlfull[-1]!=";":
+#             sqlfull = sqlfull + ";"
+#     except Exception,e:
+#         pass
+#     for i in sqlfull.split('\n'):
+#         if len(i)>=2:
+#             if i[0] == '-' and i[1] == '-' :
+#                 continue
+#         if len(i)>=1:
+#             if i[0] == '#' :
+#                 continue
+#         if len(i)!=0:
+#             tmp = tmp + i + '\n'
+#
+#     sqlfull = tmp
+#     tmp = ''
+#     i=0
+#     while i<= (0 if len(sqlfull)==0 else len(sqlfull)-1):
+#         if sqlfull[i] =='*' and oldp == '/'and flag == 0 :
+#             flag = 2
+#             sql = sql + sqlfull[i]
+#         elif sqlfull[i] == '/' and oldp == '*' and flag == 2:
+#             flag = 0
+#             sql = sql + sqlfull[i]
+#         elif sqlfull[i] == tmp and flag == 1:
+#             flag = 0
+#             sql = sql + sqlfull[i]
+#             tmp=''
+#         elif sqlfull[i] in exceptlist and flag == 0 and oldp != "\\":
+#             tmp = sqlfull[i]
+#             flag = 1
+#             sql = sql + sqlfull[i]
+#         elif sqlfull[i] == ';' and flag == 0:
+#             sql = sql + sqlfull[i]
+#             if len(sql) > 1:
+#                 sqllist.append(sql)
+#             sql = ''
+#         # eliminate '#' among the line
+#         elif sqlfull[i] == '#' and flag == 0:
+#             flag =3
+#         elif flag==3:
+#             if sqlfull[i] == '\n':
+#                 flag=0
+#                 sql = sql + sqlfull[i]
+#         else:
+#             sql = sql + sqlfull[i]
+#         oldp = sqlfull[i]
+#         i=i+1
+#     return sqllist
+#
+#
+# def get_sql_detail(sqllist,flag):
+#
+#     query_type = ['desc','describe','show','select','explain']
+#     dml_type = ['insert', 'update', 'delete', 'create', 'alter','rename', 'drop', 'truncate', 'replace']
+#     if flag == 1:
+#         list_type = query_type
+#     elif flag ==2:
+#         list_type = dml_type
+#     typelist = []
+#     i = 0
+#     while i <= (0 if len(sqllist) == 0 else len(sqllist) - 1):
+#         try:
+#             type = sqllist[i].split()[0].lower()
+#             if len(type)> 1:
+#                 if type in list_type:
+#                     #filter create or drop database,user
+#                     if type == 'create' or type == 'drop' or type == 'alter':
+#                         if sqllist[i].split()[1].lower() in ['database','user']:
+#                             sqllist.pop(i)
+#                             #i=i+1
+#                             continue
+#                     typelist.append(type)
+#                     i = i + 1
+#                 else:
+#                     sqllist.pop(i)
+#             else:
+#                 sqllist.pop(i)
+#         except:
+#             i = i + 1
+#
+#     return sqllist
 
 
 def mysql_query(sql,user=user,passwd=passwd,host=host,port=int(port),dbname=dbname,limitnum=select_limit):
@@ -351,6 +356,8 @@ def log_mysql_op(user,sqltext,mydbname,dbtag,request):
     create_time = datetime.datetime.now()
     username = user.username
     sqltype=sqltext.split()[0].lower()
+    if sqltype in ['desc','describe']:
+        sqltype='show'
     #获取ip地址
     ipaddr = get_client_ip(request)
     log = Oper_log (user=username,sqltext=sqltext,sqltype=sqltype,login_time=lastlogin,create_time=create_time,dbname=mydbname,dbtag=dbtag,ipaddr=ipaddr)
@@ -397,27 +404,27 @@ def check_explain (sqltext):
         return sqltext
     else:
         return wrong_msg
-
-def my_key(group, request):
-    try:
-        real_ip = request.META['HTTP_X_FORWARDED_FOR']
-        regip = real_ip.split(",")[0]
-    except:
-        try:
-            regip = request.META['REMOTE_ADDR']
-        except:
-            regip = ""
-    form = LoginForm(request.POST)
-    myform = Captcha(request.POST)
-    #验证码正确情况下，错误密码登录次数
-    if form.is_valid() and myform.is_valid():
-        username = form.cleaned_data['username']
-        # password = form.cleaned_data['password']
-
-        return regip+username
-    #验证码错误不计算
-    else:
-        return regip+str(uuid.uuid1())
+#
+# def my_key(group, request):
+#     try:
+#         real_ip = request.META['HTTP_X_FORWARDED_FOR']
+#         regip = real_ip.split(",")[0]
+#     except:
+#         try:
+#             regip = request.META['REMOTE_ADDR']
+#         except:
+#             regip = ""
+#     form = LoginForm(request.POST)
+#     myform = Captcha(request.POST)
+#     #验证码正确情况下，错误密码登录次数
+#     if form.is_valid() and myform.is_valid():
+#         username = form.cleaned_data['username']
+#         # password = form.cleaned_data['password']
+#
+#         return regip+username
+#     #验证码错误不计算
+#     else:
+#         return regip+str(uuid.uuid1())
 
 
 def get_client_ip(request):

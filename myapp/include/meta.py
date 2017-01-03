@@ -17,8 +17,15 @@ def mysql_query(sql,user,passwd,host,port,dbname):
         index=cursor.description
         col=[]
         #get column name
-        for i in index:
-            col.append(i[0])
+        try:
+            for i in index:
+                col.append(i[0])
+        except Exception,e:
+            conn.commit()
+            cursor.close()
+            conn.close()
+            return (['ok'],''), ['set']
+
         result=cursor.fetchall()
         # result=cursor.fetchmany(size=int(limitnum))
         cursor.close()
@@ -205,8 +212,8 @@ def check_selfsql(selfsql):
     if len(selfsql)==0:
         selfsql = "select 'please input'"
         return selfsql
-    elif selfsql.split()[0].lower() not in ['set','show'] :
-        selfsql = "select 'selfsql not valid'"
+    elif selfsql.split()[0].lower() not in ['set','show','select','create','purge','drop','purge','insert','update','delete','rename'] :
+        selfsql = "select 'selfsql not allowed'"
     return  selfsql
 
 
