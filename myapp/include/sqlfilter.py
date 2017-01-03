@@ -183,6 +183,7 @@ def get_sql_detail(sqllist,flag):
             else:
                 sqllist.pop(i)
         except:
+            #sqllist.pop(i)
             i = i + 1
 
     return sqllist
@@ -245,7 +246,7 @@ def get_sql_detail(sqllist,flag):
 
 
 if __name__ == '__main__':
-    x = "  drop /*sdf\n\n\n\n\n\fd*/  abase ;#adfadfaf \n select adf; create;alter table mysql.user ; create /*\\'\" test */ table test (id int ,name varchar(30)) comment 'asdasdasd';\n;/*! test &&\''& */\r\n;\r\n/*!40101 SET character_set_client = @saved_cs_client */;alter  user ;\r;create table;\n;;;select /* force index test \'\"*/ * from test ;"
+    x = " begin;commit; drop /*sdf\n\n\n\n\n\fd*/  abase ;#adfadfaf \n select adf; create;alter table mysql.user ; create /*\\'\" test */ table test (id int ,name varchar(30)) comment 'asdasdasd';\n;/*! test &&\''& */\r\n;\r\n/*!40101 SET character_set_client = @saved_cs_client */;alter  user asdf sdf;\r;create table test ;\n;;;select /* force index test \'\"*/ * from test ;"
     #x="insert /*sdfs*/into mysql.test ;truncate table mysql.db;rename mysql.db ;rename asdf;delete from  `msql`.sa set ;delete ignore from t1 mysql.test values sdasdf;insert into ysql.user values()"
     # print x
     #x=" /*! */; select /**/ #asdfasdf; \nfrom mysql_replication_history;"
