@@ -35,16 +35,6 @@
 ### 启动配置
 #### config.py配置文件如下：
 
-host="127.0.0.1" 
-
-port=3306
-
-user="xx"
-
-passwd="xxx"
-
-dbname="xxx"
-
 wrong_msg="select '请检查输入语句'"
 
 select_limit=200
@@ -61,7 +51,6 @@ incp_passwd=""
 
 public_user="public"
 ##### 说明:
-host至dbname为django库的连接配置，和settings.py中的一致即可
 
 select_limit 和 export_limit为系统默认查询和导出条数限制
 
@@ -81,7 +70,7 @@ python manage.py runsslserver 0.0.0.0:8000（启动前建议把settings.py中的
 
 ### 定时任务配置
 #### 在django库中导入mon_tb.sql
-#### celery 启用 crontab: python manage.py celery beat 
+#### 启用celery的定时任务功能: python manage.py celery beat 
 #### 启动celery:  python manage.py celery worker -E -c ---loglevel=info 
 #### 开启快照监控后，在admin中能看到任务，默认一秒一个快照: python manage.py celerycam 
 #### 在/admin/中设置定时任务
@@ -103,12 +92,15 @@ python manage.py runsslserver 0.0.0.0:8000（启动前建议把settings.py中的
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/meta_info.jpg)
 ## 4.查询界面
 ### 4.1表查询:
-支持单条sql的查询和查询结果的导出，导出条数限制默认为config.ini中配置的值，也可以通过后台myapp_profile表对特定用户进行调整
+支持单条sql的查询和查询结果的导出，导出条数限制默认为config.py中配置的值，也可以通过后台myapp_profile表对特定用户进行调整
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/mysql_query.jpg)
 ## 5.执行界面
 支持单条sql语句的执行，用户能够执行的语句类型可以通过权限限制。
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/mysql_exec.jpg)
 ## 6.任务提交界面
+
+只有审核通过的sql，才能被提交至任务管理页面
+
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/task_upload.jpg)
 ## 7.任务管理界面
 可以审核、查看、修改、执行、预约任务执行时间，通过调用inception接口来实现
@@ -138,6 +130,8 @@ python manage.py runsslserver 0.0.0.0:8000（启动前建议把settings.py中的
 可以通过权限设置来限制用户是否能够编辑此页面的内容
 
 可以单独变更执行的数据源，以实现同一语句在不同环境执行的需求
+
+变更数据源后，会新生成一个任务，并发送邮件告知
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/task_edit_1.jpg)
 ## 8.日志查询界面
 本平台记录所有用户在mysql_query,mysql_exec以及任务管理页面中执行的语句
