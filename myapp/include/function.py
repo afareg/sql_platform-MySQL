@@ -38,9 +38,6 @@ import ConfigParser
 # wrong_msg = get_config('settings','wrong_msg')
 # public_user = get_config('settings','public_user')
 
-
-
-
 # host = config.host
 # port = config.port
 # user = config.user

@@ -1,9 +1,4 @@
 #encoding:utf-8
-host="127.0.0.1"
-port=3306
-user="chang"
-passwd="chang"
-dbname="django"
 wrong_msg="select '请检查输入语句'"
 select_limit=200
 export_limit=200
