@@ -69,7 +69,7 @@ python manage.py runserver 0.0.0.0:8000（启动前建议把settings.py中的deb
 ### 定时任务配置
 #### 在django库中导入mon_tb.sql
 #### 启用celery的定时任务功能: python manage.py celery beat 
-#### 启动celery:  python manage.py celery worker -E -c ---loglevel=info 
+#### 启动celery:  python manage.py celery worker -E -c 3 --loglevel=info 
 #### 开启快照监控后，在admin中能看到任务，默认一秒一个快照: python manage.py celerycam 
 #### 在/admin/中设置定时任务
 ##### 设置定时扫描task
