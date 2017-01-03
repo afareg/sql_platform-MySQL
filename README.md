@@ -66,6 +66,14 @@ python manage.py runserver 0.0.0.0:8000（启动前建议把settings.py中的deb
 (上面的启动方式可以自己测试时使用，实际使用不要使用django自带的server启动，因为好像是单线程在处理request的。。）
 ##### 建议用apache或nginx+uwgsi方式启动，配置文件可以参考configfile_example中的
 ##### uwgsi启动方式如：uwgsi --ini uwgsi.ini
+##### nginx配置https时生成key文件示例如下：
+
+openssl genrsa -out foobar.key 2048
+
+openssl req -new -key foobar.key -out foobar.csr
+
+openssl x509 -req -days 365 -in foobar.csr -signkey foobar.key -out foobar.crt
+
 ##### #使用uwgsi部署时，先 python manage.py collectstatic 拷下admin之类的静态文件，不然访问/admin/页面会找不到样式
 ##### 然后以刚刚注册的超级用户登陆网站进行建立普通用户、建库等配置工作
 
