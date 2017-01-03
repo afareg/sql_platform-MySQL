@@ -11,7 +11,6 @@
 #### kombu 3.0.37
 #### celery-with-redis 3.0
 #### django-simple-captcha
-#### django-sslserver
 #### MySQL-python
 ### 权限功能简述：
 用户的系统使用权限大致可以分为可以看到的页面，以及能够看到的DB两个维度
@@ -61,7 +60,7 @@ incp_XX系列配置文件为inception的连接配置
 #### 创建一个超级用户： python manage.py createsuperuser
 #### 启动server： 
 
-python manage.py runsslserver 0.0.0.0:8000（启动前建议把settings.py中的debug设置为false） 
+python manage.py runserver 0.0.0.0:8000（启动前建议把settings.py中的debug设置为false） 
 
 (上面的启动方式可以自己测试时使用，实际使用不要使用django自带的server启动，因为好像是单线程在处理request的。。用apache或别的方式启动)
 
