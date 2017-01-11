@@ -32,14 +32,18 @@ def sql_init_filter(sqlfull):
             flag = 0
             #sql = sql + sqlfull[i]
             sql = sql[:-1]+ ' '
-        elif sqlfull[i] == tmp and flag == 1:
+        elif sqlfull[i] == tmp and flag == 1 and oldp != "\\":
             flag = 0
             sql = sql + sqlfull[i]
             tmp=''
+            # print sql
+            # print "what hellp"
         elif sqlfull[i] in exceptlist and flag == 0 and oldp != "\\":
             tmp = sqlfull[i]
             flag = 1
             sql = sql + sqlfull[i]
+            # print sql
+            # print "hello"
         elif sqlfull[i] == ';' and flag == 0:
             sql = sql + sqlfull[i]
             if len(sql) > 1:
@@ -246,10 +250,11 @@ def get_sql_detail(sqllist,flag):
 
 
 if __name__ == '__main__':
-    x = " begin;commit; drop /*sdf\n\n\n\n\n\fd*/  abase ;#adfadfaf \n select adf; create;alter table mysql.user ; create /*\\'\" test */ table test (id int ,name varchar(30)) comment 'asdasdasd';\n;/*! test &&\''& */\r\n;\r\n/*!40101 SET character_set_client = @saved_cs_client */;alter  user asdf sdf;\r;create table test ;\n;;;select /* force index test \'\"*/ * from test ;"
+    x = " insert into item_infor (id,name) values(7,'t\\'e\"st'); drop /*sdf\n\n\n\n\n\fd*/  abase ;#adfadfaf \n select adf; create;alter table mysql.user ; create /*\\'\" test */ table test (id int ,name varchar(30)) comment 'asdasdasd';\n;/*! test &&\''& */\r\n;\r\n/*!40101 SET character_set_client = @saved_cs_client */;alter  user asdf sdf;\r;create table test ;\n;;;select /* force index test \'\"*/ * from test ;"
     #x="insert /*sdfs*/into mysql.test ;truncate table mysql.db;rename mysql.db ;rename asdf;delete from  `msql`.sa set ;delete ignore from t1 mysql.test values sdasdf;insert into ysql.user values()"
     # print x
     #x=" /*! */; select /**/ #asdfasdf; \nfrom mysql_replication_history;"
+    #x = " insert into item_infor (id,name) values(7,'t\\'e\"st');drop t * from test;"
     sqllist = sql_init_filter(x)
     for i in sqllist:
         print i

@@ -158,9 +158,9 @@ CAPTCHA_FOREGROUND_COLOR='#000010'
 CAPTCHA_OUTPUT_FORMAT=u'%(text_field)s %(image)s %(hidden_field)s'
 
 STATIC_URL = '/static/'
-#STATICFILES_DIRS = (
-#os.path.join(BASE_DIR, "static"),
-#)
+# STATICFILES_DIRS = (
+# os.path.join(BASE_DIR, "static"),
+# )
 STATIC_ROOT = os.path.join(BASE_DIR, 'static').replace('\\','/')
 #MEDIA_ROOT = os.path.join(BASE_DIR, 'media').replace('\\','/')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
