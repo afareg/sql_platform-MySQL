@@ -133,7 +133,10 @@ def mysql_query(request):
                         i=0
                         for item in result:
                             if type(item) == type(a):
-                                result[i] = item.encode('gb18030')
+                                try:
+                                    result[i] = item.encode('gb18030')
+                                except Exception,e:
+                                    result[i] = item.replace(u'\xa0', u' ').encode('gb18030')
                             i = i + 1
                     response = StreamingHttpResponse((writer.writerow(row) for row in results_list),content_type="text/csv")
                     response['Content-Disposition'] = 'attachment; filename="export.csv"'
