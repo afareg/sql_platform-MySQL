@@ -32,7 +32,7 @@
                         <b class="caret"></b>
                     </a>
                     <ul class="dropdown-menu">
-{#                        <li role="presentation" class="divider"></li>#}
+                        {#                        <li role="presentation" class="divider"></li>#}
 
                         <li><a href="{% url 'task_manager' %}">任务管理</a></li>
 
@@ -56,27 +56,34 @@
                         <li><a href="{% url 'pre_set' %}">用户账户</a></li>
                         <li><a href="{% url 'fast_dbset' %}">快速创建DB</a></li>
                         <li role="presentation" class="divider"></li>
-
                         <li><a href="{% url 'set_dbname' %}">设置DB</a></li>
                         <li role="presentation" class="divider"></li>
                         <li><a href="{% url 'set_ugroup' %}">设置USER_GROUP</a></li>
                         <li><a href="{% url 'set_dbgroup' %}">设置DB_GROUP</a></li>
-
-
-
-                        {#                        <li><a href="{% url 'set_ugroup' %}">设置USER_GROUP</a></li>#}
-
-
                     </ul>
                 </li>
 
+
+
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        SALT管理
+                        <b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{% url 'salt_exec' %}">SALT命令执行</a></li>
+                        <li><a href="{% url 'hardware_info' %}">硬件信息</a></li>
+                        <li role="presentation" class="divider"></li>
+
+                    </ul>
+                </li>
 
             </ul>
 
             {% if request.user.is_authenticated %}
                 <ul  class="nav navbar-nav navbar-right">
                     <li><a href="#">WELCOME: {{ request.user.username }} </a></li>
-                <li><a href="{% url 'pass_reset' %}">重置密码</a></li>
+                    <li><a href="{% url 'pass_reset' %}">重置密码</a></li>
                     <li><a href="{% url 'logout' %}">LOGOUT</a></li>
                     {% if request.get_full_path == '/mysql_query/' or request.get_full_path == '/mysql_exec/' or request.get_full_path == '/meta_data/' %}
                         <li>  <a href="#menu-toggle" id="menu-toggle">显示NOTE栏</a></li>

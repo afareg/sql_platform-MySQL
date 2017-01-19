@@ -129,6 +129,7 @@ def mysql_query(request):
                         results_list[i] = list(data_list[i])
                     results_list.insert(0,collist)
                     a = u'zhongwen'
+                    ul= 1234567L
                     for result in results_list:
                         i=0
                         for item in result:
@@ -137,6 +138,11 @@ def mysql_query(request):
                                     result[i] = item.encode('gb18030')
                                 except Exception,e:
                                     result[i] = item.replace(u'\xa0', u' ').encode('gb18030')
+                            elif type(item)==type(ul):
+                                try:
+                                    result[i] = str(item) + "\t"
+                                except Exception,e:
+                                    pass
                             i = i + 1
                     response = StreamingHttpResponse((writer.writerow(row) for row in results_list),content_type="text/csv")
                     response['Content-Disposition'] = 'attachment; filename="export.csv"'

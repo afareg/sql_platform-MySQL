@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # 'django_crontab',
     'captcha',
-    # 'sslserver',
+    'salt',
     'djcelery',
     'myapp',
 ]
@@ -158,10 +158,10 @@ CAPTCHA_FOREGROUND_COLOR='#000010'
 CAPTCHA_OUTPUT_FORMAT=u'%(text_field)s %(image)s %(hidden_field)s'
 
 STATIC_URL = '/static/'
-# STATICFILES_DIRS = (
-# os.path.join(BASE_DIR, "static"),
-# )
-STATIC_ROOT = os.path.join(BASE_DIR, 'static').replace('\\','/')
+STATICFILES_DIRS = (
+os.path.join(BASE_DIR, "static"),
+)
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static').replace('\\','/')
 #MEDIA_ROOT = os.path.join(BASE_DIR, 'media').replace('\\','/')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
@@ -171,3 +171,16 @@ EMAIL_HOST_USER='fullway_b2b'
 EMAIL_HOST_PASSWORD='xxxxxxx'
 EMAIL_PORT = 25
 # EMAIL_USE_TLS = True
+
+# SaltStack API
+SALT_API_URL = 'http://10.1.24.120:8199'
+SALT_API_USER = 'saltapi'
+SALT_API_PASSWD = 'saltapi'
+
+SALT_DATABASE = {
+    'NAME': 'salt',
+    'USER': 'salt_user',
+    'PASSWORD': '710467549',
+    'HOST': '10.1.24.120',
+    'PORT': '9033',
+}
