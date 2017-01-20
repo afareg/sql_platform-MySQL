@@ -145,7 +145,7 @@ class SaltAPI(object):
         content = self.postRequest(obj)
         ret = content['return'][0]['data']['success']
         return ret
-    #
+
     # def actionKyes(self, keystrings, action):
     #     '''
     #     对Minion keys 进行指定处理；
