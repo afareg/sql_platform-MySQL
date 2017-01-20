@@ -10,4 +10,5 @@ urlpatterns = patterns(
     url(r'^salt_exec/$', 'salt_exec', name='salt_exec'),
     url(r'^hardware_info/$', 'hardware_info', name='hardware_info'),
     url(r'^api/getjobinfo$','getjobinfo', name='getjobinfo'),
+    url(r'^key_con/$','key_con', name='key_con'),
 )

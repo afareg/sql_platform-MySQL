@@ -67,6 +67,7 @@ class SaltAPI(object):
         :param arg: 传入的命令或sls文件
         :return: jid字符串
         '''
+
         if tgt == '*':
             params = {'client': 'local_async', 'tgt': tgt, 'fun': fun, 'arg': arg,'ret':'mysql'}
         else:
@@ -82,17 +83,9 @@ class SaltAPI(object):
         jid = content['return'][0]['jid']
         return jid
 
-    def target_remote_execution(self, tgt,fun):
-        try:
-            params = {'client': 'local','tgt':tgt,'fun':'cmd.run','arg': fun,'tgt_type':'nodegroup'}
-            obj = urllib.urlencode(params)
-            self.saltLogin()
-            content = self.postRequest(obj)
-            jid = content
-            return jid
-        except Exception,e:
-            print "fuck"
-            return e
+
+
+
     def masterToMinionContent(self, tgt, fun, arg):
         '''
             Master控制Minion，返回的结果是内容，不是jid；
@@ -108,67 +101,88 @@ class SaltAPI(object):
         return result
 
     # 定义不加参数的命令
-    def remote_noarg_execution(self, tgt, fun):
+    def remote_noarg_execution_sin(self, tgt, fun):
         ''' Execute commands without parameters '''
-        params = {'client': 'local', 'tgt': tgt, 'fun': fun}
+        params = {'client': 'local', 'tgt': tgt, 'fun': fun,'ret':'mysql'}
         obj = urllib.urlencode(params)
         content = self.postRequest(obj)
-        # return  content
         ret = content['return'][0][tgt]
         return ret
 
-    def allMinionKeys(self):
+    # 定义获取所有客户端KEY函数
+    def list_all_key(self):
         '''
-        返回所有Minion keys；
-        分别为 已接受、待接受、已拒绝；
-        :return: [u'local', u'minions_rejected', u'minions_denied', u'minions_pre', u'minions']
-        '''
+           返回所有Minion keys；
+           分别为 已接受、待接受、已拒绝；
+           :return: [u'local', u'minions_rejected', u'minions_denied', u'minions_pre', u'minions']
+       '''
         params = {'client': 'wheel', 'fun': 'key.list_all'}
         obj = urllib.urlencode(params)
         content = self.postRequest(obj)
-        minions = content['return'][0]['data']['return']['minions']
-        minions_pre = content['return'][0]['data']['return']['minions_pre']
-        minions_rej = content['return'][0]['data']['return']['minions_rejected']
-        return minions, minions_pre, minions_rej
+        # minions = content['return'][0]['data']['return']['minions']
+        # minions_pre = content['return'][0]['data']['return']['minions_pre']
+        # minions_rej = content['return'][0]['data']['return']['minions_rejected']
+        minions = content['return'][0]['data']['return']
+        return minions
 
-    def actionKyes(self, keystrings, action):
-        '''
-        对Minion keys 进行指定处理；
-        :param keystrings: 将要处理的minion id字符串；
-        :param action: 将要进行的处理，如接受、拒绝、删除；
-        :return:
-        {"return": [{"tag": "salt/wheel/20160322171740805129", "data": {"jid": "20160322171740805129", "return": {}, "success": true, "_stamp": "2016-03-22T09:17:40.899757", "tag": "salt/wheel/20160322171740805129", "user": "zhaogb", "fun": "wheel.key.delete"}}]}
-        '''
-        func = 'key.' + action
-        params = {'client': 'wheel', 'fun': func, 'match': keystrings}
+    def delete_key(self, node_name):
+        params = {'client': 'wheel', 'fun': 'key.delete', 'match': node_name}
         obj = urllib.urlencode(params)
         content = self.postRequest(obj)
         ret = content['return'][0]['data']['success']
         return ret
 
-    def acceptKeys(self, keystrings):
-        '''
-        接受Minion发过来的key；
-        :return:
-        '''
-        params = {'client': 'wheel', 'fun': 'key.accept', 'match': keystrings}
+    def accept_key(self, node_name):
+        params = {'client': 'wheel', 'fun': 'key.accept', 'match': node_name}
         obj = urllib.urlencode(params)
         content = self.postRequest(obj)
         ret = content['return'][0]['data']['success']
         return ret
 
-    def deleteKeys(self, keystrings):
-        '''
-        删除Minion keys；
-        :param node_name:
-        :return:
-        '''
-        params = {'client': 'wheel', 'fun': 'key.delete', 'match': keystrings}
+    def reject_key(self, node_name):
+        params = {'client': 'wheel', 'fun': 'key.reject', 'match': node_name}
         obj = urllib.urlencode(params)
         content = self.postRequest(obj)
         ret = content['return'][0]['data']['success']
         return ret
-
+    #
+    # def actionKyes(self, keystrings, action):
+    #     '''
+    #     对Minion keys 进行指定处理；
+    #     :param keystrings: 将要处理的minion id字符串；
+    #     :param action: 将要进行的处理，如接受、拒绝、删除；
+    #     :return:
+    #     {"return": [{"tag": "salt/wheel/20160322171740805129", "data": {"jid": "20160322171740805129", "return": {}, "success": true, "_stamp": "2016-03-22T09:17:40.899757", "tag": "salt/wheel/20160322171740805129", "user": "zhaogb", "fun": "wheel.key.delete"}}]}
+    #     '''
+    #     func = 'key.' + action
+    #     params = {'client': 'wheel', 'fun': func, 'match': keystrings}
+    #     obj = urllib.urlencode(params)
+    #     content = self.postRequest(obj)
+    #     ret = content['return'][0]['data']['success']
+    #     return ret
+    #
+    # def acceptKeys(self, keystrings):
+    #     '''
+    #     接受Minion发过来的key；
+    #     :return:
+    #     '''
+    #     params = {'client': 'wheel', 'fun': 'key.accept', 'match': keystrings}
+    #     obj = urllib.urlencode(params)
+    #     content = self.postRequest(obj)
+    #     ret = content['return'][0]['data']['success']
+    #     return ret
+    #
+    # def deleteKeys(self, keystrings):
+    #     '''
+    #     删除Minion keys；
+    #     :param node_name:
+    #     :return:
+    #     '''
+    #     params = {'client': 'wheel', 'fun': 'key.delete', 'match': keystrings}
+    #     obj = urllib.urlencode(params)
+    #     content = self.postRequest(obj)
+    #     ret = content['return'][0]['data']['success']
+    #     return ret
 
     def runner_status(self, arg):
         ''' Return minion status '''
@@ -177,6 +191,35 @@ class SaltAPI(object):
         content = self.postRequest(obj)['return'][0]
         return content
 
+
+    def remote_noarg_execution_mul(self, tgt, fun,group=0):
+        ''' Execute commands without parameters '''
+        if tgt=='*':
+            params = {'client': 'local', 'tgt': tgt, 'fun': fun, 'ret': 'mysql'}
+        else:
+            if group==1:
+                params = {'client': 'local', 'tgt': tgt, 'fun': fun, 'ret': 'mysql','expr_form': 'nodegroup'}
+            else:
+                if is_valid_ip(tgt):
+                    params = {'client': 'local', 'tgt': tgt, 'fun': fun, 'ret': 'mysql', 'expr_form': 'ipcidr'}
+                else:
+                    params = {'client': 'local', 'tgt': tgt, 'fun': fun, 'ret': 'mysql', 'expr_form': 'list'}
+        obj = urllib.urlencode(params)
+        content = self.postRequest(obj)
+        return content['return'][0].keys(),content['return'][0].values()
+
+def get_host_list(se_host,isgp):
+    sapi_1 = SaltAPI()
+
+    if se_host == '*':
+        return sapi_1.runner_status('status')['up']
+    else:
+        if isgp == 1:
+            x, y = sapi_1.remote_noarg_execution_mul(se_host, 'test.ping',1)
+            return x
+        else:
+            x, y = sapi_1.remote_noarg_execution_mul(se_host, 'test.ping')
+            return x
 
 def is_valid_ip(ip):
     """Returns true if the given string is a well-formed IP address.
@@ -206,8 +249,11 @@ def main():
     # params = {'client':'local', 'fun':'test.echo', 'tgt':'某台服务器的key', 'arg1':'hello'}
     # params = {'client':'local', 'fun':'test.ping', 'tgt':'某组服务器的组名', 'expr_form':'nodegroup'}
     #test = sapi.saltCmd(params)
-    test = sapi.target_remote_execution(tgt='group1',fun='df -h')
-    print test
+    print "hellp"
+    print sapi.asyncMasterToMinion('*','test.ping','none_arg')
+    x,y= sapi.remote_noarg_execution_mul('group2', 'test.ping')
+    print x
+    print y
     sapi1 = SaltAPI()
     a = sapi.runner_status('status')['up']
     print a

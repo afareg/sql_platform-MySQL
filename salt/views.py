@@ -6,22 +6,24 @@ import json
 # Create your views here.
 
 def salt_exec(request):
-  return render(request, 'exec.html', locals())
+    return render(request, 'exec.html', locals())
 
 
 def execute(request):
     if request.method == 'POST':
         try:
             tgt = request.POST.get('tgt', "")
-            fun = request.POST.get('fun', "cmd.run")
-            arg = request.POST.get('arg', "")
-            sapi = saltapi.SaltAPI()
+            # fun = request.POST.get('fun', "cmd.run")
+            fun = "cmd.run"
 
+            arg = request.POST.get('arg', 'none_arg')
+            sapi = saltapi.SaltAPI()
+            print arg
             isgp = int(request.POST.get('isgroup', "0"))
+            print "isgp"
             print isgp
-            print type(isgp)
             jid_auto = sapi.asyncMasterToMinion(tgt=tgt, fun=fun, arg=arg,group=isgp)
-            print jid_auto
+
         except Exception,e:
             print e
     # context = {'jid_auto': ''}
@@ -58,33 +60,54 @@ def getjobinfo(request):
                     else :
                         result.append(u'host:%s&nbsp;&nbsp;&nbsp;state:%s<br/><pre>执行失败！</pre><br/>' % (host_result[0],host_result[1]))
             context = {
-                  "where":where,
-                  "result":result
-                }
+                "where":where,
+                "result":result
+            }
         return HttpResponse(json.dumps(context))
 
 
 def hardware_info(request):
+    try:
+        if request.method == 'POST':
+            se_host = request.POST.get('search','none')
+            isgp = int(request.POST.get('isgroup', "0"))
+            up_host = saltapi.get_host_list(se_host, isgp)
+            sapi = saltapi.SaltAPI()
+            # up_host = sapi.runner_status('status')['up']
+            jyp = []
+            disk_all = {}
+            for hostname in up_host:
+                info_all = sapi.remote_noarg_execution_sin(hostname, 'grains.items')
+
+                disk_use = sapi.remote_noarg_execution_sin(hostname, 'disk.usage')
+
+                for key in disk_use:
+                    if disk_use[key]['capacity'] is None:
+                        continue
+                    disk_info = {key: int(disk_use[key]['capacity'][:-1])}
+                    disk_all.update(disk_info)
+                    disk_dic = {'disk': disk_all}
+                    info_all.update(disk_dic)
+                disk_all = {}
+                jyp += [info_all]
+    except Exception,e:
+        print e
+    return render(request, 'hardware_info.html', locals())
+
+def key_con(request):
     sapi = saltapi.SaltAPI()
-    up_host = sapi.runner_status('status')['up']
-    jid = []
-    disk_all = {}
-    for hostname in up_host:
-        info_all = sapi.remote_noarg_execution(hostname, 'grains.items')
 
-        disk_use = sapi.remote_noarg_execution(hostname, 'disk.usage')
+    if request.POST:
+        if request.POST.has_key('accept'):
+            hostname = request.POST.get("accept")
+            sapi.accept_key(hostname)
+        elif request.POST.has_key('delete'):
+            hostname = request.POST.get("delete")
+            sapi.delete_key(hostname)
+        elif request.POST.has_key('reject'):
+            hostname = request.POST.get("reject")
+            print hostname
+            print sapi.reject_key(hostname)
 
-        for key in disk_use:
-            if disk_use[key]['capacity'] is None:
-                continue
-            disk_info = {key: int(disk_use[key]['capacity'][:-1])}
-            print disk_info
-            disk_all.update(disk_info)
-            print "disk all"
-            print disk_all
-            disk_dic = {'disk': disk_all}
-            info_all.update(disk_dic)
-        disk_all = {}
-        jid += [info_all]
-        print jid
-    return render(request, 'hardware_info.html', {'jyp': jid})
+    keys_all = sapi.list_all_key()
+    return  render(request,'key_manager.html',locals())
