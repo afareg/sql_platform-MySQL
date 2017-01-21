@@ -24,8 +24,8 @@
                 <div class="panel-body">
                     <div class="dataTable_wrapper">
                         {% if jyp %}
-                            {% include "include/pagejump/pagebutton.html" %}
-                            <table class="table table-striped table-bordered table-hover" id="mytable">
+{#                            {% include "include/pagejump/pagebutton.html" %}#}
+                            <table class="table table-striped table-bordered table-hover" id="myTable">
                                 <thead>
                                 <tr>
                                     <th>Minions</th>
@@ -97,5 +97,10 @@
     <!-- /#page-wrapper -->
 {% endblock %}
 {% block script %}
-    {% include "include/pagejump/pagejump.html" %}
+    {#    {% include "include/pagejump/pagejump.html" %}#}
+    <script>
+        $(document).ready(function(){
+            $('#myTable').DataTable();
+        });
+    </script>
 {% endblock %}
