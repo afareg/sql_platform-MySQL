@@ -1,6 +1,7 @@
 # sql_manage_platform-MySQL
 ## 基于django和inception，带权限控制的mysql语句运行平台
 ### 另外还带有一些简单的监控功能
+### （最近在整合一些saltstack的功能页面）
 ### 开发环境：
 #### django:1.8.14
 #### python:2.7.12
