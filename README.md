@@ -1,7 +1,7 @@
 # sql_manage_platform-MySQL
 ## 基于django和inception，带权限控制的mysql语句运行平台
 ### 另外还带有一些简单的监控功能
-### （最近在整合一些saltstack的功能页面）
+### 最近整合了三个saltapi功能页面，分别为远程shell、key管理和硬件信息查询，之后再逐步完善。。
 ### 开发环境：
 #### django:1.8.14
 #### python:2.7.12
@@ -56,7 +56,7 @@ select_limit 和 export_limit为系统默认查询和导出条数限制
 
 incp_XX系列配置文件为inception的连接配置
 
-#### setttings.py中的修改内容主要为mysql、redis地址，以及邮件服务器相关地址
+#### setttings.py中的修改内容主要为mysql、redis地址，以及邮件服务器相关地址，如果使用saltapi功能的话还有一些salt相关的信息需要配置
 ### 启动：
 #### 初始化表结构： python manage.py migrate
 #### 创建一个超级用户： python manage.py createsuperuser
@@ -185,4 +185,4 @@ openssl x509 -req -days 365 -in foobar.csr -signkey foobar.key -out foobar.crt
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/HARDWARE_INFO.jpg)
 ### 17.3 KEY管理页面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/SALT_KEY.jpg)
-### 个人编写，精力和水平有限。。有任何疑问和建议联系 changjingxiu1@163.com
+### 个人编写，精力和水平有限。。有任何疑问和建议联系 changjingxiu1@163.com（qq：710467549）
