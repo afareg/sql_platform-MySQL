@@ -177,5 +177,12 @@ openssl x509 -req -days 365 -in foobar.csr -signkey foobar.key -out foobar.crt
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/dbgroup_set.jpg)
 ## 16.用户密码自助重置页面
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/pass_reset.jpg)
-
+## 17.SALTAPI-WEB页面
+### 部分代码参考： https://github.com/yueyongyue/saltshaker
+### 17.1 shell命令执行页面
+![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/SALT_CMD.jpg)
+### 17.2 硬件信息查询页面
+![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/HARDWARE_INFO.jpg)
+### 17.3 KEY管理页面
+![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/SALT_KEY.jpg)
 ### 个人编写，精力和水平有限。。有任何疑问和建议联系 changjingxiu1@163.com
