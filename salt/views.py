@@ -3,12 +3,17 @@ from django.shortcuts import render,render_to_response
 from django.http import HttpResponse,HttpResponseRedirect,StreamingHttpResponse
 import saltapi
 import json
+from django.contrib.auth.decorators import login_required,permission_required
+
 # Create your views here.
 
+@login_required(login_url='/accounts/login/')
+@permission_required('myapp.can_oper_saltapi', login_url='/')
 def salt_exec(request):
     return render(request, 'exec.html', locals())
 
-
+@login_required(login_url='/accounts/login/')
+@permission_required('myapp.can_oper_saltapi', login_url='/')
 def execute(request):
     if request.method == 'POST':
         try:
@@ -20,8 +25,7 @@ def execute(request):
             sapi = saltapi.SaltAPI()
             print arg
             isgp = int(request.POST.get('isgroup', "0"))
-            print "isgp"
-            print isgp
+
             jid_auto = sapi.asyncMasterToMinion(tgt=tgt, fun=fun, arg=arg,group=isgp)
 
         except Exception,e:
@@ -32,7 +36,8 @@ def execute(request):
     # arg = request.POST.get('arg', "")
     return render_to_response('auto_execute.html', locals())
 
-
+@login_required(login_url='/accounts/login/')
+@permission_required('myapp.can_oper_saltapi', login_url='/')
 def getjobinfo(request):
     context = {}
     jid_auto = request.GET['jid_auto']
@@ -65,7 +70,8 @@ def getjobinfo(request):
             }
         return HttpResponse(json.dumps(context))
 
-
+@login_required(login_url='/accounts/login/')
+@permission_required('myapp.can_oper_saltapi', login_url='/')
 def hardware_info(request):
     try:
         if request.method == 'POST':
@@ -94,6 +100,8 @@ def hardware_info(request):
         print e
     return render(request, 'hardware_info.html', locals())
 
+@login_required(login_url='/accounts/login/')
+@permission_required('myapp.can_oper_saltapi', login_url='/')
 def key_con(request):
     sapi = saltapi.SaltAPI()
 
@@ -106,8 +114,11 @@ def key_con(request):
             sapi.delete_key(hostname)
         elif request.POST.has_key('reject'):
             hostname = request.POST.get("reject")
-            print hostname
-            print sapi.reject_key(hostname)
+            sapi.reject_key(hostname)
+        elif request.POST.has_key('listall'):
+            keys_all = sapi.list_all_key()
+            return render(request, 'key_manager.html', locals())
+        keys_all = sapi.list_all_key()
+        return render(request, 'key_manager.html', locals())
 
-    keys_all = sapi.list_all_key()
     return  render(request,'key_manager.html',locals())

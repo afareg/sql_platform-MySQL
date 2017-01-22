@@ -95,27 +95,27 @@
                             {% endif %}
                         </tr>
                     </table>
-                    {% include "include/pagejump/pagebutton.html" %}
-                {% endif %}
-                <table id="mytable" class="table table-condensed" border="1">
-                    <thead>
-                    <tr class="danger">
-                        {% for colname in collist %}
-                            <th>{{ colname }}</th>
-                        {% endfor %}
-                    </tr>
-                    </thead>
-                    <tbody  >
-                    {% for item in data_list %}
-                        <tr>
-                            {% for item_detail in item %}
-                                <td> <pre>{{ item_detail }}</pre></td>
+                    {#                    {% include "include/pagejump/pagebutton.html" %}#}
+
+                    <table id="mytable" class="table table-condensed" border="1">
+                        <thead>
+                        <tr class="danger">
+                            {% for colname in collist %}
+                                <th>{{ colname }}</th>
                             {% endfor %}
                         </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-
+                        </thead>
+                        <tbody  >
+                        {% for item in data_list %}
+                            <tr>
+                                {% for item_detail in item %}
+                                    <td> <pre>{{ item_detail }}</pre></td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
             </div>
 
         </form >
@@ -125,7 +125,7 @@
 
 {% endblock %}
 {% block script %}
-    {% include "include/pagejump/pagejump.html" %}
+    {% include "include/pagejump/tabledata.html" %}
 
     <script>
 

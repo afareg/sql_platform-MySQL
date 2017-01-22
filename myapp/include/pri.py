@@ -421,6 +421,7 @@ def init_ugroup():
             logli =  ['can_log_query']
             incli = ['can_see_inception']
             metali = ['can_see_metadata']
+            saltli = ['can_oper_saltapi']
             delete_task = ['can_see_taskview','can_delete_task','can_see_inception']
             admin_task = ['can_see_taskview','can_admin_task','can_see_inception']
             edit_task = ['can_see_taskview','can_update_task','can_see_inception']
@@ -440,6 +441,7 @@ def init_ugroup():
             set_group('mysql-pri-set', setpri)
             set_group('mysql-pri-query', querypri)
             set_group('mysql-task-upload', incli)
+            set_group('salt-admin', saltli)
         except Exception,e:
             pass
 

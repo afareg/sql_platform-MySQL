@@ -59,7 +59,7 @@
             <strong> {{ nllflag }}</strong>
         {% endif %}
         {% if result %}
-{#            {% include "include/pagejump/pagejump2.html" %}#}
+            {#            {% include "include/pagejump/pagejump2.html" %}#}
             <table id="mytable1" class="table table-condensed" border="1">
                 <thead>
                 <tr class="danger">
@@ -325,7 +325,12 @@
     {#</script>#}
     <script>
         $(document).ready(function(){
-            $('#mytable1').DataTable();
+            $('#mytable1').DataTable({
+                "lengthMenu": [[5,25,100], [5,25,100]],
+                "order": []
+
+            });
+
         });
     </script>
 

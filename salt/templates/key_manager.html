@@ -10,65 +10,68 @@
         <div class="col-md-10 main ">
             <form role="form" method='post' class="form-inline"  style="margin-bottom:0;">
                 {% csrf_token %}
-                <input type=="text"  class="form-control" placeholder="search" name="search">
-                是否按组名匹配<input type="checkbox" size="10" name="isgroup" value=1>
-                <button type="submit" name='searchdb' class="btn btn-info" value="1">查询</button >
+                <hr/>
+                <button type="submit" name='listall' class="btn btn-info" value="1">LIST_ALL_KEYS</button >
                 <hr/>
                 {#                {% include "include/pagejump/pagebutton.html" %}#}
 
-                <table class="display" cellspacing="0" width="100%" id="myTable">
-                    <thead>
-                    <tr>
-                        <th>Minions</th>
-                        <th>Keys Status</th>
-                        <th>Accept Key</th>
-                        <th>Reject Key</th>
-                        <th>Delete Key</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for hostname in keys_all.minions_pre %}
-                        <tr class="even gradeC">
-                            <td>{{ hostname }}</td>
-                            <td>Unaccepted</td>
-                            <td><button type="submit" class="btn btn-success btn-xs" value="{{ hostname }}" name="accept">Accept Key</button></td>
-                            <td><button type="submit" class="btn btn-warning btn-xs" value="{{ hostname }}" name="reject">Reject Key</button></td>
-                            <td><button type="submit" class="btn btn-danger btn-xs" value="{{ hostname }}" name="delete">Delete Key</button></td>
+                {% if keys_all %}
+                    <table class="display" cellspacing="0" width="100%" id="mytable">
+                        <thead>
+                        <tr>
+                            <th>Minions</th>
+                            <th>Keys Status</th>
+                            <th>Accept Key</th>
+                            <th>Reject Key</th>
+                            <th>Delete Key</th>
                         </tr>
-                    {% endfor %}
-                    {% for hostname in keys_all.minions_denied %}
-                        <tr class="odd gradeA">
-                            <td>{{ hostname }}</td>
-                            <td>Denied</td>
-                            <td><button type="submit" class="btn btn-success btn-xs" value="{{ hostname }}" name="accept">Accept Key</button></td>
-                            <td><button type="submit" class="btn btn-warning btn-xs" value="{{ hostname }}" name="reject">Reject Key</button></td>
-                            <td><button type="submit" class="btn btn-danger btn-xs" value="{{ hostname }}" name="delete">Delete Key</button></td>
-                        </tr>
-                    {% endfor %}
-                    {% for hostname in keys_all.minions_rejected %}
-                        <tr class="even gradeA">
-                            <td>{{ hostname }}</td>
-                            <td>Rejected</td>
-                            <td><button type="submit" class="btn btn-success btn-xs" value="{{ hostname }}" name="accept">Accept Key</button></td>
-                            <td><button type="submit" class="btn btn-warning btn-xs" value="{{ hostname }}" name="reject">Reject Key</button></td>
-                            <td><button type="submit" class="btn btn-danger btn-xs" value="{{ hostname }}" name="delete">Delete Key</button></td>
-                        </tr>
-                    {% endfor %}
-                    {% for hostname in keys_all.minions %}
-                        <tr class="odd gradeX">
-                            <td>{{ hostname }}</td>
-                            <td>Accepted</td>
-                            <td><button type="submit" class="btn btn-success btn-xs" value="{{ hostname }}" name="accept">Accept Key</button></td>
-                            <td><button type="submit" class="btn btn-warning btn-xs" value="{{ hostname }}" name="reject">Reject Key</button></td>
-                            <td><button type="submit" class="btn btn-danger btn-xs" value="{{ hostname }}" name="delete">Delete Key</button></td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                        {% for hostname in keys_all.minions_pre %}
+                            <tr class="even gradeC">
+                                <td>{{ hostname }}</td>
+                                <td>Unaccepted</td>
+                                <td><button type="submit" class="btn btn-success btn-xs" value="{{ hostname }}" name="accept">Accept Key</button></td>
+                                <td><button type="submit" class="btn btn-warning btn-xs" value="{{ hostname }}" name="reject">Reject Key</button></td>
+                                <td><button type="submit" class="btn btn-danger btn-xs" value="{{ hostname }}" name="delete">Delete Key</button></td>
+                            </tr>
+                        {% endfor %}
+                        {% for hostname in keys_all.minions_denied %}
+                            <tr class="odd gradeA">
+                                <td>{{ hostname }}</td>
+                                <td>Denied</td>
+                                <td><button type="submit" class="btn btn-success btn-xs" value="{{ hostname }}" name="accept">Accept Key</button></td>
+                                <td><button type="submit" class="btn btn-warning btn-xs" value="{{ hostname }}" name="reject">Reject Key</button></td>
+                                <td><button type="submit" class="btn btn-danger btn-xs" value="{{ hostname }}" name="delete">Delete Key</button></td>
+                            </tr>
+                        {% endfor %}
+                        {% for hostname in keys_all.minions_rejected %}
+                            <tr class="even gradeA">
+                                <td>{{ hostname }}</td>
+                                <td>Rejected</td>
+                                <td><button type="submit" class="btn btn-success btn-xs" value="{{ hostname }}" name="accept">Accept Key</button></td>
+                                <td><button type="submit" class="btn btn-warning btn-xs" value="{{ hostname }}" name="reject">Reject Key</button></td>
+                                <td><button type="submit" class="btn btn-danger btn-xs" value="{{ hostname }}" name="delete">Delete Key</button></td>
+                            </tr>
+                        {% endfor %}
+                        {% for hostname in keys_all.minions %}
+                            <tr class="odd gradeX">
+                                <td>{{ hostname }}</td>
+                                <td>Accepted</td>
+                                <td><button type="submit" class="btn btn-success btn-xs" value="{{ hostname }}" name="accept">Accept Key</button></td>
+                                <td><button type="submit" class="btn btn-warning btn-xs" value="{{ hostname }}" name="reject">Reject Key</button></td>
+                                <td><button type="submit" class="btn btn-danger btn-xs" value="{{ hostname }}" name="delete">Delete Key</button></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <hr/>
+                {% endif %}
+
             </form>
         </div>
     </div>
-    <hr/>
+
 
     <div class='row-fluid' id='instances'>
 
@@ -76,10 +79,6 @@
 {% endblock %}
 
 {% block script %}
-    {#    {% include "include/pagejump/pagejump.html" %}#}
-    <script>
-        $(document).ready(function(){
-            $('#myTable').DataTable();
-        });
-    </script>
+    {% include "include/pagejump/tabledata.html" %}
+
 {% endblock %}

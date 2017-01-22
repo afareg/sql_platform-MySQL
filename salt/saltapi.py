@@ -122,6 +122,7 @@ class SaltAPI(object):
         # minions = content['return'][0]['data']['return']['minions']
         # minions_pre = content['return'][0]['data']['return']['minions_pre']
         # minions_rej = content['return'][0]['data']['return']['minions_rejected']
+        # minions_den = content['return'][0]['data']['return']['minions_denied']
         minions = content['return'][0]['data']['return']
         return minions
 
@@ -240,6 +241,10 @@ def is_valid_ip(ip):
             return False
         raise
     return True
+
+
+def record_salt():
+    pass
 def main():
     # 以下是用来测试saltAPI类的部分
     print is_valid_ip('10.1.70.22')
@@ -251,9 +256,8 @@ def main():
     #test = sapi.saltCmd(params)
     print "hellp"
     print sapi.asyncMasterToMinion('*','test.ping','none_arg')
-    x,y= sapi.remote_noarg_execution_mul('group2', 'test.ping')
+    x= sapi.list_all_key()
     print x
-    print y
     sapi1 = SaltAPI()
     a = sapi.runner_status('status')['up']
     print a
