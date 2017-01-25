@@ -23,11 +23,10 @@ def execute(request):
 
             arg = request.POST.get('arg', 'none_arg')
             sapi = saltapi.SaltAPI()
-            print arg
             isgp = int(request.POST.get('isgroup', "0"))
 
             jid_auto = sapi.asyncMasterToMinion(tgt=tgt, fun=fun, arg=arg,group=isgp)
-
+            saltapi.record_salt(request.user.username,jid_auto,fun,tgt,arg)
         except Exception,e:
             print e
     # context = {'jid_auto': ''}

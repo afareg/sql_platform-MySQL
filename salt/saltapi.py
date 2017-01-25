@@ -1,6 +1,8 @@
 # coding=utf-8
 from mypro import settings
-import urllib2, urllib, json, re,ssl,MySQLdb,socket
+import urllib2, urllib, json,ssl,MySQLdb,socket
+from salt.models import Saltrecord
+import datetime
 
 def salt_query(sql):
     try:
@@ -243,8 +245,11 @@ def is_valid_ip(ip):
     return True
 
 
-def record_salt():
-    pass
+def record_salt(user,jid,fun,tgt,arg):
+    create_time = datetime.datetime.now()
+    log = Saltrecord(user=user, operation=fun, jid=jid, tgt=tgt,arg=arg,create_time=create_time)
+    log.save()
+
 def main():
     # 以下是用来测试saltAPI类的部分
     print is_valid_ip('10.1.70.22')
