@@ -168,6 +168,7 @@ def mysql_query(sql,user=user,passwd=passwd,host=host,port=int(port),dbname=dbna
 
 #获取下拉菜单列表
 def get_mysql_hostlist(username,tag='tag',search=''):
+    dbtype='mysql'
     host_list = []
     if len(search) ==0:
         if (tag=='tag'):
@@ -175,7 +176,7 @@ def get_mysql_hostlist(username,tag='tag',search=''):
             #如果没有对应role='read'或者role='all'的account账号，则不显示在下拉菜单中
             for row in a.db_name_set.all().order_by("dbtag"):
                 if row.db_account_set.all().filter(role__in=['read','all']):
-                    if row.instance.all().filter(role__in=['read','all']):
+                    if row.instance.all().filter(role__in=['read','all']).filter(db_type=dbtype):
                         host_list.append(row.dbtag)
         elif (tag=='log'):
             for row in Db_name.objects.values('dbtag').distinct().order_by("dbtag"):
@@ -186,21 +187,21 @@ def get_mysql_hostlist(username,tag='tag',search=''):
             for row in a.db_name_set.all().order_by("dbtag"):
                 if row.db_account_set.all().filter(role__in=['write','all']):
             #排除只读实例
-                    if row.instance.all().filter(role__in=['write','all']):
+                    if row.instance.all().filter(role__in=['write','all']).filter(db_type=dbtype):
                         host_list.append(row.dbtag)
         elif (tag == 'incept'):
             a = User.objects.get(username=username)
             for row in a.db_name_set.all().order_by("dbtag"):
                 #find the account which is admin
                 if row.db_account_set.all().filter(role='admin'):
-                    if row.instance.all().filter(role__in=['write','all']):
+                    if row.instance.all().filter(role__in=['write','all']).filter(db_type=dbtype):
                     #if row.instance.all().exclude(role='read'):
                         host_list.append(row.dbtag)
         elif (tag == 'meta'):
             for row in Db_name.objects.all().order_by("dbtag"):
                 #find the account which is admin
                 if row.db_account_set.all().filter(role='admin'):
-                    if row.instance.filter(role__in=['write','all','read']):
+                    if row.instance.filter(role__in=['write','all','read']).filter(db_type=dbtype):
                         host_list.append(row.dbtag)
     elif len(search) > 0:
         if (tag=='tag'):
@@ -208,7 +209,7 @@ def get_mysql_hostlist(username,tag='tag',search=''):
             #如果没有对应role='read'或者role='all'的account账号，则不显示在下拉菜单中
             for row in a.db_name_set.filter(dbname__contains=search).order_by("dbtag"):
                 if row.db_account_set.all().filter(role__in=['read','all']):
-                    if row.instance.all().filter(role__in=['read','all']):
+                    if row.instance.all().filter(role__in=['read','all']).filter(db_type=dbtype):
                         host_list.append(row.dbtag)
         elif (tag=='log'):
             for row in Db_name.objects.values('dbtag').distinct().order_by("dbtag"):
@@ -219,23 +220,25 @@ def get_mysql_hostlist(username,tag='tag',search=''):
             for row in a.db_name_set.filter(dbname__contains=search).order_by("dbtag"):
                 if row.db_account_set.all().filter(role__in=['write','all']):
             #排除只读实例
-                    if row.instance.all().filter(role__in=['write','all']):
+                    if row.instance.all().filter(role__in=['write','all']).filter(db_type=dbtype):
                         host_list.append(row.dbtag)
         elif (tag == 'incept'):
             a = User.objects.get(username=username)
             for row in a.db_name_set.filter(dbname__contains=search).order_by("dbtag"):
                 #find the account which is admin
                 if row.db_account_set.all().filter(role='admin'):
-                    if row.instance.all().filter(role__in=['write','all']):
+                    if row.instance.all().filter(role__in=['write','all']).filter(db_type=dbtype):
                     #if row.instance.all().exclude(role='read'):
                         host_list.append(row.dbtag)
         elif (tag == 'meta'):
             for row in Db_name.filter(dbname__contains=search).order_by("dbtag"):
                 #find the account which is admin
                 if row.db_account_set.all().filter(role='admin'):
-                    if row.instance.filter(role__in=['write','all','read']):
+                    if row.instance.filter(role__in=['write','all','read']).filter(db_type=dbtype):
                         host_list.append(row.dbtag)
     return host_list
+
+
 
 
 

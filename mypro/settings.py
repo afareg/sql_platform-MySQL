@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     # 'django_crontab',
     'captcha',
     'salt',
+    'mongodb',
     'djcelery',
     'myapp',
 ]

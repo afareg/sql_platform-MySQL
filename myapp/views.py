@@ -1059,7 +1059,7 @@ def set_dbname(request):
             try:
                 info = "SET OK!"
                 insname  = Db_instance.objects.get(id = int(request.POST['ins_set']))
-                insname = pri.set_ins(insname,request.POST['newinsip'],request.POST['newinsport'],request.POST['role'])
+                insname = pri.set_ins(insname,request.POST['newinsip'],request.POST['newinsport'],request.POST['role'],request.POST['dbtype'])
                 return render(request, 'previliges/set_dbname.html', locals())
             except Exception,e:
                 info = "SET FAILED!"
@@ -1068,7 +1068,7 @@ def set_dbname(request):
         elif request.POST.has_key('create_ins'):
             try:
                 info = "CREATE OK!"
-                insname = pri.create_dbinstance(request.POST['newinsip'],request.POST['newinsport'],request.POST['role'])
+                insname = pri.create_dbinstance(request.POST['newinsip'],request.POST['newinsport'],request.POST['role'],request.POST['dbtype'])
                 return render(request, 'previliges/set_dbname.html', locals())
             except Exception,e:
                 info = "CREATE FAILED!"
@@ -1146,10 +1146,10 @@ def fast_dbset(request):
 
             newname_admin = request.POST['newname_admin']
             newpass_admin = request.POST['newpass_admin']
-
-            print newname_all
-            print "what the fuck"
-            info = pri.createdb_fast(ins_set,newinsip,newinsport,newdbtag,newdbname,newname_all,newpass_all,newname_admin,newpass_admin)
+            newdbtype = request.POST['dbtype']
+            # print newname_all
+            # print "what the fuck"
+            info = pri.createdb_fast(ins_set,newinsip,newinsport,newdbtag,newdbname,newname_all,newpass_all,newname_admin,newpass_admin,newdbtype)
 
             return render(request, 'previliges/fast_dbset.html', locals())
         except Exception,e:
@@ -1197,7 +1197,7 @@ def meta_data(request):
 @login_required(login_url='/accounts/login/')
 @permission_required('myapp.can_see_mysqladmin', login_url='/')
 def mysql_admin(request):
-    inslist = Db_instance.objects.all()
+    inslist = Db_instance.objects.filter(db_type='mysql').order_by("ip")
     if request.method == 'POST':
         try:
             selfsql = request.POST['selfsql'].strip()

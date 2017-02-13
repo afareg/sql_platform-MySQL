@@ -265,18 +265,19 @@ def set_dbtag(dbtagname,new_dbtagname,newdbname,inssetlist, usersetlist):
     return dbtag
 
 
-def set_ins(insname,setip,setport,setrole):
+def set_ins(insname,setip,setport,setrole,setdbtype):
     if len(setip)>0:
         insname.ip = setip
     if len(setport)>0:
         insname.port = setport
     insname.role = setrole
+    insname.db_type = setdbtype
     insname.save()
     return insname
 
-def create_dbinstance(setip,setport,setrole):
+def create_dbinstance(setip,setport,setrole,setdbtype):
     if len(setip)>0 and len(setport)>0:
-        insname = Db_instance(ip=setip,port=setport,role=setrole)
+        insname = Db_instance(ip=setip,port=setport,role=setrole,db_type=setdbtype)
         insname.save()
     return insname
 
@@ -329,7 +330,7 @@ def set_acc(old_account,tags,user,passwd,dbtagli,acclist,role):
     return  old_account
 
 
-def createdb_fast(ins_set, newinsip, newinsport, newdbtag, newdbname, newname_all, newpass_all, newname_admin,newpass_admin):
+def createdb_fast(ins_set, newinsip, newinsport, newdbtag, newdbname, newname_all, newpass_all, newname_admin,newpass_admin,new_instype):
     exist_dbtag = []
     flag = 0
     for i in Db_name.objects.all():
@@ -341,7 +342,7 @@ def createdb_fast(ins_set, newinsip, newinsport, newdbtag, newdbname, newname_al
         insname =  Db_instance.objects.get(id=int(ins_set))
     elif len(newinsip) >0 and len(newinsport)>0:
         flag =1
-        insname = Db_instance(ip=newinsip, port=newinsport, role='all')
+        insname = Db_instance(ip=newinsip, port=newinsport, role='all',db_type=new_instype)
         insname.save()
     else:
         info = "Please check your ip and port input!"

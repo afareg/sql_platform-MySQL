@@ -25,6 +25,15 @@
                     </ul>
                 </li>
 
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        Mongodb
+                        <b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{% url 'mongodb_query' %}">Mongodb查询</a></li>
+                    </ul>
+                </li>
 
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -74,7 +83,7 @@
                             <li><a href="{% url 'salt_exec' %}">SALT命令执行</a></li>
                             <li><a href="{% url 'hardware_info' %}">硬件信息</a></li>
                             <li><a href="{% url 'key_con' %}">KEY管理</a></li>
-{#                            <li role="presentation" class="divider"></li>#}
+                            {#                            <li role="presentation" class="divider"></li>#}
                         </ul>
                     </li>
                 {% endif %}

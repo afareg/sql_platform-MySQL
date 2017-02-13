@@ -197,6 +197,23 @@
                         <option value="idle" >idle</option>
                     {% endif %}
                 </select>
+
+                <select class="form-control col-md-3"  name="dbtype">
+                    {% if insname %}
+                        {% if insname.db_type == "mysql" %}
+                            <option value="mysql" selected="selected">MySQL</option>
+                        {% else %}
+                            <option value="mysql" >MySQL</option>
+                        {% endif %}
+                    {% else %}
+                        <option value="mysql" selected="selected">MySQL</option>
+                    {% endif %}
+                    {% if insname.db_type == "mongodb" %}
+                        <option value="mongodb" selected="selected">Mongodb</option>
+                    {% else %}
+                        <option value="mongodb" >Mongodb</option>
+                    {% endif %}
+                </select>
             </div>
 
         </div>

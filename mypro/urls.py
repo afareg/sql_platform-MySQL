@@ -42,6 +42,7 @@ urlpatterns = (
     # url(r'^test/$', myapp_view.test,name='test'),
     url(r'^update_task/$', myapp_view.update_task,name='update_task'),
     url(r'^salt/', include('salt.urls')),
+    url(r'^mongodb/', include('mongodb.urls')),
     url(r'^site_media/(?P<path>.*)$', 'django.views.static.serve',{'document_root': settings.MEDIA_ROOT}),
 )
 

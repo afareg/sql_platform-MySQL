@@ -16,24 +16,25 @@
         {% csrf_token %}
         <div class="row">
             <div class="col-md-7 main ">
-            <hr />
+                <hr />
                 <table>
                     <tr>
                         <td>
-{#                            {% if inslist %}#}
-                                <strong>CHOOSE INS</strong> </br>
-                                <select class="form-control col-md-3" name = "ins_set">
-                                    <option value ="">------------------------------</option>
-                                    {% for obj in inslist %}
-                                        {% if obj == insname %}
-                                            <option selected="selected" value ="{{ obj.id }}">{{ obj.ip }} + {{ obj.port }} ({{ obj.role }})</option>
-                                        {% else %}
-                                            <option value ="{{ obj.id }}">{{ obj.ip }} + {{ obj.port }} ({{ obj.role }})</option>
-                                        {% endif %}
-                                    {% endfor %}
-                                </select>
-{#                            {% endif %}#}
+                            {#                            {% if inslist %}#}
+                            <strong>CHOOSE INS OR CREATE NEW</strong> </br>
+                            <select class="form-control col-md-3" name = "ins_set">
+                                <option value ="">------------------------------</option>
+                                {% for obj in inslist %}
+                                    {% if obj == insname %}
+                                        <option selected="selected" value ="{{ obj.id }}">{{ obj.ip }} + {{ obj.port }} ({{ obj.role }})</option>
+                                    {% else %}
+                                        <option value ="{{ obj.id }}">{{ obj.ip }} + {{ obj.port }} ({{ obj.role }})</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            {#                            {% endif %}#}
                         </td>
+
                         <td>
                             </br>
 
@@ -42,6 +43,14 @@
                         <td>
                             </br>
                             <input type=="text" class="form-control" maxlength="10" placeholder="input PORT here" name="newinsport">
+
+                        </td>
+                        <td>
+                            </br>
+                            <select class="form-control col-md-3"  name="dbtype">
+                                <option value="mysql" selected="selected">MySQL</option>
+                                <option value="mongodb" >Mongodb</option>
+                            </select>
 
                         </td>
                     </tr>

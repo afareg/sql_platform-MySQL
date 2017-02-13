@@ -14,13 +14,18 @@ read_write_account = (
     ('all','all'),
     ('admin','admin'),
 )
+db_type = (
+    ('mysql', 'mysql'),
+    ('mongodb', 'write'),
+)
 
 class Db_instance(models.Model):
     ip = models.CharField(max_length=30)
     port = models.CharField(max_length=10)
     role =  models.CharField(max_length=30,choices=read_write, )
+    db_type = models.CharField(max_length=30,default='mysql')
     def __unicode__(self):
-        return u'%s %s' % (self.ip, self.role)
+        return u'%s %s %s' % (self.ip, self.role, self.db_type)
     class Meta:
         unique_together = ("ip","port")
 

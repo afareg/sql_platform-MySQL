@@ -228,7 +228,7 @@ def table_check():
     mysql_exec("truncate table mon_autoinc_status_tmp")
     mysql_exec("truncate table mon_tbsize_tmp")
     print datetime.datetime.now()
-    for i in Db_name.objects.all():
+    for i in Db_name.objects.filter(instance__db_type='mysql').all():
         try:
             print i.dbtag
             print "start collect auto_increment status"
