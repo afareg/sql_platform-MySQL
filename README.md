@@ -2,17 +2,17 @@
 ## 基于django和inception，带权限控制的DB语句运行平台
 ### 另外还带有一些简单的saltstack api和监控功能
 ## 功能简述如下
-#### MySQL 表结构查询功能
-#### MySQL 语句查询页面
-#### MySQL DDL DML语句执行
-#### MySQL DDL DML 任务提交(结合inception)
-#### Inception 任务管理（包括任务修改，任务导出，定时执行，任务终止，任务结果状态查询，任务邮件提示等）
-#### MySQL 实例 部分状态查询
-#### MySQL 表相关元数据收集与展示
-#### Mongodb简单查询
-#### 用户权限分离系统
-#### saltstack api（key管理、远程shell、硬件信息）
-#### 数据库相关操作日志记录以及查询
+#### --MySQL 表结构查询功能
+#### --MySQL 语句查询页面
+#### --MySQL DDL DML语句执行
+#### --MySQL DDL DML 任务提交(结合inception)
+#### --Inception 任务管理（包括任务修改，任务导出，定时执行，任务终止，任务结果状态查询，任务邮件提示等）
+#### --MySQL 实例 部分状态查询
+#### --MySQL 表相关元数据收集与展示
+#### --Mongodb简单查询
+#### --用户权限分离系统
+#### --saltstack api（key管理、远程shell、硬件信息）
+#### --数据库相关操作日志记录以及查询
 
 ### 开发环境：
 #### django:1.8.14
