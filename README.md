@@ -25,6 +25,7 @@
 #### celery-with-redis 3.0
 #### django-simple-captcha
 #### MySQL-python
+#### pymongo
 #### uwgsi (正式部署时使用)
 
 
