@@ -58,7 +58,7 @@ def log_query(request):
     #show every dbtags
     #obj_list = func.get_mysql_hostlist(request.user.username,'log')
     #show dbtags permitted to the user
-    obj_list = func.get_mysql_hostlist(request.user.username)
+    obj_list = func.get_mysql_hostlist(request.user.username,'log')
     optype_list = func.get_op_type()
     if request.method == 'POST' :
         form = Logquery(request.POST)

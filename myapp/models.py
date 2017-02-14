@@ -105,7 +105,7 @@ class User_profile(models.Model):
                       ('can_drop_mysql','can drop mysql'),
                       ('can_truncate_mysql','can truncate mysql'),
                       ('can_alter_mysql','can alter mysql'),
-
+                      ('can_query_mongo', 'can query mongo'),
                       ('can_see_taskview', 'can see task view'),
                       ('can_admin_task','can admin task'),
                       ('can_delete_task', 'can delete task'),

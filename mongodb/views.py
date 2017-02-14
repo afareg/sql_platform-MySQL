@@ -1,14 +1,19 @@
 #coding=UTF-8
 from django.shortcuts import render,render_to_response
 from myapp.form import AddForm
-from myapp.include import function as func
-from django.http import HttpResponse,HttpResponseRedirect,StreamingHttpResponse
+# from django.http import HttpResponse,HttpResponseRedirect,StreamingHttpResponse
 import mongo
 from django.contrib.auth.decorators import login_required,permission_required
+from myapp.include import function as func
 
 # Create your views here.
 @login_required(login_url='/accounts/login/')
+@permission_required('myapp.can_query_mongo', login_url='/')
 def mongodb_query(request):
+    try:
+        favword = request.COOKIES['myfavword']
+    except Exception,e:
+        pass
     dblist = mongo.get_mongodb_list(request.user.username)
     #dblist = ['ymmSmsLogYm','table2','table3','table4']
     if request.method == 'POST' :
@@ -26,7 +31,8 @@ def mongodb_query(request):
                 choosed_tb = request.POST['choosed_tb']
                 if form.is_valid():
                     a = form.cleaned_data['a']
-                data_list = mongo.get_mongo_data(a, choosedb, choosed_tb, request.user.username)
+                    func.log_mongo_op(a,choosedb,choosed_tb,request)
+                    data_list = mongo.get_mongo_data(a, choosedb, choosed_tb, request.user.username)
                 # print data_list
                 return render(request,'mongodb_query.html',locals())
             elif request.POST.has_key('dbinfo'):

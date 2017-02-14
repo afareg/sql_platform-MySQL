@@ -391,10 +391,6 @@ def createdb_fast(ins_set, newinsip, newinsport, newdbtag, newdbname, newname_al
         info = info + " NORMAL USER not set"
     return info
 
-
-
-
-
 def check_pubuser():
     pubuser= func.public_user
     try :
@@ -407,11 +403,11 @@ def check_pubuser():
 
 def init_ugroup():
     try:
-        tmp = Group.objects.get(name='mysql-all')
+        tmp = Group.objects.get(name='all')
     except Exception,e:
         try:
             b = Permission.objects.filter(codename__istartswith='can')
-            gp = Group(name='mysql-all')
+            gp = Group(name='all')
             gp.save()
             for i in b:
                 gp.permissions.add(i)
@@ -423,6 +419,7 @@ def init_ugroup():
             incli = ['can_see_inception']
             metali = ['can_see_metadata']
             saltli = ['can_oper_saltapi']
+            mongoQueryli = ['can_query_mongo']
             delete_task = ['can_see_taskview','can_delete_task','can_see_inception']
             admin_task = ['can_see_taskview','can_admin_task','can_see_inception']
             edit_task = ['can_see_taskview','can_update_task','can_see_inception']
@@ -431,6 +428,7 @@ def init_ugroup():
             mysql_adminli = ['can_see_mysqladmin']
             set_group('mysql-manage', mysql_adminli)
             set_group('mysql-exec-dml',dmlli)
+            set_group('mongodb-query', mongoQueryli)
             set_group('mysql-see-meta', metali)
             set_group('mysql-exec-ddl', ddlli)
             set_group('mysql-query', queryli)

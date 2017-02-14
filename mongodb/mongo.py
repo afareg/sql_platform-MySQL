@@ -163,7 +163,7 @@ def get_mongo_data(b,hosttag,tbname,useraccount):
             results.append(json.dumps(recordjson,ensure_ascii=False,cls=DjangoJSONEncoder))
             #results.append(recordjson)
     except Exception, e:
-        results,col = ([str(e)],''),['error']
+        results = (['error'],'')
     return results
 
 if __name__ == '__main__':
