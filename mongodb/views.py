@@ -27,8 +27,21 @@ def mongodb_query(request):
                 if form.is_valid():
                     a = form.cleaned_data['a']
                 data_list = mongo.get_mongo_data(a, choosedb, choosed_tb, request.user.username)
-                print data_list
+                # print data_list
                 return render(request,'mongodb_query.html',locals())
+            elif request.POST.has_key('dbinfo'):
+                del tblist
+                info = mongo.get_db_info(choosedb, request.user.username)
+                return render(request, 'mongodb_query.html', locals())
+            elif request.POST.has_key('tbinfo'):
+                choosed_tb = request.POST['choosed_tb']
+                info = mongo.get_tb_info(choosedb,choosed_tb, request.user.username)
+                return render(request, 'mongodb_query.html', locals())
+            elif request.POST.has_key('tbindexinfo'):
+                choosed_tb = request.POST['choosed_tb']
+                indinfo = mongo.get_tbindex_info(choosedb, choosed_tb, request.user.username)
+                # print info
+                return render(request, 'mongodb_query.html', locals())
 
                 # return render(request,'mongodb_query.html',{'form': form,'data_list':data_mongo,'col':"record",'tablelist':table_list,'choosed_table':tablename})
         except Exception,e:
@@ -36,9 +49,9 @@ def mongodb_query(request):
             return render(request, 'mongodb_query.html', locals())
             #else:
                 #return render(request, 'mongo_query.html', {'form': form })
-        else:
-            print "not valid"
-            return render(request, 'mongodb_query.html', locals())
+        # else:
+        #     print "not valid"
+        #     return render(request, 'mongodb_query.html', locals())
     else:
         form = AddForm()
         return render(request, 'mongodb_query.html', locals())
