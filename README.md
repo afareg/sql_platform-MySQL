@@ -1,7 +1,19 @@
-# sql_manage_platform-MySQL
-## 基于django和inception，带权限控制的mysql语句运行平台
-### 另外还带有一些简单的监控功能
-### 最近整合了三个saltapi功能页面，分别为远程shell、key管理和硬件信息查询，之后再逐步完善。。
+# sql_manage_platform
+## 基于django和inception，带权限控制的DB语句运行平台
+### 另外还带有一些简单的saltstack api和监控功能
+## 功能简述如下
+#### --MySQL 表结构查询功能
+#### --MySQL 语句查询页面
+#### --MySQL DDL DML语句执行
+#### --MySQL DDL DML 任务提交(结合inception)
+#### --Inception 任务管理（包括任务修改，任务导出，定时执行，任务终止，任务结果状态查询，任务邮件提示等）
+#### --MySQL 实例 部分状态查询
+#### --MySQL 表相关元数据收集与展示
+#### --Mongodb简单查询
+#### --用户权限分离系统
+#### --saltstack api（key管理、远程shell、硬件信息）
+#### --数据库相关操作日志记录以及查询
+
 ### 开发环境：
 #### django:1.8.14
 #### python:2.7.12
@@ -13,7 +25,10 @@
 #### celery-with-redis 3.0
 #### django-simple-captcha
 #### MySQL-python
+#### pymongo
 #### uwgsi (正式部署时使用)
+
+
 ### 权限功能简述：
 用户的系统使用权限大致可以分为可以看到的页面，以及能够看到的DB两个维度
 
@@ -101,9 +116,12 @@ openssl x509 -req -days 365 -in foobar.csr -signkey foobar.key -out foobar.crt
 ### 3.2查询结果:
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/meta_info.jpg)
 ## 4.查询界面
-### 4.1表查询:
+### 4.1 MySQL语句查询:
 支持单条sql的查询和查询结果的导出，导出条数限制默认为config.py中配置的值，也可以通过后台myapp_profile表对特定用户进行调整
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/mysql_query.jpg)
+
+### 4.2 Mongodb查询界面
+![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/mongo_query.jpg)
 ## 5.执行界面
 支持单条sql语句的执行，用户能够执行的语句类型可以通过权限限制。
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/mysql_exec.jpg)
@@ -143,6 +161,7 @@ openssl x509 -req -days 365 -in foobar.csr -signkey foobar.key -out foobar.crt
 
 变更数据源后，会新生成一个任务，并发送邮件告知
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/task_edit_1.jpg)
+
 ## 8.日志查询界面
 本平台记录所有用户在mysql_query,mysql_exec以及任务管理页面中执行的语句
 

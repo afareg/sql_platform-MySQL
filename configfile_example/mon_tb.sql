@@ -120,3 +120,15 @@ CREATE TABLE `mon_tbsize_tmp` (
   KEY `idx_total` (`TOTAL(M)`),
   KEY `idx_dbtag_tbname` (`DBTAG`,`TABLE_NAME`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `mon_dbsize_his`;
+CREATE TABLE `mon_dbsize_his` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `DBTAG` varchar(40) DEFAULT NULL,
+  `DATA(M)` decimal(24,2) DEFAULT NULL,
+  `INDEX(M)` decimal(24,2) DEFAULT NULL,
+  `TOTAL(M)` decimal(25,2) DEFAULT NULL,
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_dbtag` (`DBTAG`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
