@@ -287,8 +287,8 @@ def table_check():
     mysql_exec("rename table mon_autoinc_status_tmp1 to mon_autoinc_status_tmp")
     mysql_exec("rename table mon_tbsize_last to mon_tbsize_last1")
     mysql_exec("rename table mon_tbsize to mon_tbsize_last,mon_tbsize_tmp to mon_tbsize,mon_tbsize_last1 to mon_tbsize_tmp")
-
-
+    #record dbsize
+    mysql_exec("insert into mon_dbsize_his (DBTAG,`DATA(M)`,`INDEX(M)`,`TOTAL(M)`) select DBTAG,sum(`DATA(M)`),sum(`INDEX(M)`),sum(`TOTAL(M)`) from mon_tbsize group by DBTAG")
 def get_data(a,sql):
     #a = Db_name.objects.get(dbtag=hosttag)
     tar_dbname = a.dbname

@@ -7,10 +7,10 @@ from django.contrib import auth
 from form import AddForm,LoginForm,Logquery,Uploadform,Captcha,Taskquery,Taskscheduler,Dbgroupform
 from captcha.fields import CaptchaField,CaptchaStore
 from captcha.helpers import captcha_image_url
-from django.http import HttpResponse,HttpResponseRedirect,StreamingHttpResponse
+from django.http import HttpResponse,HttpResponseRedirect,StreamingHttpResponse,JsonResponse
 from django.contrib.auth.decorators import login_required,permission_required
 from django.contrib.auth.models import User,Permission,ContentType,Group
-from myapp.include import function as func,inception as incept,chart,pri,meta,sqlfilter
+from myapp.include import function as func,inception as incept,chart,pri,meta,sqlfilter,binlog2sql
 from myapp.models import Db_group,Db_name,Db_account,Db_instance,Oper_log,Upload,Task
 from myapp.tasks import task_run,sendmail_task
 
@@ -1295,6 +1295,43 @@ def tb_check(request):
         return render(request, 'admin/tb_check.html', locals())
 
 
+@login_required(login_url='/accounts/login/')
+@permission_required('myapp.can_see_mysqladmin', login_url='/')
+def mysql_binlog_parse(request):
+    inslist = Db_instance.objects.filter(db_type='mysql').order_by("ip")
+    if request.method == 'POST':
+        binlist = []
+        insname = Db_instance.objects.get(id=int(request.POST['ins_set']))
+        datalist, col = meta.get_process_data(insname, 'show binary logs')
+        if col != ['error']:
+            for i in datalist:
+                binlist.append(i[0])
+        if request.POST.has_key('show_binary'):
+            return render(request, 'admin/binlog_parse.html', locals())
+        elif request.POST.has_key('parse'):
+            binname = request.POST['binary_list']
+            begintime = request.POST['begin_time']
+            print begintime
+            flag = True
+            for a in insname.db_name_set.all():
+                for i in a.db_account_set.all():
+                    if i.role == 'admin':
+                        tar_username = i.user
+                        tar_passwd = i.passwd
+                        flag = False
+                        break
+                if flag == False:
+                    break
+            connectionSettings = {'host': insname.ip, 'port': int(insname.port), 'user':tar_username , 'passwd': tar_passwd}
+            binlogsql = binlog2sql.Binlog2sql(connectionSettings=connectionSettings, startFile=binname,
+                                    startPos=4, endFile='', endPos=0,
+                                    startTime=begintime, stopTime='', only_schemas='lepus',
+                                    only_tables='', nopk=False, flashback=False, stopnever=False)
+            binlogsql.process_binlog()
+
+            return render(request, 'admin/binlog_parse.html', locals())
+    else:
+        return render(request, 'admin/binlog_parse.html', locals())
 
 @login_required(login_url='/accounts/login/')
 def pass_reset(request):
@@ -1314,8 +1351,15 @@ def pass_reset(request):
 
 
 # @ratelimit(key=func.my_key, rate='5/h')
-# def test(request):
-#     # was_limited = getattr(request, 'limited', False)
-#     # print  was_limited
-#     print request.get_full_path()
-#     return render(request, 'test.html')
+def test(request):
+    binlist=[]
+    insname = Db_instance.objects.get(id=int(request.GET['ins']))
+    datalist,col = meta.get_process_data(insname, 'show binary logs')
+    if col !=['error']:
+        for i in datalist:
+            binlist.append(i[0])
+    test = {'id':1,'name':datalist}
+
+
+
+    return JsonResponse(binlist)

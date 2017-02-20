@@ -1,68 +1,74 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-#
-# Copyright (C) 2016 Andi Albrecht, albrecht.andi@gmail.com
-#
-# This example is part of python-sqlparse and is released under
-# the BSD License: https://opensource.org/licenses/BSD-3-Clause
-#
-# This example illustrates how to extract table names from nested
-# SELECT statements.
-#
-# See:
-# http://groups.google.com/group/sqlparse/browse_thread/thread/b0bd9a022e9d4895
+import json
+import sys
+from django.core.serializers.json import DjangoJSONEncoder
 
-import sqlparse
-from sqlparse.tokens import Keyword, DML
+from pymysqlreplication import BinLogStreamReader
+from pymysqlreplication.row_event import (
+    DeleteRowsEvent,
+    UpdateRowsEvent,
+    WriteRowsEvent,
+)
+
+MYSQL_SETTINGS = {
+    "host": "10.1.70.220",
+    "port": 3306,
+    "user": "chang",
+    "passwd": "chang"
+}
+def compare_items((k, v)):
+    #caution: if v is NULL, may need to process
+    if v is None:
+        return '`%s` IS %s' % (k,v)
+    else:
+        return '`%s`=%s' % (k,v)
+
+def fix_object(value):
+    """Fixes python objects so that they can be properly inserted into SQL queries"""
+    if isinstance(value, unicode):
+        return value.encode('utf-8')
+    else:
+        return value
+
+def main():
+    stream = BinLogStreamReader(
+        connection_settings=MYSQL_SETTINGS,
+        server_id=220,
+        only_events=[DeleteRowsEvent, WriteRowsEvent, UpdateRowsEvent]
+
+    )
+
+    for binlogevent in stream:
+
+        for row in binlogevent.rows:
+            event = {"schema": binlogevent.schema, "table": binlogevent.table}
+            # print row
+            # print "row values"
+            # print row["values"]
+            # print row['values'].items()
+            # print "end row values"
+            if isinstance(binlogevent, DeleteRowsEvent):
+                event["action"] = "delete"
+                event = dict(event.items() + row["values"].items())
+                template = 'DELETE FROM `{0}`.`{1}` WHERE {2} LIMIT 1;'.format(
+                    binlogevent.schema, binlogevent.table,
+                    ' AND '.join(map(compare_items, row['values'].items()))
+                )
+                values = map(fix_object, row['values'].values())
+                print template
+                print "deleteing "
+                print values
+            elif isinstance(binlogevent, UpdateRowsEvent):
+                event["action"] = "update"
+                event = dict(event.items() + row["after_values"].items())
+            elif isinstance(binlogevent, WriteRowsEvent):
+                event["action"] = "insert"
+                event = dict(event.items() + row["values"].items())
+            # print json.dumps(event,cls=DjangoJSONEncoder)
+            # sys.stdout.flush()
 
 
-def is_subselect(parsed):
-    if not parsed.is_group:
-        return False
-    for item in parsed.tokens:
-        if item.ttype is DML and item.value.upper() == 'SELECT':
-            return True
-    return False
+    stream.close()
 
 
-def extract_from_part(parsed):
-    from_seen = False
-    for item in parsed.tokens:
-        if from_seen:
-            if is_subselect(item):
-                for x in extract_from_part(item):
-                    yield x
-            elif item.ttype is Keyword:
-                raise StopIteration
-            else:
-                yield item
-        elif item.ttype is Keyword and item.value.upper() == 'FROM':
-            from_seen = True
-
-
-def extract_table_identifiers(token_stream):
-    for item in token_stream:
-        if isinstance(item, IdentifierList):
-            for identifier in item.get_identifiers():
-                yield identifier.get_name()
-        elif isinstance(item, Identifier):
-            yield item.get_name()
-        # It's a bug to check for Keyword here, but in the example
-        # above some tables names are identified as keywords...
-        elif item.ttype is Keyword:
-            yield item.value
-
-
-def extract_tables(sql):
-    stream = extract_from_part(sqlparse.parse(sql)[0])
-    return list(extract_table_identifiers(stream))
-
-
-if __name__ == '__main__':
-    sql = """
-    select K.a,K.b from (select H.b from (select G.c from (select F.d from
-    (select E.e from A, B, C, D, E), F), G), H), I, J, K order by 1,2;
-    """
-
-    tables = ', '.join(extract_tables(sql))
-    print('Tables: {0}'.format(tables))
+if __name__ == "__main__":
+    main()
