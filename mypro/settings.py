@@ -167,9 +167,9 @@ os.path.join(BASE_DIR, "static"),
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-EMAIL_HOST='mail.xxxxx.com'
+EMAIL_HOST='mail.wondersgroup.com'
 EMAIL_HOST_USER='fullway_b2b'
-EMAIL_HOST_PASSWORD='xxxxxxx'
+EMAIL_HOST_PASSWORD='Wonders2009'
 EMAIL_PORT = 25
 # EMAIL_USE_TLS = True
 

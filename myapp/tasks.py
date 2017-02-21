@@ -2,7 +2,7 @@ from celery import task
 import datetime
 from django.contrib.auth.models import User
 from myapp.models import User_profile,Db_account,Db_instance,Oper_log,Task,Incep_error_log
-from myapp.include import inception as incept
+from myapp.include import inception as incept,binlog2sql
 from django.core.mail import EmailMessage,send_mail,EmailMultiAlternatives
 from django.template import loader
 
@@ -34,11 +34,38 @@ def process_runtask(hosttag,sqltext,mytask):
     sendmail_task.delay(mytask)
 
 @task
+def parse_binlog(insname,binname,begintime,tbname,dbselected,username):
+    flag = True
+    for a in insname.db_name_set.all():
+        for i in a.db_account_set.all():
+            if i.role == 'admin':
+                tar_username = i.user
+                tar_passwd = i.passwd
+                flag = False
+                break
+        if flag == False:
+            break
+    connectionSettings = {'host': insname.ip, 'port': int(insname.port), 'user': tar_username, 'passwd': tar_passwd}
+    binlogsql = binlog2sql.Binlog2sql(connectionSettings=connectionSettings, startFile=binname,
+                                      startPos=4, endFile='', endPos=0,
+                                      startTime=begintime, stopTime='', only_schemas=dbselected,
+                                      only_tables=tbname, nopk=False, flashback=False, stopnever=False)
+    binlogsql.process_binlog()
+    sqllist = binlogsql.sqllist
+    sendmail_sqlparse.delay(username, dbselected, tbname, sqllist)
+
+@task
+def sendmail_sqlparse(user,db,tb,sqllist):
+    mailto=[]
+    title = "BINLOG PARSE FOR "+ db + "." + tb
+    mailto.append(User.objects.get(username=user).email)
+    html_content = loader.render_to_string('include/mail_template.html', locals())
+    sendmail(title, mailto, html_content)
+
+@task
 def sendmail_task(task):
     tmp=u'x'
-
     try:
-
         mailto = []
         for i in User_profile.objects.filter(task_email__gt=0):
             if len(i.user.email) > 0:

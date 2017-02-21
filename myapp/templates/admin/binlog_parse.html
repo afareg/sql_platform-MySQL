@@ -3,7 +3,7 @@
     <title>BINLOG PARSE</title>
 {% endblock %}
 {% block name %}
-    欢迎使用<span style="color:red">BINLOG解析</span>功能
+    欢迎使用<span style="color:red">BINLOG解析</span>功能(TEST)
 {% endblock %}
 {%block content%}
     <div id="wrapper">
@@ -42,6 +42,7 @@
                     <table >
                         <tr>
                             <td>
+                                CHOOSE BINLOG:</br>
                                 <select  class="form-control col-md-3" name = "binary_list">
                                     {% for obj in binlist %}
                                         {% if obj == binname %}
@@ -52,20 +53,52 @@
                                     {% endfor %}
                                 </select>
                                 </br>
-                                CHOOSE BEGINTIME:</br>
-                                <input type=="text" id="id_begin_time" class="form-control" maxlength="30" name="begin_time">
+                            </td>
 
+                            <td>
+                                CHOOSE DB:</br>
+                                <select  class="form-control col-md-3" name = "dblist">
+                                    {% for obj in dblist %}
+                                        {% if obj == dbselected %}
+                                            <option selected="selected" value ="{{ obj }}">{{ obj }}</option>
+                                        {% else %}
+                                            <option value ="{{ obj }}" >{{ obj }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                                </br>
+                            </td>
+                            <td>
+                                INPUT TABLE_NAME:</br>
+                                {% if tbname %}
+                                    <input type=="text" placeholder="tablename" class="form-control" maxlength="30" value="{{ tbname }}" name="tbname">
+                                {% else %}
+                                    <input type=="text" placeholder="tablename" class="form-control" maxlength="30"  name="tbname">
+                                {% endif %}
+                            </td>
+                            <td>
+                                CHOOSE BEGINTIME:</br>
+                                {% if begintime %}
+                                    <input type=="text" id="id_begin_time" value="{{ begintime }}" class="form-control" maxlength="30" name="begin_time">
+                                {% else %}
+                                    <input type=="text" id="id_begin_time" class="form-control" maxlength="30" name="begin_time">
+
+                                {% endif %}
                             </td>
                         <tr>
                     </table>
                 {% endif %}
                 {% if binlist %}
-                    &nbsp &nbsp  <button name="parse"  class="btn btn-success" value="1">PARSE BINLOG</button >
+                    <button name="parse"  class="btn btn-success" value="1">PARSE BINLOG</button >
                 {% endif %}
             </div>
 
         </form >
-
+        <div>
+            {% if info %}
+                <span style="color:red">{{ info }}</span>
+            {% endif %}
+        </div>
     </div>
 
 
@@ -82,21 +115,21 @@
             okfun:function(val){alert(val)}
         })
 
-        $(document).ready(function(){
-            {#            var test = $("#ins").val()#}
-            {#            alert(test)#}
-            // 字典 dict
-            $('#dict').click(function(){
-                var ins = $("#ins").val()
-                var time = $("#id_sche_time").val()
-                alert(time)
-                $.getJSON("{% url 'test' %}",{'ins':ins,'time':time},function(ret){
-                    //返回值 ret 在这里是一个字典
-                    $.each(ret,function(i,n){
-                        alert(n);
-                    })
-                })
-            })
-        });
+        {#        $(document).ready(function(){#}
+        {#            var test = $("#ins").val()#}
+        {#            alert(test)#}
+        {#            // 字典 dict#}
+        {#            $('#dict').click(function(){#}
+        {#                var ins = $("#ins").val()#}
+        {#                var time = $("#id_sche_time").val()#}
+        {#                alert(time)#}
+        {#                $.getJSON("{% url 'test' %}",{'ins':ins,'time':time},function(ret){#}
+        {#                    //返回值 ret 在这里是一个字典#}
+        {#                    $.each(ret,function(i,n){#}
+        {#                        alert(n);#}
+        {#                    })#}
+        {#                })#}
+        {#            })#}
+        {#        });#}
     </script>
 {% endblock %}

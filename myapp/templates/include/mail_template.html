@@ -45,7 +45,23 @@
     </table>
 {% endif %}
 
-
-
+{% if sqllist %}
+    <table id="mytable1" class="table table-condensed" border="1">
+        <thead>
+        <tr class="danger">
+            <th> ID </th>
+            <th> SQL </th>
+        </tr>
+        </thead>
+        <tbody  >
+        {% for item in sqllist %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td> {{ item }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
 </body>
 </html>

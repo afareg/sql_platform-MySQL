@@ -34,7 +34,7 @@ class Binlog2sql(object):
         self.only_schemas = only_schemas if only_schemas else None
         self.only_tables = only_tables if only_tables else None
         self.nopk, self.flashback, self.stopnever = (nopk, flashback, stopnever)
-
+        self.sqllist = []
         self.binlogList = []
         self.connection = pymysql.connect(**self.connectionSettings)
         try:
@@ -70,8 +70,7 @@ class Binlog2sql(object):
         try:
             count=0
             for binlogevent in stream:
-                count = count+1
-                if count>100:
+                if count>=200:
                     break
                 if not self.stopnever:
                     if (stream.log_file == self.endFile and stream.log_pos == self.endPos) or (stream.log_file == self.eofFile and stream.log_pos == self.eofPos):
@@ -91,14 +90,19 @@ class Binlog2sql(object):
                 if isinstance(binlogevent, QueryEvent):
                     sql = concat_sql_from_binlogevent(cursor=cur, binlogevent=binlogevent, flashback=self.flashback, nopk=self.nopk)
                     if sql:
-                        print sql
+                        count = count + 1
+                        pass
+                        # print sql
                 elif isinstance(binlogevent, WriteRowsEvent) or isinstance(binlogevent, UpdateRowsEvent) or isinstance(binlogevent, DeleteRowsEvent):
                     for row in binlogevent.rows:
                         sql = concat_sql_from_binlogevent(cursor=cur, binlogevent=binlogevent, row=row , flashback=self.flashback, nopk=self.nopk, eStartPos=eStartPos)
                         if self.flashback:
                             ftmp.write(sql + '\n')
                         else:
-                            print sql
+                            pass
+                            # print sql
+                        self.sqllist.append(sql)
+                        count = count +1
 
                 if not (isinstance(binlogevent, RotateEvent) or isinstance(binlogevent, FormatDescriptionEvent)):
                     lastPos = binlogevent.packet.log_pos
