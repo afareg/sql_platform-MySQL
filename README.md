@@ -9,6 +9,7 @@
 #### --Inception 任务管理（包括任务修改，任务导出，定时执行，任务终止，任务结果状态查询，任务邮件提示等）
 #### --MySQL 实例 部分状态查询
 #### --MySQL 表相关元数据收集与展示
+#### --Binlog解析功能
 #### --Mongodb简单查询
 #### --用户权限分离系统
 #### --saltstack api（key管理、远程shell、硬件信息）
@@ -174,6 +175,11 @@ openssl x509 -req -days 365 -in foobar.csr -signkey foobar.key -out foobar.crt
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/mysql_admin.jpg)
 #### 此页面数据由crontab任务收集信息得到
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/mysql_admin1.jpg)
+#### binlog解析功能（测试）
+![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/binlog_parse.jpg)
+#### binlog解析结果(条数限制在200条)
+![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/binlog_parse_mail.jpg)
+
 
 ## 10.权限查询页面示例
 ### 10.1按db查询
