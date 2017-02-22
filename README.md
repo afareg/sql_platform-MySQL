@@ -114,8 +114,11 @@ openssl x509 -req -days 365 -in foobar.csr -signkey foobar.key -out foobar.crt
 ## 3.表结构查询界面
 支持表名模糊搜索
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/meta_query.jpg)
+#### 点击表名得到表历史增长信息表（历史信息由定时任务收集）
+![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/META_DATA1.jpg)
 ### 3.2查询结果:
 ![image](https://github.com/speedocjx/myfile/blob/master/sql-manage-platform/meta_info.jpg)
+
 ## 4.查询界面
 ### 4.1 MySQL语句查询:
 支持单条sql的查询和查询结果的导出，导出条数限制默认为config.py中配置的值，也可以通过后台myapp_profile表对特定用户进行调整
