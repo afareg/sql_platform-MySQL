@@ -107,8 +107,11 @@
                             <td> {{ item.stagestatus|linebreaks }}</td>
                             <td> {{ item.errormessage|linebreaks }}</td>
                             <td> {{ item.sqltext|linebreaks }}</td>
+                            {#  <td> <a target="_blank" >{{ item.sqltext|linebreaks }}</a></td>#}
                             <td> {{ item.affectrow }}</td>
-                            <td> {{ item.sequence|truncatechars:10  }}</td>
+                            {#  <td> {{ item.sequence|truncatechars:10  }}</td>#}
+                            <td> {{ item.sequence  }}</td>
+
                             <td> {{ item.backup_db}}</td>
                             <td> {{ item.execute_time }}</td>
                             <td> {{ item.sqlsha|truncatechars:7 }}</td>

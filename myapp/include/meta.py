@@ -260,5 +260,24 @@ def get_his_meta(dbtag,flag):
 
     elif flag ==6:
         sql = "select TABLE_NAME ,ROUND(AUTO_INCREMENT/MAX_VALUE*100,1),DBTAG as 'used_percent' from mon_autoinc_status order by AUTO_INCREMENT/MAX_VALUE desc limit 10"
-
     return mysql_query(sql, func.user, func.passwd, func.host, int(func.port), func.dbname)
+
+def get_hist_dbinfo(dbtag,day):
+    sql = "select a.time,round(avg(total),1) from (select date_format(update_time,'%Y-%m-%d') \
+    time,`TOTAL(M)`  total from mon_dbsize_his where DBTAG='" + dbtag + "' and \
+    update_time >DATE_SUB(CURDATE(),INTERVAL %d DAY)) \
+    a group by a.time order by 1" %day
+    return mysql_query(sql, func.user, func.passwd, func.host, int(func.port), func.dbname)
+
+
+def get_hist_tbinfo(dbtag, tbname, day):
+    sql = "select time,round(avg(total),1) from (select date_format(update_time, '%Y-%m-%d') time, round(`TOTAL(M)`, 1) total \
+    from mon_tbsize_his where \
+    DBTAG = '" + dbtag + "' and TABLE_NAME = '" + tbname +"' and update_time > DATE_SUB(CURDATE(), INTERVAL %d DAY) ) b  group by b.time order by 1" % day
+    return mysql_query(sql, func.user, func.passwd, func.host, int(func.port), func.dbname)
+
+
+
+'''
+sql = "select * from mon_tbsize where DBTAG='" + dbtag + "' order by `TOTAL(M)` desc "
+'''

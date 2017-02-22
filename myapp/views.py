@@ -1347,12 +1347,50 @@ def pass_reset(request):
 
 
 # @ratelimit(key=func.my_key, rate='5/h')
-def test(request):
-    binlist=[]
-    insname = Db_instance.objects.get(id=int(request.GET['ins']))
-    datalist,col = meta.get_process_data(insname, 'show binary logs')
-    if col !=['error']:
-        for i in datalist:
-            binlist.append(i[0])
-    test = {'id':1,'name':datalist}
-    return JsonResponse(binlist)
+# def test(request):
+#     try:
+#         xaxis = []
+#         yaxis = []
+#         choosed_host = request.GET['dbtag']
+#         days_before = int(request.GET['day'])
+#         if days_before not in [7,15,30]:
+#             days_before = 7
+#         if choosed_host!='all':
+#             data_list, col = meta.get_hist_dbinfo(choosed_host,days_before)
+#         elif choosed_host == 'all':
+#             return JsonResponse({'xaxis': ['not support all'], 'yaxis': [1]})
+#         for i in data_list:
+#             xaxis.append(i[0])
+#             yaxis.append(i[1])
+#         mydata = {'xaxis':xaxis,'yaxis':yaxis}
+#     except Exception,e:
+#         print e
+#         mydata = {'xaxis': ['error'], 'yaxis': [1]}
+#     return JsonResponse(mydata)
+#
+#
+# def tb_inc_status(request):
+#     xaxis7 = []
+#     yaxis7 = []
+#     xaxis15 = []
+#     yaxis15 = []
+#     xaxis30 = []
+#     yaxis30 = []
+#     choosed_host = request.GET['dbtag']
+#     tbname = request.GET['tbname'].strip()
+#     print choosed_host
+#     print tbname
+#     print len(tbname)
+#     data_list7, col7 = meta.get_hist_tbinfo(choosed_host,tbname,7)
+#     data_list15,col15 = meta.get_hist_tbinfo(choosed_host,tbname,15)
+#     data_list30, col30 = meta.get_hist_tbinfo(choosed_host, tbname, 30)
+#     for i in data_list7:
+#         xaxis7.append(i[0])
+#         yaxis7.append(i[1])
+#     for i in data_list15:
+#         xaxis15.append(i[0])
+#         yaxis15.append(i[1])
+#     for i in data_list30:
+#         xaxis30.append(i[0])
+#         yaxis30.append(i[1])
+#     return JsonResponse({'xaxis7': xaxis7, 'yaxis7': yaxis7,'xaxis15': xaxis15, 'yaxis15': yaxis15,'xaxis30': xaxis30, 'yaxis30': yaxis30})

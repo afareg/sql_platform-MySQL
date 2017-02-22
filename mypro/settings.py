@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'captcha',
     'salt',
     'mongodb',
+    'chartapi',
     'djcelery',
     'myapp',
 ]

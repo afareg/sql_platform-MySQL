@@ -181,8 +181,6 @@
                     </table>
                 {% endif %}
 
-
-
                 {% if ind_data %}
                     <strong> <span style="color:red">INDEXES IN {{ dbname }}.{{ tbname }}:</span></strong>
                     <table id="tb" class="table table-condensed" border="1">
@@ -205,18 +203,20 @@
                         </tbody>
                     </table>
                 {% endif %}
+                <div class="row">
+                    <div class="col-xs-6 col-md-6 main">
+                        <div id="main" style="width: 100%;height:400px;"></div>
+                    </div>
+                    <div class="col-xs-6 col-md-6 main">
+                        <div id="main15" style="width: 100%;height:400px;"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-md-12 main">
+                        <div id="main30" style="width: 100%;height:400px;"></div>
+                    </div>
 
-
-
-
-
-
-
-
-
-
-
-
+                </div>
                 {% if data_list %}
                     <strong> <span style="color:red">TABLES IN {{ dbname }}:</span></strong>
                     {% include "include/pagejump/pagebutton.html" %}
@@ -235,7 +235,14 @@
                             <tr>
                                 <td>{{ forloop.counter }}</td>
                                 {% for item_detail in item %}
-                                    <td> {{ item_detail }}</td>
+                                    {% if forloop.counter == 1 %}
+                                        {#                                        <td> <a href="{% url 'tb_inc_status' %}?dbtag={{ choosed_host }}&tbname={{ item_detail }}">{{ item_detail }}</a></td>#}
+                                        <td class="tbstatus info">  <u>{{ item_detail }} </u> </td>
+
+                                    {% else %}
+                                        <td> {{ item_detail }}</td>
+                                    {% endif %}
+
                                 {% endfor %}
                                 <td><button type="submit" name='structure' value="{{ item.0 }}" class="btn btn-warning" >查看表结构</button></td>
                             </tr>
@@ -247,6 +254,7 @@
             </div>
 
         </form >
+
     </div>
 
 
@@ -254,6 +262,7 @@
 {% endblock %}
 {% block script %}
     {% include "include/pagejump/pagejump.html" %}
+    {#    {% include "include/pagejump/tabledata.html" %}#}
 
     <script>
 
@@ -277,5 +286,294 @@
             myfav =unescape(fav.value);
             fav.value = myfav;
         }
+    </script>
+    {##}
+    {#    <script>#}
+    {#        $(document).ready(function(){#}
+    {#            $('.tbstatus').click(function(){#}
+    {#                var dbtag ="{{ choosed_host }}";#}
+    {#                var tbname = $(this).text();#}
+    {##}
+    {#                $.getJSON("{% url 'tb_inc_status' %}",{'dbtag':dbtag,'tbname':tbname},function(ret){#}
+    {#                    $.each(ret,function(i,n){#}
+    {##}
+    {#                    })#}
+    {#                })#}
+    {#            })#}
+    {#        });#}
+    {#    </script>#}
+
+
+    {#    <script>#}
+    {#    7day status#}
+    {#        $(document).ready(function(){#}
+    {#            $('#main').hide();#}
+    {#            $('.tbstatus').click(function(){#}
+    {#                $('#main').show();#}
+    {#                var dbtag = "{{ choosed_host }}";#}
+    {#                var tbname = $(this).text();#}
+    {#                var myChart = echarts.init(document.getElementById('main'));#}
+    {#                // 显示标题，图例和空的坐标轴#}
+    {#                myChart.setOption({#}
+    {#                    title: {#}
+    {#                        text: '',#}
+    {#                        left:'10%'#}
+    {#                    },#}
+    {#                    tooltip: {},#}
+    {#                    legend: {#}
+    {#                        data:['表占用空间(MB)'],#}
+    {#                        right:'10%'#}
+    {#                    },#}
+    {#                    xAxis: {#}
+    {#                        data: []#}
+    {#                    },#}
+    {#                    yAxis: {},#}
+    {#                    series: [{#}
+    {#                        name: '表占用空间(MB)',#}
+    {#                        type: 'bar',#}
+    {#                        data: []#}
+    {#                    }]#}
+    {#                });#}
+    {#                $.get("{% url 'tb_inc_status' %}",{'dbtag':dbtag,'tbname':tbname}).done(function (data) {#}
+    {#                    // 填入数据#}
+    {#                    myChart.setOption({#}
+    {#                        title: {#}
+    {#                            text: dbtag+'.'+tbname#}
+    {#                        },#}
+    {#                        xAxis: {#}
+    {#                            data: data.xaxis#}
+    {#                        },#}
+    {#                        series: [{#}
+    {#                            // 根据名字对应到相应的系列#}
+    {#                            name: '表占用空间(MB)',#}
+    {#                            type: 'bar',#}
+    {#                            itemStyle: {#}
+    {#                                normal: {#}
+    {#                                    color: new echarts.graphic.LinearGradient(#}
+    {#                                            0, 0, 0, 1,#}
+    {#                                            [#}
+    {#                                                {offset: 0, color: '#83bff6'},#}
+    {#                                                {offset: 0.5, color: '#188df0'},#}
+    {#                                                {offset: 1, color: '#188df0'}#}
+    {#                                            ]#}
+    {#                                    )#}
+    {#                                },#}
+    {#                                emphasis: {#}
+    {#                                    color: new echarts.graphic.LinearGradient(#}
+    {#                                            0, 0, 0, 1,#}
+    {#                                            [#}
+    {#                                                {offset: 0, color: '#2378f7'},#}
+    {#                                                {offset: 0.7, color: '#2378f7'},#}
+    {#                                                {offset: 1, color: '#83bff6'}#}
+    {#                                            ]#}
+    {#                                    )#}
+    {#                                }#}
+    {#                            },#}
+    {#                            data: data.yaxis#}
+    {#                        }]#}
+    {#                    });#}
+    {#                });#}
+    {#            })#}
+    {#        });#}
+    {#    </script>#}
+
+
+    {#    30day status#}
+    <script>
+        $(document).ready(function(){
+            $('#main').hide();
+            $('#main15').hide();
+            $('#main30').hide();
+            $('.tbstatus').click(function(){
+                $('#main').show();
+                $('#main15').show();
+                $('#main30').show();
+                var dbtag = "{{ choosed_host }}";
+                var tbname = $(this).text();
+                var myChart = echarts.init(document.getElementById('main'));
+                var myChart15 = echarts.init(document.getElementById('main15'));
+                var myChart30 = echarts.init(document.getElementById('main30'));
+                // 显示标题，图例和空的坐标轴
+                myChart.setOption({
+                    title: {
+                        text: '',
+                        left:'5%'
+                    },
+                    tooltip: {},
+                    legend: {
+                        data:['表占用空间(MB)'],
+                        right:'10%'
+                    },
+                    xAxis: {
+                        data: []
+                    },
+                    yAxis: {},
+                    series: [{
+                        name: '表占用空间(MB)',
+                        type: 'bar',
+                        data: []
+                    }]
+                });
+
+                myChart15.setOption({
+                    title: {
+                        text: '',
+                        left:'10%'
+                    },
+                    tooltip: {},
+                    legend: {
+                        data:['表占用空间(MB)'],
+                        right:'10%'
+                    },
+                    xAxis: {
+                        data: []
+                    },
+                    yAxis: {},
+                    series: [{
+                        name: '表占用空间(MB)',
+                        type: 'bar',
+                        data: []
+                    }]
+                });
+
+                myChart30.setOption({
+                    title: {
+                        text: '',
+                        left:'10%'
+                    },
+                    tooltip: {},
+                    legend: {
+                        data:['表占用空间(MB)'],
+                        right:'10%'
+                    },
+                    xAxis: {
+                        data: []
+                    },
+                    yAxis: {},
+                    series: [{
+                        name: '表占用空间(MB)',
+                        type: 'bar',
+                        data: []
+                    }]
+                });
+
+                $.get("{% url 'tb_inc_status' %}",{'dbtag':dbtag,'tbname':tbname}).done(function (data) {
+                    // 填入数据
+                    myChart.setOption({
+                        title: {
+                            text:  dbtag+'.'+tbname
+                        },
+                        xAxis: {
+                            data: data.xaxis7
+                        },
+                        series: [{
+                            // 根据名字对应到相应的系列
+                            name: '表占用空间(MB)',
+                            type: 'bar',
+                            itemStyle: {
+                                normal: {
+                                    color: new echarts.graphic.LinearGradient(
+                                            0, 0, 0, 1,
+                                            [
+                                                {offset: 0, color: '#ffd306'},
+                                                {offset: 0.5, color: '#ffffaa'},
+                                                {offset: 1, color: '#ffffaa'}
+                                            ]
+                                    )
+                                },
+{#                                emphasis: {#}
+{#                                    color: new echarts.graphic.LinearGradient(#}
+{#                                            0, 0, 0, 1,#}
+{#                                            [#}
+{#                                                {offset: 0, color: '#2378f7'},#}
+{#                                                {offset: 0.7, color: '#2378f7'},#}
+{#                                                {offset: 1, color: '#83bff6'}#}
+{#                                            ]#}
+{#                                    )#}
+{#                                }#}
+                            },
+                            data: data.yaxis7
+                        }]
+                    });
+
+
+                    myChart15.setOption({
+                        title: {
+                            text: tbname + 'in last 15 days '
+                        },
+                        xAxis: {
+                            data: data.xaxis15
+                        },
+                        series: [{
+                            // 根据名字对应到相应的系列
+                            name: '表占用空间(MB)',
+                            type: 'bar',
+                            itemStyle: {
+                                normal: {
+                                    color: new echarts.graphic.LinearGradient(
+                                            0, 0, 0, 1,
+                                            [
+                                                {offset: 0, color: '#83bff6'},
+                                                {offset: 0.5, color: '#188df0'},
+                                                {offset: 1, color: '#188df0'}
+                                            ]
+                                    )
+                                },
+                                emphasis: {
+                                    color: new echarts.graphic.LinearGradient(
+                                            0, 0, 0, 1,
+                                            [
+                                                {offset: 0, color: '#2378f7'},
+                                                {offset: 0.7, color: '#2378f7'},
+                                                {offset: 1, color: '#83bff6'}
+                                            ]
+                                    )
+                                }
+                            },
+                            data: data.yaxis15
+                        }]
+                    });
+
+                    myChart30.setOption({
+                        title: {
+                            text: tbname + 'in last 30 days '
+                        },
+                        xAxis: {
+                            data: data.xaxis30
+                        },
+                        series: [{
+                            // 根据名字对应到相应的系列
+                            name: '表占用空间(MB)',
+                            type: 'bar',
+                            itemStyle: {
+                                normal: {
+                                    color: new echarts.graphic.LinearGradient(
+                                            0, 0, 0, 1,
+                                            [
+                                                {offset: 0, color: '#b15bff'},
+                                                {offset: 0.5, color: '#d3a4ff'},
+                                                {offset: 1, color: '#d3a4ff'}
+                                            ]
+                                    )
+                                },
+{#                                emphasis: {#}
+{#                                    color: new echarts.graphic.LinearGradient(#}
+{#                                            0, 0, 0, 1,#}
+{#                                            [#}
+{#                                                {offset: 0, color: '#2378f7'},#}
+{#                                                {offset: 0.7, color: '#2378f7'},#}
+{#                                                {offset: 1, color: '#83bff6'}#}
+{#                                            ]#}
+{#                                    )#}
+{#                                }#}
+                            },
+                            data: data.yaxis30
+                        }]
+                    });
+
+
+                });
+            })
+        });
     </script>
 {% endblock %}

@@ -101,6 +101,7 @@
         </div>
     </div>
 
+{#    <button id="dict"  class="btn btn-success" value="1">test</button >#}
 
 
 {% endblock %}
@@ -114,22 +115,18 @@
             minDate:"2014-09-19 00:00:00",
             okfun:function(val){alert(val)}
         })
-
-        {#        $(document).ready(function(){#}
-        {#            var test = $("#ins").val()#}
-        {#            alert(test)#}
-        {#            // 字典 dict#}
-        {#            $('#dict').click(function(){#}
-        {#                var ins = $("#ins").val()#}
-        {#                var time = $("#id_sche_time").val()#}
-        {#                alert(time)#}
-        {#                $.getJSON("{% url 'test' %}",{'ins':ins,'time':time},function(ret){#}
-        {#                    //返回值 ret 在这里是一个字典#}
-        {#                    $.each(ret,function(i,n){#}
-        {#                        alert(n);#}
-        {#                    })#}
-        {#                })#}
-        {#            })#}
-        {#        });#}
     </script>
+    {#    <script>#}
+    {#        $(document).ready(function(){#}
+    {##}
+    {#            $('#dict').click(function(){#}
+    {#                var dbtag = $('#ins').val()#}
+    {#                $.getJSON("{% url 'test' %}",{'dbtag':dbtag},function(ret){#}
+    {#                    $.each(ret,function(i,n){#}
+    {#                        alert(n);#}
+    {#                    })#}
+    {#                })#}
+    {#            })#}
+    {#        });#}
+    {#    </script>#}
 {% endblock %}
