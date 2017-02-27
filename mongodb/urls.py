@@ -7,4 +7,5 @@ urlpatterns = patterns(
     # url(r'^$', 'oms.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
     url(r'^query/$', 'mongodb_query', name='mongodb_query'),
+    url(r'^map/$', 'map', name='map'),
 )

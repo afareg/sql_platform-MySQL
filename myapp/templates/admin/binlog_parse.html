@@ -77,19 +77,44 @@
                                 {% endif %}
                             </td>
                             <td>
-                                CHOOSE BEGINTIME:</br>
+                                CHOOSE BEGIN_TIME:</br>
                                 {% if begintime %}
-                                    <input type=="text" id="id_begin_time" value="{{ begintime }}" class="form-control" maxlength="30" name="begin_time">
+                                    <input type=="text" id="id_begin_time"  value="{{ begintime }}" class="form-control" maxlength="30" name="begin_time">
                                 {% else %}
-                                    <input type=="text" id="id_begin_time" class="form-control" maxlength="30" name="begin_time">
+                                    <input type=="text" id="id_begin_time"  class="form-control" maxlength="30" name="begin_time">
 
                                 {% endif %}
+                            </td>
+                            <td>
+                                CHOOSE 解析条数:</br>
+                                <select class="form-control col-md-3" name = "countnum">
+                                    {% if countnum == 10 %}
+                                        <option selected="selected" value =10 >10</option>
+
+                                    {% else %}
+                                        <option value =10 >10</option>
+                                    {% endif %}
+                                    {% if countnum == 50 %}
+                                        <option selected="selected" value =50 >50</option>
+
+                                    {% else %}
+                                        <option value =50 >50</option>
+                                    {% endif %}
+
+                                    {% if countnum == 200 %}
+                                        <option selected="selected" value =200 >200</option>
+
+                                    {% else %}
+                                        <option value =200 >200</option>
+                                    {% endif %}
+
+                                </select>
                             </td>
                         <tr>
                     </table>
                 {% endif %}
                 {% if binlist %}
-                    <button name="parse"  class="btn btn-success" value="1">PARSE BINLOG</button >
+                    <button id="parse_binlog" name="parse" onclick="return checknum()" class="btn btn-success" value="1">PARSE BINLOG</button >
                 {% endif %}
             </div>
 
@@ -101,21 +126,38 @@
         </div>
     </div>
 
-{#    <button id="dict"  class="btn btn-success" value="1">test</button >#}
+    {#    <button id="dict"  class="btn btn-success" value="1">test</button >#}
 
 
 {% endblock %}
 {% block script %}
-    <script>
-        jeDate({
-            dateCell:"#id_begin_time",
-            format:"YYYY-MM-DD hh:mm:ss",
-            isinitVal:true,
-            isTime:true, //isClear:false,
-            minDate:"2014-09-19 00:00:00",
-            okfun:function(val){alert(val)}
-        })
-    </script>
+{#    <script>#}
+{#        function checknum() {#}
+{#            var num = document.getElementById('id_begin_pos').value;#}
+{#            if (num) {#}
+{#                if (!isNaN(num)) {#}
+{#                    return true;#}
+{#                }#}
+{#                else {#}
+{#                    alert('请输入正确的POS(数字)');#}
+{#                    return false;#}
+{#                }#}
+{#            }#}
+{#        }#}
+{##}
+{#    </script>#}
+
+        <script>
+            jeDate({
+                dateCell:"#id_begin_time",
+                format:"YYYY-MM-DD hh:mm:ss",
+                isinitVal:true,
+                isTime:true, //isClear:false,
+                minDate:"2014-09-19 00:00:00",
+                okfun:function(val){alert(val)}
+            })
+        </script>
+
     {#    <script>#}
     {#        $(document).ready(function(){#}
     {##}

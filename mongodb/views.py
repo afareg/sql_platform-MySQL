@@ -61,3 +61,8 @@ def mongodb_query(request):
     else:
         form = AddForm()
         return render(request, 'mongodb_query.html', locals())
+
+
+def map(request):
+    mysrc = "http://api.map.baidu.com/api?v=2.0&ak=zhskfLsPCGPrPQvGb2WsL2mGZsfGO9XT&callback=initialize"
+    return render(request, 'map.html', locals())

@@ -34,7 +34,7 @@ def process_runtask(hosttag,sqltext,mytask):
     sendmail_task.delay(mytask)
 
 @task
-def parse_binlog(insname,binname,begintime,tbname,dbselected,username):
+def parse_binlog(insname,binname,begintime,tbname,dbselected,username,countnum):
     flag = True
     for a in insname.db_name_set.all():
         for i in a.db_account_set.all():
@@ -49,7 +49,7 @@ def parse_binlog(insname,binname,begintime,tbname,dbselected,username):
     binlogsql = binlog2sql.Binlog2sql(connectionSettings=connectionSettings, startFile=binname,
                                       startPos=4, endFile='', endPos=0,
                                       startTime=begintime, stopTime='', only_schemas=dbselected,
-                                      only_tables=tbname, nopk=False, flashback=False, stopnever=False)
+                                      only_tables=tbname, nopk=False, flashback=False, stopnever=False,countnum=countnum)
     binlogsql.process_binlog()
     sqllist = binlogsql.sqllist
     sendmail_sqlparse.delay(username, dbselected, tbname, sqllist)

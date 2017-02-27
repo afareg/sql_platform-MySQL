@@ -1318,10 +1318,14 @@ def mysql_binlog_parse(request):
                 return render(request, 'admin/binlog_parse.html', locals())
             elif request.POST.has_key('parse'):
                 binname = request.POST['binary_list']
+                countnum = int(request.POST['countnum'])
+                if countnum not in [10,50,200]:
+                    countnum = 10
+                # print countnum
                 begintime = request.POST['begin_time']
                 tbname = request.POST['tbname']
                 dbselected = request.POST['dblist']
-                parse_binlog.delay(insname, binname, begintime, tbname, dbselected,request.user.username)
+                parse_binlog.delay(insname, binname, begintime, tbname, dbselected,request.user.username,countnum)
                 info = "Binlog Parse mission uploaded"
         except Exception,e:
             pass

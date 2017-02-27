@@ -21,8 +21,59 @@
             <button id="id_button" type="submit" name='set' onclick="return checkPass();"  class="btn btn-danger" >重置</button>
         </div>
     </form>
-
-
+{#    <div class="col-md-11">#}
+{#        <div id="map" style="width:1000px;height:500px"></div>#}
+{#    </div>#}
+{#    <script  src="http://api.map.baidu.com/api?v=2.0&ak=zhskfLsPCGPrPQvGb2WsL2mGZsfGO9XT&callback=initialize"></script>#}
+{#    <script type="text/javascript">#}
+{#        function getLocation(){#}
+{#            var options={#}
+{#                enableHighAccuracy:true,#}
+{#                maximumAge:1000#}
+{#            }#}
+{#            if(navigator.geolocation){#}
+{#                //浏览器支持geolocation#}
+{#                navigator.geolocation.getCurrentPosition(onSuccess,onError,options);#}
+{##}
+{#            }else{#}
+{#                //浏览器不支持geolocation#}
+{#                alert("not support");#}
+{#            }#}
+{#        }#}
+{##}
+{#        function onSuccess(position) {#}
+{#            var longitude =position.coords.longitude;#}
+{#            var latitude = position.coords.latitude;#}
+{#            var mp = new BMap.Map('map');#}
+{#            mp.centerAndZoom(new BMap.Point(longitude, latitude), 14);#}
+{#            mp.enableScrollWheelZoom();#}
+{#            mp.addControl(new BMap.NavigationControl());#}
+{#            mp.addControl(new BMap.ScaleControl());#}
+{#            mp.addControl(new BMap.OverviewMapControl());#}
+{#            mp.addControl(new BMap.MapTypeControl());#}
+{#        }#}
+{#        function onError(error){#}
+{#            switch(error.code){#}
+{#                case 1:#}
+{#                    alert("位置服务被拒绝");#}
+{#                    break;#}
+{##}
+{#                case 2:#}
+{#                    alert("暂时获取不到位置信息");#}
+{#                    break;#}
+{##}
+{#                case 3:#}
+{#                    alert("获取信息超时");#}
+{#                    break;#}
+{##}
+{#                case 4:#}
+{#                    alert("未知错误");#}
+{#                    break;#}
+{#            }#}
+{##}
+{#        }#}
+{#        window.onload = getLocation;#}
+{#    </script>#}
 
 
     <script>

@@ -16,13 +16,13 @@ from pymysqlreplication.event import QueryEvent, RotateEvent, FormatDescriptionE
 class Binlog2sql(object):
 
     def __init__(self, connectionSettings, startFile=None, startPos=None, endFile=None, endPos=None, startTime=None,
-                 stopTime=None, only_schemas=None, only_tables=None, nopk=False, flashback=False, stopnever=False):
+                 stopTime=None, only_schemas=None, only_tables=None, nopk=False, flashback=False, stopnever=False,countnum=10):
         '''
         connectionSettings: {'host': 127.0.0.1, 'port': 3306, 'user': slave, 'passwd': slave}
         '''
         if not startFile:
             raise ValueError('lack of parameter,startFile.')
-
+        self.countnum = countnum
         self.connectionSettings = connectionSettings
         self.startFile = startFile
         self.startPos = startPos if startPos else 4 # use binlog v4
@@ -70,7 +70,7 @@ class Binlog2sql(object):
         try:
             count=0
             for binlogevent in stream:
-                if count>=200:
+                if count>=self.countnum:
                     break
                 if not self.stopnever:
                     if (stream.log_file == self.endFile and stream.log_pos == self.endPos) or (stream.log_file == self.eofFile and stream.log_pos == self.eofPos):
@@ -91,6 +91,7 @@ class Binlog2sql(object):
                     sql = concat_sql_from_binlogevent(cursor=cur, binlogevent=binlogevent, flashback=self.flashback, nopk=self.nopk)
                     if sql:
                         count = count + 1
+                        self.sqllist.append(sql)
                         pass
                         # print sql
                 elif isinstance(binlogevent, WriteRowsEvent) or isinstance(binlogevent, UpdateRowsEvent) or isinstance(binlogevent, DeleteRowsEvent):
