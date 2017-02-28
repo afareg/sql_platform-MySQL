@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import login_required,permission_required
 from django.contrib.auth.models import User,Permission,ContentType,Group
 from myapp.include import function as func,inception as incept,chart,pri,meta,sqlfilter
 from myapp.models import Db_group,Db_name,Db_account,Db_instance,Oper_log,Upload,Task
-from myapp.tasks import task_run,sendmail_task,parse_binlog
+from myapp.tasks import task_run,sendmail_task,parse_binlog,parse_binlogfirst
 
 
 from django.core.files import File
@@ -1325,8 +1325,21 @@ def mysql_binlog_parse(request):
                 begintime = request.POST['begin_time']
                 tbname = request.POST['tbname']
                 dbselected = request.POST['dblist']
-                parse_binlog.delay(insname, binname, begintime, tbname, dbselected,request.user.username,countnum)
-                info = "Binlog Parse mission uploaded"
+                parse_binlog.delay(insname, binname, begintime, tbname, dbselected,request.user.username,countnum,False)
+                info = "Binlog REDO Parse mission uploaded"
+            elif request.POST.has_key('parse_first'):
+                binname = request.POST['binary_list']
+                sqllist = parse_binlogfirst(insname, binname, 5)
+            elif request.POST.has_key('parse_undo'):
+                binname = request.POST['binary_list']
+                countnum = int(request.POST['countnum'])
+                if countnum not in [10, 50, 200]:
+                    countnum = 10
+                begintime = request.POST['begin_time']
+                tbname = request.POST['tbname']
+                dbselected = request.POST['dblist']
+                parse_binlog.delay(insname, binname, begintime, tbname, dbselected, request.user.username, countnum,True)
+                info = "Binlog UNDO Parse mission uploaded"
         except Exception,e:
             pass
         return render(request, 'admin/binlog_parse.html', locals())

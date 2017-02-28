@@ -92,7 +92,7 @@ class Binlog2sql(object):
                     if sql:
                         count = count + 1
                         self.sqllist.append(sql)
-                        pass
+                        # pass
                         # print sql
                 elif isinstance(binlogevent, WriteRowsEvent) or isinstance(binlogevent, UpdateRowsEvent) or isinstance(binlogevent, DeleteRowsEvent):
                     for row in binlogevent.rows:
@@ -100,9 +100,8 @@ class Binlog2sql(object):
                         if self.flashback:
                             ftmp.write(sql + '\n')
                         else:
-                            pass
                             # print sql
-                        self.sqllist.append(sql)
+                            self.sqllist.append(sql)
                         count = count +1
 
                 if not (isinstance(binlogevent, RotateEvent) or isinstance(binlogevent, FormatDescriptionEvent)):
@@ -113,7 +112,7 @@ class Binlog2sql(object):
             if self.flashback:
                 with open(tmpFile) as ftmp:
                     for line in reversed_lines(ftmp):
-                        print line.rstrip()
+                        self.sqllist.append(line.rstrip())
         finally:
             os.remove(tmpFile)
         cur.close()

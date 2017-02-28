@@ -34,7 +34,7 @@ def process_runtask(hosttag,sqltext,mytask):
     sendmail_task.delay(mytask)
 
 @task
-def parse_binlog(insname,binname,begintime,tbname,dbselected,username,countnum):
+def parse_binlog(insname,binname,begintime,tbname,dbselected,username,countnum,flash_back):
     flag = True
     for a in insname.db_name_set.all():
         for i in a.db_account_set.all():
@@ -49,15 +49,39 @@ def parse_binlog(insname,binname,begintime,tbname,dbselected,username,countnum):
     binlogsql = binlog2sql.Binlog2sql(connectionSettings=connectionSettings, startFile=binname,
                                       startPos=4, endFile='', endPos=0,
                                       startTime=begintime, stopTime='', only_schemas=dbselected,
-                                      only_tables=tbname, nopk=False, flashback=False, stopnever=False,countnum=countnum)
+                                      only_tables=tbname, nopk=False, flashback=flash_back, stopnever=False,countnum=countnum)
     binlogsql.process_binlog()
     sqllist = binlogsql.sqllist
-    sendmail_sqlparse.delay(username, dbselected, tbname, sqllist)
+    sendmail_sqlparse.delay(username, dbselected, tbname, sqllist,flash_back)
+
+
+def parse_binlogfirst(insname,binname,countnum):
+    flag = True
+    for a in insname.db_name_set.all():
+        for i in a.db_account_set.all():
+            if i.role == 'admin':
+                tar_username = i.user
+                tar_passwd = i.passwd
+                flag = False
+                break
+        if flag == False:
+            break
+    connectionSettings = {'host': insname.ip, 'port': int(insname.port), 'user': tar_username, 'passwd': tar_passwd}
+    binlogsql = binlog2sql.Binlog2sql(connectionSettings=connectionSettings, startFile=binname,
+                                      startPos=4, endFile='', endPos=0,
+                                      startTime='', stopTime='', only_schemas='',
+                                      only_tables='', nopk=False, flashback=False, stopnever=False,countnum=countnum)
+    binlogsql.process_binlog()
+    sqllist = binlogsql.sqllist
+    return sqllist
 
 @task
-def sendmail_sqlparse(user,db,tb,sqllist):
+def sendmail_sqlparse(user,db,tb,sqllist,flashback):
     mailto=[]
-    title = "BINLOG PARSE FOR "+ db + "." + tb
+    if flashback==True:
+        title = "BINLOG PARSE (UNDO) FOR "+ db + "." + tb
+    else:
+        title = "BINLOG PARSE (REDO) FOR " + db + "." + tb
     mailto.append(User.objects.get(username=user).email)
     html_content = loader.render_to_string('include/mail_template.html', locals())
     sendmail(title, mailto, html_content)
