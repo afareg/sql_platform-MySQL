@@ -131,6 +131,7 @@ class Task(models.Model):
     sqlsha =  models.TextField()
     sche_time = models.DateTimeField(db_index=True,default='2199-01-01 00:00:00')
     specification = models.CharField(max_length=100,default='')
+    operator = models.CharField(max_length=35, default='')
     def __unicode__(self):
         return self.dbtag
 

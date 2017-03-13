@@ -240,6 +240,7 @@ def task_check(idnum,request):
                     str = str+row[5]+row[10]+'^^'
             task.sqlsha = str
         task.status = status
+        task.operator = request.user.username
         task.update_time = datetime.datetime.now()
         task.save()
         return results,col,dbname

@@ -169,7 +169,8 @@
             <thead>
             <tr class="danger">
                 <th>ID</th>
-                <th>USER</th>
+                <th>提交人</th>
+                <th>执行人</th>
                 <th>DBTAG</th>
                 <th>SQL语句</th>
                 <th>创建时间</th>
@@ -194,6 +195,7 @@
 
                     <td>{{ item.id }} <input type="checkbox" size="100" name="choosedlist" value={{ item.id }}>  </td>
                     <td> {{ item.user }}</td>
+                    <td>{{ item.operator }}</td>
                     <td> {{ item.dbtag }}</td>
                     <td> {{ item.sqltext|truncatechars:100|linebreaks }}</td>
                     {#                    <td><input type=="text" class="form-control" name="accountname" value="{{ item.sqltext }}"></td>#}

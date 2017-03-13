@@ -137,6 +137,7 @@ def task_run(idnum,request):
         incept.log_incep_op(sql,hosttag,request,mycreatetime)
         status='running'
         task.status = status
+        task.operator  = request.user.username
         task.update_time = datetime.datetime.now()
         task.save()
         process_runtask.delay(hosttag,sql,task)
