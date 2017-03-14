@@ -4,12 +4,13 @@
 ## 功能简述如下
 #### --MySQL 表结构查询功能
 #### --MySQL 语句查询页面
+#### --支持SQLADVISOR(https://github.com/Meituan-Dianping/SQLAdvisor)
 #### --MySQL DDL DML语句执行
 #### --MySQL DDL DML 任务提交(结合inception)
 #### --Inception 任务管理（包括任务修改，任务导出，定时执行，任务终止，任务结果状态查询，任务邮件提示等）
 #### --MySQL 实例 部分状态查询
 #### --MySQL 表相关元数据收集与展示
-#### --Binlog解析功能
+#### --Binlog解析功能(https://github.com/danfengcao/binlog2sql)
 #### --Mongodb简单查询
 #### --用户权限分离系统
 #### --saltstack api（key管理、远程shell、硬件信息）
@@ -66,12 +67,19 @@ incp_user=""
 incp_passwd=""
 
 public_user="public"
+
+sqladvisor_switch = 1
+
+sqladvisor = '/usr/sbin/sqladvisor'
 ##### 说明:
 
 select_limit 和 export_limit为系统默认查询和导出条数限制
 
 incp_XX系列配置文件为inception的连接配置
 
+sqladvisor_switch设置为0时不启用sqladvisor
+
+设置sqladvisor地址和sqladvisor_switch为1启用sqladvisor
 #### setttings.py中的修改内容主要为mysql、redis地址，以及邮件服务器相关地址，如果使用saltapi功能的话还有一些salt相关的信息需要配置
 ### 启动：
 #### 初始化表结构： python manage.py migrate
