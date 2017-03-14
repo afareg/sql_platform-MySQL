@@ -154,8 +154,13 @@ def mysql_query(request):
                     # donot show wrong message sql
                     if a == func.wrong_msg:
                         del a
-                    print choosed_host
+                    # print choosed_host
                     return render(request, 'mysql_query.html', locals())
+                elif request.POST.has_key('sqladvice'):
+
+                    advice = func.get_advice(choosed_host, a, request)
+                    return render(request, 'mysql_query.html', locals())
+
                 return render(request, 'mysql_query.html', locals())
 
             except Exception,e:

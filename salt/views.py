@@ -121,3 +121,7 @@ def key_con(request):
         return render(request, 'key_manager.html', locals())
 
     return  render(request,'key_manager.html',locals())
+
+
+def hist_salt(request):
+    return render(request, 'hist_task.html', locals())

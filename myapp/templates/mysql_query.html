@@ -7,10 +7,11 @@
 {% endblock %}
 {%block content%}
     <div id="wrapper">
-        <form role="form" method='post'>
-            {% csrf_token %}
-            {% include "include/sidebar.html" %}
-            <div id="page-content-wrapper">
+
+        {% include "include/sidebar.html" %}
+        <div id="page-content-wrapper">
+            <form role="form" method='post'>
+                {% csrf_token %}
                 <table >
                     <tr>
                         <td>
@@ -62,6 +63,9 @@
                             {% if perms.myapp.can_export %}
                                 <button type="submit" name='export' class="btn btn-warning" value="1">导出CSV</button>
                             {% endif %}
+                            <button type="submit" name='sqladvice' class="btn btn-danger" value="1">查询sqladvisor</button>
+
+
                         </td>
                         <td>
 
@@ -83,42 +87,52 @@
                     </tr>
                 </table>
 
-                {% if collist %}
-                    <table  class="table table-condensed" border="1">
-                        <tr class="danger">
-                            QUERY IN:{{ dbname }}
-                        </tr>
-                        <tr>
-                            {% if a %}
-                                {#                                {{ a|linebreaks }}#}
-                                {{ a|truncatechars:100|linebreaks }}
-                            {% endif %}
-                        </tr>
-                    </table>
-                    {#                    {% include "include/pagejump/pagebutton.html" %}#}
+            </form >
+            {% if advice %}
+                <table>
+                 <th>SQLADVICE </th>
+                    <tr>
+                        <td>
+                        <pre>  {{ advice|linebreaksbr }}</pre>
+                    </td>
+                    </tr>
+                </table>
+            {% endif %}
+            {% if collist %}
+                <table  class="table table-condensed" border="1">
+                    <tr class="danger">
+                        QUERY IN:{{ dbname }}
+                    </tr>
+                    <tr>
+                        {% if a %}
+                            {#                                {{ a|linebreaks }}#}
+                            {{ a|truncatechars:100|linebreaks }}
+                        {% endif %}
+                    </tr>
+                </table>
+                {#                    {% include "include/pagejump/pagebutton.html" %}#}
 
-                    <table id="mytable" class="table table-condensed" border="1">
-                        <thead>
-                        <tr class="danger">
-                            {% for colname in collist %}
-                                <th>{{ colname }}</th>
+                <table id="mytable" class="table table-condensed" border="1">
+                    <thead>
+                    <tr class="danger">
+                        {% for colname in collist %}
+                            <th>{{ colname }}</th>
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    <tbody  >
+                    {% for item in data_list %}
+                        <tr>
+                            {% for item_detail in item %}
+                                <td> <pre>{{ item_detail }}</pre></td>
                             {% endfor %}
                         </tr>
-                        </thead>
-                        <tbody  >
-                        {% for item in data_list %}
-                            <tr>
-                                {% for item_detail in item %}
-                                    <td> <pre>{{ item_detail }}</pre></td>
-                                {% endfor %}
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                {% endif %}
-            </div>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
 
-        </form >
     </div>
 
 

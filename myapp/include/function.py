@@ -1,6 +1,6 @@
 #!/bin/env python
 #-*-coding:utf-8-*-
-import MySQLdb,sys,string,time,datetime,uuid
+import MySQLdb,sys,string,time,datetime,uuid,commands
 from django.contrib.auth.models import User,Permission,ContentType,Group
 from myapp.models import Db_name,Db_account,Db_instance,Oper_log,Login_log,Db_group
 from myapp.form import LoginForm,Captcha
@@ -53,6 +53,8 @@ select_limit = int(config.select_limit)
 export_limit = int(config.export_limit)
 wrong_msg = config.wrong_msg
 public_user = config.public_user
+sqladvisor = config.sqladvisor
+advisor_switch = config.sqladvisor_switch
 
 #
 # exceptlist = ["'","`","\""]
@@ -280,6 +282,50 @@ def get_op_type(methods='get'):
     op_list=['all','incept','truncate','drop','create','delete','update','replace','insert','select','explain','alter','rename','show']
     if (methods=='get'):
         return op_list
+
+def get_advice(hosttag, sql, request):
+    if advisor_switch!=0:
+        # 确认dbname
+        a = Db_name.objects.filter(dbtag=hosttag)[0]
+        # a = Db_name.objects.get(dbtag=hosttag)
+        tar_dbname = a.dbname
+        # 如果instance中有备库role='read'，则选择从备库读取
+        try:
+            if a.instance.all().filter(role='read')[0]:
+                tar_host = a.instance.all().filter(role='read')[0].ip
+                tar_port = a.instance.all().filter(role='read')[0].port
+        # 如果没有设置或没有role=read，则选择第一个读到的all实例读取
+        except Exception, e:
+            tar_host = a.instance.filter(role='all')[0].ip
+            tar_port = a.instance.filter(role='all')[0].port
+            # tar_host = a.instance.all()[0].ip
+            # tar_port = a.instance.all()[0].port
+        for i in a.db_account_set.all():
+            if i.role != 'write' and i.role != 'admin':
+                # find the specified account for the user
+                if i.account.all().filter(username=request.user.username):
+                    tar_username = i.user
+                    tar_passwd = i.passwd
+                    break
+        # not find specified account for the user ,specified the public account to the user
+        if not vars().has_key('tar_username'):
+            for i in a.db_account_set.all():
+                if i.role != 'write' and i.role != 'admin':
+                    # find the specified account for the user
+                    if i.account.all().filter(username=public_user):
+                        tar_username = i.user
+                        tar_passwd = i.passwd
+                        break
+        # print tar_port+tar_passwd+tar_username+tar_host
+        sql=sql.replace('"','\\"').replace('`', '\`')[:-1]
+        cmd = sqladvisor+ ' -u %s -p %s -P %d -h %s -d %s -v 1 -q "%s"' %(tar_username,tar_passwd,int(tar_port),tar_host,tar_dbname,sql)
+        status,results = commands.getstatusoutput(cmd)
+        results = results.replace('\xc0',' ').replace('\xbf',' ')
+        # print results
+    else:
+        results = 'sqladvisor not configured yet.'
+    return results
+
 
 def get_mysql_data(hosttag,sql,useraccount,request,limitnum):
     #确认dbname
