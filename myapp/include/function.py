@@ -319,9 +319,20 @@ def get_advice(hosttag, sql, request):
         # print tar_port+tar_passwd+tar_username+tar_host
         sql=sql.replace('"','\\"').replace('`', '\`')[:-1]
         cmd = sqladvisor+ ' -u %s -p %s -P %d -h %s -d %s -v 1 -q "%s"' %(tar_username,tar_passwd,int(tar_port),tar_host,tar_dbname,sql)
-        status,results = commands.getstatusoutput(cmd)
-        results = results.replace('\xc0',' ').replace('\xbf',' ')
-        # print results
+        # print cmd
+        status,result_tmp = commands.getstatusoutput(cmd)
+        # print result_tmp
+        result_list = result_tmp.split('\n')
+        results=''
+        for i in result_list:
+            try:
+                unicode(i, 'utf-8')
+                results=results+'\n'+i
+            except Exception,e:
+                pass
+
+        # results = results.replace('\xc0',' ').replace('\xbf',' ')
+        print results
     else:
         results = 'sqladvisor not configured yet.'
     return results

@@ -124,4 +124,6 @@ def key_con(request):
 
 
 def hist_salt(request):
+
+
     return render(request, 'hist_task.html', locals())
